@@ -1,4 +1,7 @@
 { pkgs, ... }:
+let
+  codex = pkgs.unstable.codex;
+in
 {
   imports = [
     ./programs/neovim.nix
