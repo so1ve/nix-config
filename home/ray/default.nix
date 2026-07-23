@@ -7,6 +7,7 @@ in
     ./programs/firefox.nix
     ./programs/git.nix
     ./programs/neovim.nix
+    ./programs/shells.nix
   ];
 
   home = {
