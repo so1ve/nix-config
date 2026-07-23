@@ -10,13 +10,18 @@
 
     stateVersion = "26.05";
 
-    packages = with pkgs; [
-      kdePackages.kate
+    packages =
+      with pkgs;
+      [
+        kdePackages.kate
 
-      ripgrep
-      fd
-      btop
-    ];
+        ripgrep
+        fd
+        btop
+      ]
+      ++ [
+        codex
+      ];
 
     sessionVariables = {
       EDITOR = "nvim";
