@@ -15,6 +15,13 @@ in
     interactiveShellInit = ''
       set -gx LANG ${cliLocale}
       set -gx LANGUAGE en_US
+      set -g fish_greeting
     '';
+  };
+
+  programs.starship = {
+    enable = true;
+    enableBashIntegration = true;
+    enableFishIntegration = true;
   };
 }
