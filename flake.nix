@@ -14,7 +14,6 @@
 
   outputs =
     inputs@{
-      self,
       nixpkgs,
       home-manager,
       ...
@@ -29,7 +28,7 @@
               (final: _prev: {
                 unstable = import inputs.nixpkgs-unstable {
                   system = final.stdenv.hostPlatform.system;
-                  config.allowUnfree = true;
+                  config = final.config;
                 };
               })
             ];
@@ -41,9 +40,6 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
-              extraSpecialArgs = {
-                inherit inputs;
-              };
               users.ray = import ./home/ray;
             };
           }

@@ -4,6 +4,8 @@ let
 in
 {
   imports = [
+    ./programs/firefox.nix
+    ./programs/git.nix
     ./programs/neovim.nix
   ];
 
@@ -18,9 +20,15 @@ in
       [
         kdePackages.kate
 
-        ripgrep
-        fd
         btop
+        fd
+        gcc
+        nodejs
+        python3
+        ripgrep
+        tree-sitter
+        unzip
+        wget
       ]
       ++ [
         codex
