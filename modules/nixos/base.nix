@@ -1,6 +1,19 @@
 { pkgs, ... }:
 
 {
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
+
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
+  nixpkgs.config.allowUnfree = true;
+
   networking.networkmanager.enable = true;
 
   time.timeZone = "Asia/Shanghai";
@@ -15,9 +28,7 @@
 
   services.fwupd.enable = true;
   services.printing.enable = true;
-
   services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -25,14 +36,9 @@
     pulse.enable = true;
   };
 
+  security.rtkit.enable = true;
+
   programs.fish.enable = true;
-
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-
-  nixpkgs.config.allowUnfree = true;
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
