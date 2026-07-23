@@ -40,6 +40,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
+              backupFileExtension = "home-manager.backup";
               users.ray = import ./home/ray;
             };
           }
