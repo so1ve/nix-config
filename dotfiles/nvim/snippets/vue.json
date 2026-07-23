@@ -1,0 +1,43 @@
+{
+  "Vue 3 Component Starter": {
+    "prefix": "<vcomp>",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "const props = defineProps<{",
+      "\tname: string;",
+      "}>();",
+      "</script>",
+      "",
+      "<template>",
+      "\t<div>Hello {{ props.name }}</div>",
+      "</template>",
+      ""
+    ],
+    "description": "Vue 3 Component Starter"
+  },
+  "Vue 3 Page Starter": {
+    "prefix": "<vpage>",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "const route = useRoute();",
+      "const name = computed(() => route.params.name);",
+      "</script>",
+      "",
+      "<template>",
+      "\t<div>Hello {{ name }}</div>",
+      "</template>",
+      ""
+    ],
+    "description": "Vue 3 Page Starter"
+  },
+  "Vue 3 TypeScript Script Setup Block": {
+    "prefix": "<vtss>",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "",
+      "</script>",
+      ""
+    ],
+    "description": "Vue 3 TypeScript Script Setup Block"
+  }
+}

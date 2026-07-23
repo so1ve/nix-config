@@ -1,0 +1,113 @@
+# This currently recreates CachyOS noctalia layout(v4.7.7)
+# Use our own later
+config_version = 2
+
+[bar.default]
+background_opacity = 0.93
+capsule = true
+capsule_fill = "surface_variant"
+capsule_opacity = 1.0
+capsule_padding = 6
+capsule_thickness = 0.76
+center = [ "workspaces" ]
+concave_edge_corners = false
+end = [
+    "tray",
+    "notifications",
+    "battery",
+    "volume",
+    "brightness",
+    "control-center",
+]
+margin_edge = 4
+margin_ends = 4
+padding = 2
+radius = 12
+start = [
+    "launcher",
+    "clock",
+    "group:system-monitor",
+    "active_window",
+    "media",
+]
+widget_spacing = 6
+
+[[bar.default.capsule_group]]
+id = "system-monitor"
+members = [ "cpu", "temp", "ram" ]
+fill = "surface_variant"
+padding = 6
+opacity = 1.0
+
+[widget.launcher]
+glyph = "rocket"
+
+[widget.clock]
+format = "{:%H:%M %a, %b %d}"
+tooltip_format = "{:%A, %B %d, %Y}"
+
+[widget.cpu]
+type = "sysmon"
+stat = "cpu_usage"
+display = "gauge"
+show_label = true
+
+[widget.temp]
+type = "sysmon"
+stat = "cpu_temp"
+display = "gauge"
+show_label = true
+
+[widget.ram]
+type = "sysmon"
+stat = "ram_used"
+display = "gauge"
+show_label = true
+
+[widget.active_window]
+type = "active_window"
+display = "icon_and_text"
+max_length = 145
+min_length = 80
+title_scroll = "on_hover"
+
+[widget.media]
+type = "media"
+art_size = 16
+artist_first = true
+hide_when_no_media = true
+max_length = 145
+min_length = 80
+title_scroll = "on_hover"
+
+[widget.workspaces]
+display = "id"
+empty_color = "secondary"
+enable_scroll = true
+focused_color = "primary"
+hide_when_empty = false
+labels_only_when_occupied = true
+max_label_chars = 2
+occupied_color = "secondary"
+pill_scale = 0.6
+style = "regular"
+
+[widget.tray]
+drawer = true
+drawer_columns = 3
+
+[widget.notifications]
+hide_when_no_unread = false
+
+[widget.battery]
+display_mode = "graphic"
+show_label = false
+
+[widget.volume]
+show_label = false
+
+[widget.brightness]
+show_label = false
+
+[widget.control-center]
+glyph = "noctalia"
