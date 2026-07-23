@@ -1,0 +1,3 @@
+[shell]
+# Niri has no desktop environment authentication agent of its own.
+polkit_agent = true
