@@ -1,5 +1,9 @@
 { pkgs, ... }:
 
+let
+  rMapleMonoNfCn = pkgs.callPackage ../../packages/r-maple-mono-nf-cn.nix { };
+in
+
 {
   nix.settings.experimental-features = [
     "nix-command"
@@ -40,7 +44,7 @@
 
   programs.fish.enable = true;
 
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
+  fonts.packages = [
+    rMapleMonoNfCn
   ];
 }
