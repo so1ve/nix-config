@@ -1,5 +1,5 @@
 {
-  description = "Vesper NixOS Configuration";
+  description = "Ray's NixOS Configuration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
@@ -14,10 +14,15 @@
 
   outputs =
     inputs@{
+      self,
       nixpkgs,
       home-manager,
       ...
     }:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+    in
     {
       nixosConfigurations.vesper = nixpkgs.lib.nixosSystem {
         modules = [
@@ -46,5 +51,19 @@
           }
         ];
       };
+
+      checks.${system}.vesper = self.nixosConfigurations.vesper.config.system.build.toplevel;
+
+      devShells.${system}.default = pkgs.mkShellNoCC {
+        packages = with pkgs; [
+          deadnix
+          just
+          nixd
+          nixfmt
+          statix
+        ];
+      };
+
+      formatter.${system} = pkgs.nixfmt-tree;
     };
 }
