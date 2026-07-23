@@ -21,7 +21,7 @@
     {
       nixosConfigurations.workstation = nixpkgs.lib.nixosSystem {
         modules = [
-          ./configuration.nix
+          ./hosts/workstation
 
           {
             nixpkgs.overlays = [

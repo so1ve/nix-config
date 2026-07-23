@@ -19,8 +19,6 @@ in
     packages =
       with pkgs;
       [
-        kdePackages.kate
-
         btop
         fd
         gcc
