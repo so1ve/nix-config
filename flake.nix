@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    codex.url = "github:openai/codex/rust-v0.145.0";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
   outputs =
@@ -23,6 +23,17 @@
       nixosConfigurations.vesper = nixpkgs.lib.nixosSystem {
         modules = [
           ./configuration.nix
+
+          {
+            nixpkgs.overlays = [
+              (final: _prev: {
+                unstable = import inputs.nixpkgs-unstable {
+                  system = final.stdenv.hostPlatform.system;
+                  config.allowUnfree = true;
+                };
+              })
+            ];
+          }
 
           home-manager.nixosModules.home-manager
 
