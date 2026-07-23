@@ -21,7 +21,7 @@
     {
       nixosConfigurations.vesper = nixpkgs.lib.nixosSystem {
         modules = [
-          ./configuration.nix
+          ./hosts/vesper
 
           {
             nixpkgs.overlays = [
