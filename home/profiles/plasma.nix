@@ -2,6 +2,6 @@
 
 {
   home.packages = [
-    pkgs.kdePackages.kate
+    # pkgs.kdePackages.kate
   ];
 }
