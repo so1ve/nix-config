@@ -1,7 +1,4 @@
 { pkgs, ... }:
-let
-  codex = pkgs.unstable.codex;
-in
 {
   imports = [
     ./programs/firefox.nix
@@ -16,22 +13,19 @@ in
 
     stateVersion = "26.05";
 
-    packages =
-      with pkgs;
-      [
-        btop
-        fd
-        gcc
-        nodejs
-        python3
-        ripgrep
-        tree-sitter
-        unzip
-        wget
-      ]
-      ++ [
-        codex
-      ];
+    packages = with pkgs; [
+      btop
+      fd
+      gcc
+      nodejs
+      python3
+      ripgrep
+      tree-sitter
+      unzip
+      wget
+
+      unstable.codex
+    ];
 
     sessionVariables = {
       EDITOR = "nvim";

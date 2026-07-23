@@ -10,6 +10,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  services.displayManager.defaultSession = "niri";
+
   networking.hostName = "vesper";
 
   users.users.ray = {
