@@ -36,6 +36,7 @@
           lutris = {
             enable = true;
             steamPackage = osConfig.programs.steam.package;
+            defaultWinePackage = dwprotonEndfield;
 
             extraPackages = with pkgs; [
               gamemode
