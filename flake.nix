@@ -34,6 +34,8 @@
     # from the project's binary cache.
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
 
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
