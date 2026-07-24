@@ -19,6 +19,7 @@
       "desktop/plasma"
       "input/fcitx-rime"
       "software/firefox"
+      "software/ghostty"
       "software/git"
       "software/neovim"
       "software/shell"
