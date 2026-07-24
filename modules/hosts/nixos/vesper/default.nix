@@ -26,6 +26,7 @@
       "software/ghostty"
       "software/git"
       "software/neovim"
+      "software/qq"
       "software/shell"
       "software/tooling"
       "security/agenix"
