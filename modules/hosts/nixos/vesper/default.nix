@@ -19,6 +19,7 @@
       "desktop/noctalia"
       "desktop/plasma"
       "input/fcitx-rime"
+      "software/clash-verge"
       "software/codex"
       "software/firefox"
       "software/gaming"
