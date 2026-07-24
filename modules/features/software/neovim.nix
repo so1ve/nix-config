@@ -1,15 +1,24 @@
 {
   ray.features."software/neovim" = {
-    home = {
-      programs.neovim = {
-        enable = true;
-        defaultEditor = true;
-        viAlias = true;
-        vimAlias = true;
-        sideloadInitLua = true;
-      };
+    home =
+      {
+        inputs,
+        pkgs,
+        ...
+      }:
+      {
+        home.packages = [ pkgs.wl-clipboard ];
 
-      xdg.configFile."nvim".source = ../../../dotfiles/nvim;
-    };
+        programs.neovim = {
+          enable = true;
+          package = inputs.neovim-nightly-overlay.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          defaultEditor = true;
+          viAlias = true;
+          vimAlias = true;
+          sideloadInitLua = true;
+        };
+
+        xdg.configFile."nvim".source = ../../../dotfiles/nvim;
+      };
   };
 }
