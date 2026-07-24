@@ -1,7 +1,7 @@
 [bar.default]
 start = [ "launcher", "workspaces" ]
 center = [ "clock" ]
-end = [ "tray", "notifications", "network", "volume", "battery", "control-center" ]
+end = [ "tray", "notifications", "network", "cpu", "ram", "volume", "battery", "control-center" ]
 
 [widget.launcher]
 glyph = "rocket"
