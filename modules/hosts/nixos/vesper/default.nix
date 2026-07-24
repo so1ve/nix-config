@@ -18,11 +18,13 @@
       "desktop/noctalia"
       "desktop/plasma"
       "input/fcitx-rime"
+      "software/codex"
       "software/firefox"
       "software/ghostty"
       "software/git"
       "software/neovim"
       "software/shell"
+      "software/tooling"
       "security/agenix"
       "ui/fonts"
     ];
