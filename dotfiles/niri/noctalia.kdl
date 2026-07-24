@@ -20,7 +20,7 @@ binds {
 
     // Noctalia panels.
     Mod+D hotkey-overlay-title="Open Noctalia Launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
-    Mod+Space { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Alt+Space hotkey-overlay-title="Open Noctalia Launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
     Mod+S { spawn-sh "noctalia msg panel-toggle control-center"; }
     Mod+Comma { spawn-sh "noctalia msg settings-toggle"; }
     Alt+Tab { spawn-sh "noctalia msg window-switcher"; }
