@@ -23,8 +23,10 @@
         };
       };
 
-    home = {
-      xdg.configFile."noctalia".source = ../../../dotfiles/noctalia;
-    };
+    home =
+      { mkDotfilesSymlink, ... }:
+      {
+        xdg.configFile."noctalia".source = mkDotfilesSymlink "noctalia";
+      };
   };
 }

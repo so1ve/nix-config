@@ -10,8 +10,10 @@
         environment.systemPackages = [ pkgs.xwayland-satellite ];
       };
 
-    home = {
-      xdg.configFile."niri".source = ../../../dotfiles/niri;
-    };
+    home =
+      { mkDotfilesSymlink, ... }:
+      {
+        xdg.configFile."niri".source = mkDotfilesSymlink "niri";
+      };
   };
 }
