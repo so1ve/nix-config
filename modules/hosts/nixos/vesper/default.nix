@@ -19,7 +19,6 @@
       "desktop/noctalia"
       "desktop/plasma"
       "input/fcitx-rime"
-      "input/rime-wanxiang"
       "software/codex"
       "software/firefox"
       "software/gaming"
