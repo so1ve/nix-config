@@ -1,0 +1,39 @@
+{
+  ray.features."software/shell" = {
+    nixos = {
+      programs.fish.enable = true;
+    };
+
+    home =
+      let
+        cliLocale = "en_US.UTF-8";
+      in
+      {
+        programs = {
+          bash = {
+            enable = true;
+            initExtra = ''
+              export LANG=${cliLocale}
+              export LANGUAGE=en_US
+            '';
+          };
+
+          fish = {
+            enable = true;
+            shellAbbrs.nd = "nix develop -c fish";
+            interactiveShellInit = ''
+              set -gx LANG ${cliLocale}
+              set -gx LANGUAGE en_US
+              set -g fish_greeting
+            '';
+          };
+
+          starship = {
+            enable = true;
+            enableBashIntegration = true;
+            enableFishIntegration = true;
+          };
+        };
+      };
+  };
+}
