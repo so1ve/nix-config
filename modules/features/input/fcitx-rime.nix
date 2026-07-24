@@ -16,6 +16,10 @@
             addons = [ rimeWithIce ];
             waylandFrontend = true;
 
+            settings.globalOptions = {
+              "Hotkey/TriggerKeys"."0" = "Super+space";
+            };
+
             settings.inputMethod = {
               "Groups/0" = {
                 Name = "Default";
