@@ -23,6 +23,7 @@
       "software/git"
       "software/neovim"
       "software/shell"
+      "security/agenix"
       "ui/fonts"
     ];
   };
