@@ -53,7 +53,14 @@ let
       useGlobalPkgs = true;
       useUserPackages = true;
       extraSpecialArgs = specialArgsFor host;
-      users.${host.username}.imports = homeModules;
+      users.${host.username} =
+        { config, ... }:
+        {
+          _module.args.mkDotfilesSymlink =
+            name: config.lib.file.mkOutOfStoreSymlink "/home/${host.username}/nix-config/dotfiles/${name}";
+
+          imports = homeModules;
+        };
       backupFileExtension = "home-manager.backup";
     };
   };
