@@ -2,6 +2,9 @@
   ray.features."software/gaming" = {
     nixos =
       { pkgs, ... }:
+      let
+        dwprotonEndfield = pkgs.callPackage ../../../packages/dwproton-endfield.nix { };
+      in
       {
         programs = {
           gamemode.enable = true;
@@ -9,9 +12,9 @@
 
           steam = {
             enable = true;
-            extraCompatPackages = with pkgs; [
-              dwproton-bin
-              proton-ge-bin
+            extraCompatPackages = [
+              dwprotonEndfield
+              pkgs.proton-ge-bin
             ];
           };
         };
@@ -23,6 +26,9 @@
         pkgs,
         ...
       }:
+      let
+        dwprotonEndfield = pkgs.callPackage ../../../packages/dwproton-endfield.nix { };
+      in
       {
         home.packages = [ pkgs.hmcl ];
 
@@ -39,9 +45,9 @@
               winetricks
             ];
 
-            protonPackages = with pkgs; [
-              dwproton-bin
-              proton-ge-bin
+            protonPackages = [
+              dwprotonEndfield
+              pkgs.proton-ge-bin
             ];
           };
 
