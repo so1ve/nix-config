@@ -2,6 +2,7 @@
   ray.features."software/neovim" = {
     home =
       {
+        config,
         inputs,
         mkDotfilesSymlink,
         system,
@@ -17,7 +18,10 @@
           sideloadInitLua = true;
         };
 
-        xdg.configFile."nvim".source = mkDotfilesSymlink "nvim";
+        xdg.configFile."nvim".source = mkDotfilesSymlink {
+          inherit config;
+          name = "nvim";
+        };
       };
   };
 }

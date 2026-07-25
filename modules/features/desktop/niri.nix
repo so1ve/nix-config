@@ -13,9 +13,16 @@
       };
 
     home =
-      { mkDotfilesSymlink, ... }:
       {
-        xdg.configFile."niri".source = mkDotfilesSymlink "niri";
+        config,
+        mkDotfilesSymlink,
+        ...
+      }:
+      {
+        xdg.configFile."niri".source = mkDotfilesSymlink {
+          inherit config;
+          name = "niri";
+        };
       };
   };
 }
