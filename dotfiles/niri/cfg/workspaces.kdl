@@ -1,0 +1,3 @@
+workspace "main"
+workspace "browser"
+workspace "game"
