@@ -60,6 +60,14 @@
         };
       in
       {
+        # Fcitx5-Qt renders the candidate window inside Qt applications and
+        # only reads this user-level file, not /etc/xdg/fcitx5.
+        xdg.configFile."fcitx5/conf/classicui.conf".text = ''
+          Theme=mellow-wechat
+          DarkTheme=mellow-wechat-dark
+          UseDarkTheme=True
+        '';
+
         xdg.dataFile."fcitx5/rime/default.custom.yaml" = {
           text = ''
             # shared-data: ${rimeWithWanxiang}
