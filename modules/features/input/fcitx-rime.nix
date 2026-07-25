@@ -13,11 +13,20 @@
           type = "fcitx5";
 
           fcitx5 = {
-            addons = [ rimeWithWanxiang ];
+            addons = [
+              rimeWithWanxiang
+              pkgs.fcitx5-mellow-themes
+            ];
             waylandFrontend = true;
 
             settings.globalOptions = {
               "Hotkey/TriggerKeys"."0" = "Super+space";
+            };
+
+            settings.addons.classicui.globalSection = {
+              Theme = "mellow-wechat";
+              DarkTheme = "mellow-wechat-dark";
+              UseDarkTheme = "True";
             };
 
             settings.inputMethod = {
