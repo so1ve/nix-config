@@ -36,8 +36,8 @@
                 DefaultIM = "rime";
               };
 
-              "Groups/0/Items/0".Name = "keyboard-us";
-              "Groups/0/Items/1".Name = "rime";
+              "Groups/0/Items/0".Name = "rime";
+              "Groups/0/Items/1".Name = "keyboard-us";
               GroupOrder."0" = "Default";
             };
           };
