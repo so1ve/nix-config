@@ -26,6 +26,7 @@
       "software/gaming"
       "software/ghostty"
       "software/git"
+      "software/hmcl"
       "software/neovim"
       "software/qq"
       "software/shell"
