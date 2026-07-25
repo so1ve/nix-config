@@ -233,7 +233,6 @@ vim.pack.add({
   gh("windwp/nvim-ts-autotag"),
   gh("folke/trouble.nvim"),
   gh("so1ve/tiny-comment.nvim"),
-  gh("so1ve/copilot-ai-commit.nvim"),
   gh("so1ve/code-action-menu.nvim"),
   gh("so1ve/noicelet.nvim"),
   gh("so1ve/panels.nvim"),
@@ -861,8 +860,7 @@ end)
 -- # Git                       #
 -- #############################
 
-load_plugins("later", { "codediff.nvim", "copilot-ai-commit.nvim", "neogit" }, function()
-  require("copilot-ai-commit").setup()
+load_plugins("later", { "codediff.nvim", "neogit" }, function()
   require("codediff").setup({
     diff = {
       compute_moves = true,
@@ -919,13 +917,6 @@ load_plugins("later", { "codediff.nvim", "copilot-ai-commit.nvim", "neogit" }, f
       mini_pick = false,
     },
     diff_viewer = "codediff",
-    mappings = {
-      status = {
-        ["C"] = function()
-          require("copilot-ai-commit").commit_with_generated_message()
-        end,
-      },
-    },
     commit_editor = {
       staged_diff_split_kind = "vsplit",
       spell_check = false,
