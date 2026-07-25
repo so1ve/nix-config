@@ -29,40 +29,12 @@
       {
         config,
         lib,
+        mkFirefoxPwaInstall,
         pkgs,
         ...
       }:
       let
         manifestUrl = "http://127.0.0.1:9090/ui/manifest.webmanifest";
-        firefoxPwaConfig = "${config.xdg.dataHome}/firefoxpwa/config.json";
-
-        installZashboardPwa = pkgs.writeShellScript "install-zashboard-pwa" ''
-          set -eu
-
-          manifest_url=${lib.escapeShellArg manifestUrl}
-          pwa_config=${lib.escapeShellArg firefoxPwaConfig}
-
-          for attempt in $(${pkgs.coreutils}/bin/seq 1 30); do
-            if ${pkgs.curl}/bin/curl --fail --silent --show-error \
-              --output /dev/null "$manifest_url"; then
-              break
-            fi
-
-            if [ "$attempt" -eq 30 ]; then
-              exit 1
-            fi
-
-            ${pkgs.coreutils}/bin/sleep 1
-          done
-
-          if [ -f "$pwa_config" ] \
-            && ${pkgs.gnugrep}/bin/grep --fixed-strings --quiet \
-              "$manifest_url" "$pwa_config"; then
-            exit 0
-          fi
-
-          exec ${lib.getExe pkgs.firefoxpwa} site install "$manifest_url"
-        '';
 
         showZashboardSecret = pkgs.writeShellApplication {
           name = "zashboard-secret";
@@ -73,31 +45,23 @@
           '';
         };
       in
-      {
-        home.packages = [
-          pkgs.firefoxpwa
-          showZashboardSecret
-        ];
+      lib.mkMerge [
+        (mkFirefoxPwaInstall {
+          inherit
+            config
+            lib
+            manifestUrl
+            pkgs
+            ;
+          name = "zashboard";
+          description = "Install Zashboard as a Firefox PWA";
+          waitForManifest = true;
+          timeoutStartSec = 45;
+        })
 
-        programs.firefox.nativeMessagingHosts = [ pkgs.firefoxpwa ];
-
-        systemd.user.services.zashboard-pwa-install = {
-          Unit = {
-            Description = "Install Zashboard as a Firefox PWA";
-            After = [ "graphical-session.target" ];
-          };
-
-          Service = {
-            Type = "oneshot";
-            ExecStart = "${installZashboardPwa}";
-            RemainAfterExit = true;
-            Restart = "on-failure";
-            RestartSec = 10;
-            TimeoutStartSec = 45;
-          };
-
-          Install.WantedBy = [ "graphical-session.target" ];
-        };
-      };
+        {
+          home.packages = [ showZashboardSecret ];
+        }
+      ];
   };
 }

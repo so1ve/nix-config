@@ -34,8 +34,15 @@ let
       }) (filter (feature: feature.${kind} != null) (attrValues config.ray.features))
     );
 
+  mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix;
+
   specialArgsFor = host: {
-    inherit inputs self host;
+    inherit
+      inputs
+      mkFirefoxPwaInstall
+      self
+      host
+      ;
     flake = self;
     registry = config.ray.registry;
     inherit (host)
