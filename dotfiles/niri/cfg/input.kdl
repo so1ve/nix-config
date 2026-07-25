@@ -17,3 +17,9 @@ input {
     // focus-follows-mouse
     workspace-auto-back-and-forth
 }
+
+gestures {
+    hot-corners {
+        off
+    }
+}
