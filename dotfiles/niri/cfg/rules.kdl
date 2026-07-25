@@ -1,0 +1,12 @@
+// Work around WezTerm's initial configure bug.
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {
+    }
+}
+
+// Open Firefox picture-in-picture as floating.
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true
+}

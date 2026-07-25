@@ -1,0 +1,19 @@
+input {
+    keyboard {
+        xkb {
+        }
+
+        numlock
+    }
+
+    touchpad {
+        tap
+        natural-scroll
+    }
+
+    mouse {
+    }
+
+    // focus-follows-mouse
+    workspace-auto-back-and-forth
+}
