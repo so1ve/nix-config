@@ -24,9 +24,16 @@
       };
 
     home =
-      { mkDotfilesSymlink, ... }:
       {
-        xdg.configFile."noctalia".source = mkDotfilesSymlink "noctalia";
+        config,
+        mkDotfilesSymlink,
+        ...
+      }:
+      {
+        xdg.configFile."noctalia".source = mkDotfilesSymlink {
+          inherit config;
+          name = "noctalia";
+        };
       };
   };
 }

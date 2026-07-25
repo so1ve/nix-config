@@ -34,11 +34,13 @@ let
       }) (filter (feature: feature.${kind} != null) (attrValues config.ray.features))
     );
 
+  mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
   mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix;
 
   specialArgsFor = host: {
     inherit
       inputs
+      mkDotfilesSymlink
       mkFirefoxPwaInstall
       self
       host
@@ -60,14 +62,7 @@ let
       useGlobalPkgs = true;
       useUserPackages = true;
       extraSpecialArgs = specialArgsFor host;
-      users.${host.username} =
-        { config, ... }:
-        {
-          _module.args.mkDotfilesSymlink =
-            name: config.lib.file.mkOutOfStoreSymlink "/home/${host.username}/nix-config/dotfiles/${name}";
-
-          imports = homeModules;
-        };
+      users.${host.username}.imports = homeModules;
       backupFileExtension = "home-manager.backup";
     };
   };
