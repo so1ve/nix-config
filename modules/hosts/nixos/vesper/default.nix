@@ -32,6 +32,7 @@
       "software/shell"
       "software/telegram-web"
       "software/tooling"
+      "software/wemeet"
       "security/agenix"
       "ui/fonts"
     ];
