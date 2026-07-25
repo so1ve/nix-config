@@ -19,14 +19,15 @@
       "desktop/noctalia"
       "desktop/plasma"
       "input/fcitx-rime"
+      "ui/fonts"
       "software/mihomo"
       "software/netease-cloud-game"
       "software/codex"
       "software/firefox"
       "software/gaming"
-      "software/ghostty"
       "software/git"
       "software/hmcl"
+      "software/kitty"
       "software/neovim"
       "software/qq"
       "software/shell"
@@ -34,7 +35,6 @@
       "software/tooling"
       "software/wemeet"
       "security/agenix"
-      "ui/fonts"
     ];
   };
 }

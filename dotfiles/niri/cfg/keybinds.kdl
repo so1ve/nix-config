@@ -4,8 +4,8 @@ binds {
         show-hotkey-overlay
     }
 
-    Mod+T hotkey-overlay-title="Open a Terminal: Konsole" {
-        spawn "konsole"
+    Mod+T hotkey-overlay-title="Open a Terminal: Kitty" {
+        spawn "kitty"
     }
 
     XF86AudioMicMute allow-when-locked=true {
