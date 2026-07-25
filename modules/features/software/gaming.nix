@@ -2,9 +2,6 @@
   ray.features."software/gaming" = {
     nixos =
       { pkgs, ... }:
-      let
-        dwprotonEndfield = pkgs.callPackage ../../../packages/dwproton-endfield.nix { };
-      in
       {
         programs = {
           gamemode.enable = true;
@@ -12,48 +9,17 @@
 
           steam = {
             enable = true;
-            extraCompatPackages = [
-              dwprotonEndfield
-              pkgs.proton-ge-bin
-            ];
+            extraCompatPackages = [ pkgs.proton-ge-bin ];
           };
         };
       };
 
     home =
-      {
-        osConfig,
-        pkgs,
-        ...
-      }:
-      let
-        dwprotonEndfield = pkgs.callPackage ../../../packages/dwproton-endfield.nix { };
-      in
+      { pkgs, ... }:
       {
         home.packages = [ pkgs.hmcl ];
 
-        programs = {
-          lutris = {
-            enable = true;
-            steamPackage = osConfig.programs.steam.package;
-            defaultWinePackage = dwprotonEndfield;
-
-            extraPackages = with pkgs; [
-              gamemode
-              gamescope
-              mangohud
-              umu-launcher
-              winetricks
-            ];
-
-            protonPackages = [
-              dwprotonEndfield
-              pkgs.proton-ge-bin
-            ];
-          };
-
-          mangohud.enable = true;
-        };
+        programs.mangohud.enable = true;
       };
   };
 }
