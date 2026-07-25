@@ -48,4 +48,5 @@ window-rule {
 
     open-on-workspace "game"
     open-focused true
+    open-maximized true
 }
