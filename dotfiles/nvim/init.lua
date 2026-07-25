@@ -1073,6 +1073,7 @@ local servers = {
   dockerls = {},
   gopls = {},
   html = {},
+  nixd = {},
   unocss = {},
   vue_ls = {},
   zls = {},

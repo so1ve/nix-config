@@ -5,6 +5,7 @@
         config,
         inputs,
         mkDotfilesSymlink,
+        pkgs,
         system,
         ...
       }:
@@ -16,6 +17,7 @@
           viAlias = true;
           vimAlias = true;
           sideloadInitLua = true;
+          extraPackages = [ pkgs.nixd ];
         };
 
         xdg.configFile."nvim".source = mkDotfilesSymlink {
