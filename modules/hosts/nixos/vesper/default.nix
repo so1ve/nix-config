@@ -33,6 +33,7 @@
       "software/shell"
       "software/telegram-web"
       "software/tooling"
+      "software/tmux"
       "software/wemeet"
       "security/agenix"
     ];
