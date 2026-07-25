@@ -113,6 +113,9 @@ layout {
     // Set gaps around windows in logical pixels.
     gaps 16
 
+    // Let Noctalia render the wallpaper behind Niri workspaces.
+    background-color "transparent"
+
     // When to center a column when changing focus, options are:
     // - "never", default behavior, focusing an off-screen column will keep at the left
     //   or right edge of the screen.
@@ -292,17 +295,6 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 // You can also set this to null to disable saving screenshots to disk.
 // screenshot-path null
-
-// Animation settings.
-// The wiki explains how to configure individual animations:
-// https://niri-wm.github.io/niri/Configuration:-Animations
-animations {
-    // Uncomment to turn off all animations.
-    // off
-
-    // Slow down all animations by this factor. Values below 1 speed them up instead.
-    // slowdown 3.0
-}
 
 // Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
@@ -632,4 +624,5 @@ binds {
     Mod+Shift+P { power-off-monitors; }
 }
 
+include "appearance.kdl"
 include "noctalia.kdl"
