@@ -7,9 +7,11 @@
           btop
           fd
           gcc
+          go
           nodejs
           python3
           ripgrep
+          rustup
           tree-sitter
           unzip
           wget
