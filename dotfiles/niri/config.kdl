@@ -1,6 +1,3 @@
-// Niri configuration is split by responsibility, following CachyOS's layout.
-// Included files are applied in order; Noctalia stays last to override fallbacks.
-
 include "cfg/input.kdl"
 include "cfg/display.kdl"
 include "cfg/layout.kdl"
