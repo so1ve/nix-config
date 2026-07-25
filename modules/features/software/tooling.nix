@@ -8,6 +8,7 @@
           fd
           gcc
           go
+          jq
           nodejs
           python3
           ripgrep
