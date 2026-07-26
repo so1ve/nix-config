@@ -3,7 +3,7 @@
     home =
       { pkgs, ... }:
       {
-        home.packages = [ pkgs.unstable.codex ];
+        home.packages = [ pkgs.codex ];
       };
   };
 }
