@@ -5,6 +5,11 @@
     };
 
     home =
+      {
+        config,
+        mkDotfilesSymlink,
+        ...
+      }:
       let
         cliLocale = "en_US.UTF-8";
       in
@@ -33,6 +38,11 @@
             enableBashIntegration = true;
             enableFishIntegration = true;
           };
+        };
+
+        xdg.configFile."starship.toml".source = mkDotfilesSymlink {
+          inherit config;
+          name = "starship.toml";
         };
       };
   };
