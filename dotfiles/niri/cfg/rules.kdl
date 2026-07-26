@@ -5,7 +5,6 @@ window-rule {
     }
 }
 
-// Make an individual-window screencast target immediately visible.
 window-rule {
     match is-window-cast-target=true
 
@@ -15,7 +14,6 @@ window-rule {
     }
 }
 
-// Keep regular browser windows on the browser workspace.
 window-rule {
     match app-id=r#"^firefox$"#
     exclude title="^Picture-in-Picture$"
@@ -24,14 +22,11 @@ window-rule {
     open-focused true
 }
 
-// Open Firefox picture-in-picture as floating.
 window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     open-floating true
 }
 
-// Keep HMCL on the game workspace. JavaFX may expose either its application
-// class or the generic Java app ID, so retain a title-qualified fallback.
 window-rule {
     match app-id=r#"(?i)^(hmcl|org\.jackhuang\.hmcl(?:\..*)?)$"#
     match app-id=r#"^java$"# title=r#"^HMCL(?:\s|$)"#
@@ -40,8 +35,13 @@ window-rule {
     open-focused true
 }
 
-// FirefoxPWA site IDs are generated at installation time. Match the current
-// NetEase Cloud Game ID directly and retain a title-based fallback.
+window-rule {
+    match app-id=r#"^waydroid\.com\.hypergryph\.cloud\.endfield$"#
+
+    open-on-workspace "game"
+    open-focused true
+}
+
 window-rule {
     match app-id=r#"^FFPWA-01KYBT8MTCMC3ZTDGCNGD80FVB$"#
     match app-id=r#"^FFPWA-.*$"# title=r#"^网易云游戏(?:\s|$)"#
