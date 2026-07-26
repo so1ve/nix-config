@@ -40,6 +40,7 @@
       "software/waydroid"
       "software/wemeet"
       "security/agenix"
+      "security/fingerprint"
     ];
   };
 }
