@@ -2468,6 +2468,7 @@ end, { desc = "Select refactor" })
 require("snacks").setup({
   bigfile = {},
   quickfile = {},
+  image = {},
   picker = {
     layout = {
       layout = {
