@@ -35,6 +35,7 @@
       "software/telegram-web"
       "software/tooling"
       "software/tmux"
+      "software/waydroid"
       "software/wemeet"
       "security/agenix"
     ];
