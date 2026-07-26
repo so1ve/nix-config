@@ -1,5 +1,5 @@
 {
-  ray.features."software/waydroid" = {
+  ray.features."virtualisation/waydroid" = {
     nixos =
       {
         config,
