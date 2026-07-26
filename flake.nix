@@ -34,6 +34,11 @@
     # from the project's binary cache.
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
 
+    noctalia-greeter = {
+      url = "github:noctalia-dev/noctalia-greeter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";

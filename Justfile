@@ -11,6 +11,9 @@ check:
 build:
     nix build .#nixosConfigurations.{{host}}.config.system.build.toplevel --no-link --accept-flake-config
 
+boot:
+    sudo nixos-rebuild boot --flake .#{{host}} --accept-flake-config
+
 # Activate the configuration immediately.
 switch:
     sudo nixos-rebuild switch --flake .#{{host}} --accept-flake-config
