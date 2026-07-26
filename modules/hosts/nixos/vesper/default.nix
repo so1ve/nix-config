@@ -32,6 +32,7 @@
       "software/kitty"
       "software/alger-music-player"
       "software/neovim"
+      "software/onlyoffice"
       "software/qq"
       "software/qbittorrent"
       "software/shell"
@@ -40,6 +41,7 @@
       "software/tmux"
       "software/waydroid"
       "software/wemeet"
+      "software/wps"
       "security/agenix"
       "security/fingerprint"
     ];
