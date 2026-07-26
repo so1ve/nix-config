@@ -5,6 +5,9 @@ polkit_agent = true
 [shell.greeter_sync]
 auto_sync = true
 
+[lockscreen]
+fingerprint = true
+
 [shell.launcher]
 categories = false
 compact = true
