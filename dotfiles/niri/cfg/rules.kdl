@@ -26,6 +26,7 @@ window-rule {
 
     open-on-workspace "browser"
     open-focused true
+    open-maximized true
 }
 
 window-rule {
