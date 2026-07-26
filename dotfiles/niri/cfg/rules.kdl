@@ -6,6 +6,12 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^kitty$"#
+
+    open-maximized true
+}
+
+window-rule {
     match is-window-cast-target=true
 
     focus-ring {
