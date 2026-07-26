@@ -2459,6 +2459,11 @@ require("snacks").setup({
   bigfile = {},
   quickfile = {},
   picker = {
+    layout = {
+      layout = {
+        backdrop = 60,
+      },
+    },
     sources = {
       files = {
         hidden = true,
@@ -2559,11 +2564,6 @@ map("n", "<leader>fl", function()
     end,
     format = "lines",
     title = "Buffer Lines",
-    layout = {
-      layout = {
-        backdrop = 60,
-      },
-    },
   })
 end, { desc = "Search current buffer" })
 map("n", "<leader>nh", function()
