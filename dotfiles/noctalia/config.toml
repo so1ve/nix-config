@@ -10,29 +10,47 @@ compact = true
 background_opacity = 0.88
 shadow = false
 padding = 10
+capsule = true
+capsule_fill = "#202124E6"
+capsule_opacity = 1.0
+capsule_padding = 6
+capsule_thickness = 0.76
 
-start = [ "launcher", "workspaces" ]
-center = [ "clock" ]
+start = ["group:system-monitor"]
+center = ["workspaces"]
 end = [
   "tray",
-  "cpu",
-  "ram",
   "privacy",
   "media",
   "network",
   "volume",
-  "notifications",
   "battery",
+  "clock",
+  "notifications",
   "control-center",
 ]
 
-[widget.launcher]
-glyph = "rocket"
+[[bar.default.capsule_group]]
+id = "system-monitor"
+members = ["cpu", "temp", "ram", "net-up", "net-down"]
+fill = "#202124E6"
 
 [widget.workspaces]
 style = "focus_hint"
 labels_only_when_occupied = true
 focused_output_only = true
+
+[widget.temp]
+type = "sysmon"
+stat = "cpu_temp"
+
+[widget.net-up]
+type = "sysmon"
+stat = "net_tx"
+
+[widget.net-down]
+type = "sysmon"
+stat = "net_rx"
 
 [widget.clock]
 tooltip_format = "{:%A, %Y-%m-%d}"
@@ -54,4 +72,4 @@ show_label = false
 show_label = false
 
 [control_center]
-hidden_tabs = [ "weather", "screen-time" ]
+hidden_tabs = ["weather", "screen-time"]
