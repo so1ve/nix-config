@@ -23,6 +23,7 @@
       "ui/fonts"
       "virtualisation/libvirt"
       "virtualisation/waydroid"
+      "software/ab-download-manager"
       "software/dolphin"
       "software/mihomo"
       "software/netease-cloud-game"
