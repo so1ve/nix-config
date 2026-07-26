@@ -6,7 +6,7 @@
         home.packages = [ pkgs.wemeet ];
 
         # Native Wayland entry failed to render shared screen video correctly.
-        # Use xwayland instead
+        # Use XWayland instead
         xdg.desktopEntries.wemeetapp = {
           name = "WemeetApp";
           exec = "${pkgs.wemeet}/bin/wemeet-xwayland %u";
