@@ -19,6 +19,7 @@
       "desktop/noctalia"
       "desktop/noctalia-greeter"
       "input/fcitx-rime"
+      "ui/dark-mode"
       "ui/fonts"
       "virtualisation/libvirt"
       "virtualisation/waydroid"
