@@ -26,6 +26,7 @@
       "software/codex"
       "software/firefox"
       "software/gaming"
+      "software/wine"
       "software/git"
       "software/hmcl"
       "software/kitty"
