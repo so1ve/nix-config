@@ -36,4 +36,20 @@
         };
       };
   };
+
+  ray.features."desktop/noctalia-greeter" = {
+    nixos =
+      { inputs, ... }:
+      {
+        imports = [ inputs.noctalia-greeter.nixosModules.default ];
+
+        programs.noctalia-greeter = {
+          enable = true;
+          greeter-args = "--session niri";
+        };
+
+        security.polkit.enable = true;
+        services.accounts-daemon.enable = true;
+      };
+  };
 }

@@ -2,6 +2,9 @@
 # Niri has no desktop environment authentication agent of its own.
 polkit_agent = true
 
+[shell.greeter_sync]
+auto_sync = true
+
 [shell.launcher]
 categories = false
 compact = true

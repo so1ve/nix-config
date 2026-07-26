@@ -17,6 +17,7 @@
       "users/ray"
       "desktop/niri"
       "desktop/noctalia"
+      "desktop/noctalia-greeter"
       "desktop/plasma"
       "input/fcitx-rime"
       "ui/fonts"

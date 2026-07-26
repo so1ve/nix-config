@@ -2,7 +2,6 @@
   ray.features."nixos/desktop" = {
     nixos = {
       services = {
-        displayManager.sddm.enable = true;
         pulseaudio.enable = false;
 
         pipewire = {
