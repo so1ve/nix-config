@@ -5,9 +5,11 @@
         config,
         inputs,
         pkgs,
+        username,
         ...
       }:
       let
+        homeDirectory = "/home/${username}";
         waydroidPackage = config.virtualisation.waydroid.package;
         waydroidExtras = inputs.waydroid-script.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
@@ -38,6 +40,16 @@
         virtualisation.waydroid = {
           enable = true;
           package = pkgs.waydroid-nftables;
+        };
+
+        fileSystems."${homeDirectory}/Waydroid" = {
+          device = "${homeDirectory}/.local/share/waydroid/data/media/0";
+          fsType = "fuse.bindfs";
+          options = [
+            "mirror=${username}"
+            "nofail"
+            "x-systemd.automount"
+          ];
         };
 
         /*
