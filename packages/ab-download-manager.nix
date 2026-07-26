@@ -12,6 +12,7 @@
   libXrender,
   libXtst,
   libxkbcommon,
+  makeWrapper,
   stdenv,
   wayland,
   zlib,
@@ -28,7 +29,10 @@ stdenv.mkDerivation (finalAttrs: {
 
   sourceRoot = "ABDownloadManager";
 
-  nativeBuildInputs = [ autoPatchelfHook ];
+  nativeBuildInputs = [
+    autoPatchelfHook
+    makeWrapper
+  ];
 
   buildInputs = [
     alsa-lib
@@ -52,13 +56,22 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p "$out/opt/ab-download-manager"
     cp -r bin lib "$out/opt/ab-download-manager/"
 
+    substituteInPlace \
+      "$out/opt/ab-download-manager/lib/app/ABDownloadManager.cfg" \
+      --replace-fail \
+      "[JavaOptions]" \
+      $'[JavaOptions]\njava-options=-Dsun.java2d.uiScale=2'
+
     mkdir -p "$out/bin"
     for program in \
       ABDownloadManager \
       ABDownloadManagerCli \
       ABDownloadManagerNativeMessagingHost
     do
-      ln -s "$out/opt/ab-download-manager/bin/$program" "$out/bin/$program"
+      makeWrapper \
+        "$out/opt/ab-download-manager/bin/$program" \
+        "$out/bin/$program" \
+        --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ fontconfig ]}"
     done
 
     install -Dm444 \
