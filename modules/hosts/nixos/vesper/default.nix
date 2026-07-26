@@ -28,6 +28,7 @@
       "software/git"
       "software/hmcl"
       "software/kitty"
+      "software/alger-music-player"
       "software/neovim"
       "software/qq"
       "software/shell"

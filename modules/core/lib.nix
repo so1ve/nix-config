@@ -36,10 +36,12 @@ let
 
   mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
   mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix;
+  mkAppImage = import ../../lib/mk-appimage.nix;
 
   specialArgsFor = host: {
     inherit
       inputs
+      mkAppImage
       mkDotfilesSymlink
       mkFirefoxPwaInstall
       self
