@@ -33,6 +33,7 @@
       "software/alger-music-player"
       "software/neovim"
       "software/qq"
+      "software/qbittorrent"
       "software/shell"
       "software/telegram-web"
       "software/tooling"
