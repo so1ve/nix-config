@@ -30,14 +30,28 @@
             };
 
             settings = {
+              core = {
+                autocrlf = false;
+                editor = "nvim";
+                eol = "lf";
+              };
+
+              diff.tool = "nvimdiff";
+              init.defaultBranch = "main";
+              merge = {
+                conflictStyle = "zdiff3";
+                tool = "nvimdiff";
+              };
+              pull.rebase = true;
+              push.autoSetupRemote = true;
+              status.showUntrackedFiles = "all";
+
               user = {
                 name = user.gitName;
                 email = user.gitEmail;
               };
 
               gpg.ssh.allowedSignersFile = allowedSignersFile;
-              merge.conflictStyle = "zdiff3";
-              status.showUntrackedFiles = "all";
             };
           };
 
