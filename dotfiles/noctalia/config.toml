@@ -1,7 +1,57 @@
+[shell]
+# Niri has no desktop environment authentication agent of its own.
+polkit_agent = true
+
+[shell.launcher]
+categories = false
+compact = true
+
 [bar.default]
+background_opacity = 0.88
+shadow = false
+padding = 10
+
 start = [ "launcher", "workspaces" ]
 center = [ "clock" ]
-end = [ "tray", "notifications", "network", "cpu", "ram", "volume", "battery", "control-center" ]
+end = [
+  "tray",
+  "cpu",
+  "ram",
+  "privacy",
+  "media",
+  "network",
+  "volume",
+  "notifications",
+  "battery",
+  "control-center",
+]
 
 [widget.launcher]
 glyph = "rocket"
+
+[widget.workspaces]
+style = "focus_hint"
+labels_only_when_occupied = true
+focused_output_only = true
+
+[widget.clock]
+tooltip_format = "{:%A, %Y-%m-%d}"
+
+[widget.media]
+hide_when_no_media = true
+hide_artist = false
+max_length = 180
+art_size = 18
+title_scroll = "always"
+
+[widget.privacy]
+hide_inactive = true
+
+[widget.network]
+show_label = false
+
+[widget.volume]
+show_label = false
+
+[control_center]
+hidden_tabs = [ "weather", "screen-time" ]
