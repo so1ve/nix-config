@@ -22,6 +22,7 @@ let
   };
 
   iconInstallPath = lib.removePrefix "usr/" iconPath;
+  iconFileName = builtins.baseNameOf iconPath;
 in
 pkgs.appimageTools.wrapType2 {
   inherit pname src version;
@@ -35,6 +36,9 @@ pkgs.appimageTools.wrapType2 {
     install -m 444 -D \
       "${appimageContents}/${iconPath}" \
       "$out/${iconInstallPath}"
+    install -m 444 -D \
+      "${appimageContents}/${iconPath}" \
+      "$out/share/pixmaps/${iconFileName}"
   '';
 
   meta = {
