@@ -27,6 +27,13 @@ window-rule {
     open-floating true
 }
 
+// WPS exposes font selectors as XWayland toplevels instead of popups.
+window-rule {
+    match app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
+
+    open-floating true
+}
+
 window-rule {
     match app-id=r#"(?i)^(hmcl|org\.jackhuang\.hmcl(?:\..*)?)$"#
     match app-id=r#"^java$"# title=r#"^HMCL(?:\s|$)"#

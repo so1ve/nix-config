@@ -2,8 +2,22 @@
   ray.features = {
     "software/wps".home =
       { pkgs, ... }:
+      let
+        wpsScaled = pkgs.symlinkJoin {
+          name = "wpsoffice-scaled";
+          paths = [ pkgs.wpsoffice-cn ];
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            for program in wps et wpp wpspdf; do
+              # use QT_FONT_DPI here instead of QT_SCALE_FACTOR because WPS does not respect QT_SCALE_FACTOR
+              # QT_FONT_DPI defaults to 96, so we set it to 192 for 2x scaling
+              wrapProgram "$out/bin/$program" --set QT_FONT_DPI 192
+            done
+          '';
+        };
+      in
       {
-        home.packages = [ pkgs.wpsoffice-cn ];
+        home.packages = [ wpsScaled ];
       };
 
     "software/onlyoffice".home =
