@@ -11,7 +11,7 @@
 
     "software/kitty" = {
       home =
-        { pkgs, ... }:
+        { ... }:
         {
           programs.kitty = {
             enable = true;
@@ -21,7 +21,6 @@
               font_family = "R Maple Mono NF CN";
               hide_window_decorations = "yes";
               linux_display_server = "wayland";
-              shell = "${pkgs.tmux}/bin/tmux new-session -A -s main";
             };
           };
 
@@ -39,6 +38,12 @@
         }:
         {
           home.packages = [ pkgs.tmux ];
+
+          programs.fish.interactiveShellInit = ''
+            if set -q KITTY_WINDOW_ID; and not set -q TMUX
+              ${pkgs.tmux}/bin/tmux new-session -A -s main
+            end
+          '';
 
           xdg.configFile."tmux/tmux.conf".source = mkDotfilesSymlink {
             inherit config;
