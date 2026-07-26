@@ -6,7 +6,26 @@ polkit_agent = true
 auto_sync = true
 
 [lockscreen]
+enabled = true
 fingerprint = true
+
+[idle]
+pre_action_fade_seconds = 2
+
+[idle.behavior.lock]
+timeout = 600
+action = "lock"
+enabled = true
+
+[idle.behavior.screen-off]
+timeout = 660
+action = "screen_off"
+enabled = true
+
+[idle.behavior.suspend]
+timeout = 1800
+action = "lock_and_suspend"
+enabled = true
 
 [shell.launcher]
 categories = false
