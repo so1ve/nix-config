@@ -13,6 +13,12 @@ debug {
     honor-xdg-activation-with-invalid-serial
 }
 
+switch-events {
+    lid-close {
+        spawn "noctalia" "msg" "session" "lock-and-suspend"
+    }
+}
+
 binds {
     Alt+Space hotkey-overlay-title="Open Noctalia Launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
     Mod+S { spawn-sh "noctalia msg panel-toggle control-center"; }
