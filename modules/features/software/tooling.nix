@@ -13,6 +13,7 @@
           python3
           ripgrep
           rustup
+          tokei
           tree-sitter
           unzip
           wget
