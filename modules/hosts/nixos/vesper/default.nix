@@ -20,6 +20,7 @@
       "desktop/noctalia-greeter"
       "input/fcitx-rime"
       "ui/fonts"
+      "virtualisation/libvirt"
       "virtualisation/waydroid"
       "software/dolphin"
       "software/mihomo"
