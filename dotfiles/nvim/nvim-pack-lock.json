@@ -101,6 +101,10 @@
       "rev": "0df41ab13b54151fcb6ab023cc2a761482070f76",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
+    "smart-splits.nvim": {
+      "rev": "32f67888ac71942442fdab3819864a10449dfc41",
+      "src": "https://github.com/mrjones2014/smart-splits.nvim"
+    },
     "snacks.nvim": {
       "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
       "src": "https://github.com/folke/snacks.nvim"
