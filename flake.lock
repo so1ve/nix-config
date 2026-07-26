@@ -240,7 +240,8 @@
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "noctalia": "noctalia"
+        "noctalia": "noctalia",
+        "waydroid-script": "waydroid-script"
       }
     },
     "systems": {
@@ -255,6 +256,43 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "waydroid-script": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": "systems_2"
+      },
+      "locked": {
+        "lastModified": 1767603363,
+        "narHash": "sha256-zSHZlhHJHWZRE3I5pYWhD4o8aNpa8rTiEtl2qJTuRjw=",
+        "owner": "casualsnek",
+        "repo": "waydroid_script",
+        "rev": "d5289cfd8929e86e7f0dc89ecadcef8b66930eec",
+        "type": "github"
+      },
+      "original": {
+        "owner": "casualsnek",
+        "repo": "waydroid_script",
+        "rev": "d5289cfd8929e86e7f0dc89ecadcef8b66930eec",
         "type": "github"
       }
     }
