@@ -214,16 +214,9 @@ vim.pack.add({
   gh("folke/snacks.nvim"),
   gh("mrjones2014/codesettings.nvim"),
   gh("mason-org/mason.nvim"),
-  gh("mrjones2014/smart-splits.nvim"),
   gh("saghen/filler-begone.nvim"),
   gh("so1ve/tiny-treesitter.nvim"),
 }, { confirm = false, load = true })
-
-local smart_splits = require("smart-splits")
-smart_splits.setup({
-  at_edge = "stop",
-  default_amount = 1,
-})
 
 vim.pack.add({
   gh("CRAG666/betterTerm.nvim"),
@@ -238,6 +231,7 @@ vim.pack.add({
   gh("MagicDuck/grug-far.nvim"),
   gh("DrKJeff16/wezterm-types"),
   gh("Saecki/crates.nvim"),
+  gh("mrjones2014/smart-splits.nvim"),
   gh("neovim/nvim-lspconfig"),
   gh("b0o/schemastore.nvim"),
   gh("nvim-treesitter/nvim-treesitter-textobjects"),
@@ -253,6 +247,12 @@ vim.pack.add({
   gh("so1ve/noicelet.nvim"),
   gh("so1ve/panels.nvim"),
 }, { confirm = false, load = false })
+
+local smart_splits = require("smart-splits")
+smart_splits.setup({
+  at_edge = "stop",
+  default_amount = 1,
+})
 
 local safely = require("mini.misc").safely
 
