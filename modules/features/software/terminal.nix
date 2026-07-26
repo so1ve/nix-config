@@ -39,10 +39,20 @@
           mouse = true;
           terminal = "tmux-256color";
           extraConfig = ''
-            set -as terminal-features ",xterm-kitty:RGB"
+            set -as terminal-features ",xterm-kitty:RGB:extkeys"
             set -g focus-events on
             set -g renumber-windows on
             set -g set-clipboard on
+
+            bind-key -n C-h if -F "#{@pane-is-vim}" "send-keys C-h" "select-pane -L"
+            bind-key -n C-j if -F "#{@pane-is-vim}" "send-keys C-j" "select-pane -D"
+            bind-key -n C-k if -F "#{@pane-is-vim}" "send-keys C-k" "select-pane -U"
+            bind-key -n C-l if -F "#{@pane-is-vim}" "send-keys C-l" "select-pane -R"
+
+            bind-key -n C-Left if -F "#{@pane-is-vim}" "send-keys C-Left" "resize-pane -L 1"
+            bind-key -n C-Down if -F "#{@pane-is-vim}" "send-keys C-Down" "resize-pane -D 1"
+            bind-key -n C-Up if -F "#{@pane-is-vim}" "send-keys C-Up" "resize-pane -U 1"
+            bind-key -n C-Right if -F "#{@pane-is-vim}" "send-keys C-Right" "resize-pane -R 1"
           '';
         };
       };

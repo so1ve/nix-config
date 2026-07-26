@@ -1,5 +1,6 @@
 local g = vim.g
 local opt = vim.opt
+local is_windows = vim.fn.has("win32") == 1
 
 local map = vim.keymap.set
 local autocmd = vim.api.nvim_create_autocmd
@@ -58,14 +59,22 @@ opt.virtualedit = "block"
 opt.confirm = true
 opt.keywordprg = ":RayKeywordPrg"
 
-if vim.fn.has("win32") == 1 then
+if is_windows then
   opt.shell = "pwsh -NoLogo"
   opt.shellcmdflag = "-NoProfile -ExecutionPolicy RemoteSigned -Command"
+  opt.shellquote = ""
   opt.shellxquote = ""
   opt.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
   opt.shellredir = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
   -- remove this after https://github.com/neovim/neovim/issues/40832 fixed
   opt.shellslash = false
+else
+  opt.shell = "fish"
+  opt.shellcmdflag = "-c"
+  opt.shellquote = ""
+  opt.shellxquote = ""
+  opt.shellpipe = "2>&1| tee"
+  opt.shellredir = ">%s 2>&1"
 end
 
 -- scrolling
@@ -205,9 +214,16 @@ vim.pack.add({
   gh("folke/snacks.nvim"),
   gh("mrjones2014/codesettings.nvim"),
   gh("mason-org/mason.nvim"),
+  gh("mrjones2014/smart-splits.nvim"),
   gh("saghen/filler-begone.nvim"),
   gh("so1ve/tiny-treesitter.nvim"),
 }, { confirm = false, load = true })
+
+local smart_splits = require("smart-splits")
+smart_splits.setup({
+  at_edge = "stop",
+  default_amount = 1,
+})
 
 vim.pack.add({
   gh("CRAG666/betterTerm.nvim"),
@@ -688,6 +704,7 @@ load_plugins("later", "conform.nvim", function()
     },
     formatters_by_ft = {
       css = prettier,
+      fish = { "fish_indent" },
       html = prettier,
       javascript = prettier,
       javascriptreact = prettier,
@@ -1062,10 +1079,10 @@ local servers = {
   cssls = {},
   docker_compose_language_service = {},
   dockerls = {},
+  fish_lsp = {},
   gopls = {},
   html = {},
   nixd = {},
-  unocss = {},
   vue_ls = {},
   zls = {},
   clangd = {
@@ -1230,9 +1247,9 @@ local servers = {
       },
     },
   },
-  powershell_es = {
+  powershell_es = is_windows and {
     bundle_path = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "powershell-editor-services"),
-  },
+  } or nil,
   basedpyright = {
     settings = {
       basedpyright = {
@@ -1282,7 +1299,7 @@ local servers = {
           globalPlugins = {
             {
               name = "@vue/typescript-plugin",
-              location = vim.fs.joinpath(
+              location = is_windows and vim.fs.joinpath(
                 vim.fn.stdpath("data"),
                 "mason",
                 "packages",
@@ -1290,7 +1307,7 @@ local servers = {
                 "node_modules",
                 "@vue",
                 "language-server"
-              ),
+              ) or vim.env.NVIM_VUE_TYPESCRIPT_PLUGIN_PATH,
               languages = { "vue" },
               configNamespace = "typescript",
               enableForWorkspaceTypeScriptVersions = true,
@@ -1361,14 +1378,6 @@ local servers = {
       },
     },
   },
-  stylelint_lsp = {
-    filetypes = { "css", "scss", "html", "vue" },
-    settings = {
-      stylelint = {
-        validate = { "css", "scss", "html", "vue" },
-      },
-    },
-  },
 }
 
 load_plugins("later", "crates.nvim", function()
@@ -1435,58 +1444,59 @@ end)
 -- # Mason                     #
 -- #############################
 
-require("mason").setup()
+if is_windows then
+  require("mason").setup()
 
-local mason_tools = {
-  "basedpyright",
-  "clangd",
-  "css-lsp",
-  "docker-compose-language-service",
-  "dockerfile-language-server",
-  "eslint-lsp",
-  "gofumpt",
-  "goimports",
-  "gopls",
-  "html-lsp",
-  "json-lsp",
-  "latexindent",
-  "lua-language-server",
-  "nixfmt",
-  "powershell-editor-services",
-  "prettier",
-  "prettierd",
-  "ruff",
-  "stylelint-language-server",
-  "stylua",
-  "texlab",
-  "tinymist",
-  "tombi",
-  "unocss-language-server",
-  "vtsls",
-  "vue-language-server",
-  "yaml-language-server",
-  "zls",
-}
+  local mason_tools = {
+    "basedpyright",
+    "clangd",
+    "css-lsp",
+    "docker-compose-language-service",
+    "dockerfile-language-server",
+    "eslint-lsp",
+    "fish-lsp",
+    "gofumpt",
+    "goimports",
+    "gopls",
+    "html-lsp",
+    "json-lsp",
+    "latexindent",
+    "lua-language-server",
+    "nixfmt",
+    "powershell-editor-services",
+    "prettier",
+    "prettierd",
+    "ruff",
+    "stylua",
+    "texlab",
+    "tinymist",
+    "tombi",
+    "vtsls",
+    "vue-language-server",
+    "yaml-language-server",
+    "zls",
+  }
 
-local mason_registry = require("mason-registry")
-local mason_notify = vim.schedule_wrap(function(message, level)
-  vim.notify(message, level, { title = "Mason" })
-end)
+  local mason_registry = require("mason-registry")
+  local mason_notify = vim.schedule_wrap(function(message, level)
+    vim.notify(message, level, { title = "Mason" })
+  end)
 
-mason_registry.refresh(function()
-  for _, name in ipairs(mason_tools) do
-    local tool = mason_registry.get_package(name)
-    if not tool:is_installed() then
-      mason_notify(name .. ": installing", vim.log.levels.INFO)
-      tool:install({}, function(success)
-        mason_notify(
-          name .. (success and ": successfully installed" or ": failed to install"),
-          success and vim.log.levels.INFO or vim.log.levels.ERROR
-        )
-      end)
+  mason_registry.refresh(function()
+    for _, name in ipairs(mason_tools) do
+      local tool = mason_registry.get_package(name)
+      if not tool:is_installed() then
+        mason_notify(name .. ": installing", vim.log.levels.INFO)
+        tool:install({}, function(success)
+          mason_notify(
+            name .. (success and ": successfully installed" or ": failed to install"),
+            success and vim.log.levels.INFO or vim.log.levels.ERROR
+          )
+        end)
+      end
     end
-  end
-end)
+  end)
+end
 
 -- #############################
 -- # Mini                      #
@@ -2798,19 +2808,33 @@ end, { desc = "Duplicate line" })
 map("n", "gK", "i<CR><Esc>", { desc = "Split line at cursor" })
 
 -- Windows
-map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
-map("n", "<C-j>", "<C-w>j", { desc = "Move to lower window" })
-map("n", "<C-k>", "<C-w>k", { desc = "Move to upper window" })
-map("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-map("t", "<C-h>", "<C-\\><C-n><C-w>h", { desc = "Move to left window" })
-map("t", "<C-j>", "<C-\\><C-n><C-w>j", { desc = "Move to lower window" })
-map("t", "<C-k>", "<C-\\><C-n><C-w>k", { desc = "Move to upper window" })
-map("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Move to right window" })
-map("n", "<C-Right>", "<C-w>>", { desc = "Increase window width" })
-map("n", "<C-Left>", "<C-w><", { desc = "Decrease window width" })
-map("n", "<C-Up>", "<C-w>+", { desc = "Increase window height" })
-map("n", "<C-Down>", "<C-w>-", { desc = "Decrease window height" })
+
+for key, direction in pairs({
+  h = { "left", "left" },
+  j = { "down", "lower" },
+  k = { "up", "upper" },
+  l = { "right", "right" },
+}) do
+  map({ "n", "t" }, "<C-" .. key .. ">", function()
+    if vim.api.nvim_get_mode().mode:sub(1, 1) == "t" then
+      vim.api.nvim_feedkeys(vim.keycode("<C-\\><C-n>"), "nx", false)
+    end
+    smart_splits["move_cursor_" .. direction[1]]()
+  end, { desc = "Move to " .. direction[2] .. " window" })
+end
+
+for key, direction in pairs({
+  Left = "left",
+  Down = "down",
+  Up = "up",
+  Right = "right",
+}) do
+  map({ "n", "t" }, "<C-" .. key .. ">", smart_splits["resize_" .. direction], {
+    desc = "Resize window " .. direction,
+  })
+end
+
 map("n", "<leader>=", function()
   require("panels").equalize()
 end, { desc = "Equalize windows" })
