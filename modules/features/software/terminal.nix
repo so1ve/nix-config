@@ -16,7 +16,9 @@
           programs.kitty = {
             enable = true;
             settings = {
+              cursor_trail = 3;
               font_family = "R Maple Mono NF CN";
+              hide_window_decorations = "yes";
               linux_display_server = "wayland";
               shell = "${pkgs.tmux}/bin/tmux new-session -A -s main";
             };
