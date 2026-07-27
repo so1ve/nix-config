@@ -50,7 +50,6 @@
     home =
       {
         config,
-        inputs,
         lib,
         pkgs,
         ...
@@ -59,7 +58,7 @@
         rimeWithWanxiang = pkgs.fcitx5-rime.override {
           rimeDataPkgs = [ pkgs.rime-wanxiang ];
         };
-        rimeLmdg = inputs.jetcookies-nur.packages.${pkgs.stdenv.hostPlatform.system}.rime-lmdg;
+        rimeLmdg = pkgs.nur.repos.jetcookies.rime-lmdg;
       in
       {
         # Fcitx5-Qt renders the candidate window inside Qt applications and
