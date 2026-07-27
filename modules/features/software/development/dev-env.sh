@@ -1,7 +1,7 @@
 usage() {
   cat <<'EOF'
 Usage:
-  dev-env init [PROFILE...]
+  dev-env init [--tracked|-t] [PROFILE...]
   dev-env list
 
 With no PROFILE, dev-env detects the project languages. Profiles can also be
@@ -9,7 +9,8 @@ passed without the "init" subcommand, for example:
 
   dev-env frontend go
 
-The generated devenv files stay local through .git/info/exclude.
+By default, generated devenv files stay local through .git/info/exclude.
+Use --tracked or -t to expose devenv.nix, devenv.yaml and devenv.lock to Git.
 EOF
 }
 
@@ -134,6 +135,27 @@ add_exclude() {
   fi
 }
 
+remove_exclude() {
+  local pattern="$1"
+  local status
+  local temporary_exclude
+
+  temporary_exclude="$(mktemp "$(dirname "$exclude_file")/.exclude.XXXXXX")"
+  if grep --fixed-strings --line-regexp --invert-match "$pattern" "$exclude_file" >"$temporary_exclude"; then
+    status=0
+  else
+    status=$?
+  fi
+
+  if ((status > 1)); then
+    rm -f "$temporary_exclude"
+    return "$status"
+  fi
+
+  chmod --reference="$exclude_file" "$temporary_exclude"
+  mv "$temporary_exclude" "$exclude_file"
+}
+
 case "${1:-}" in
   -h | --help | help)
     usage
@@ -148,6 +170,29 @@ case "${1:-}" in
     ;;
 esac
 
+tracked=false
+declare -a requested_profiles=()
+
+for argument in "$@"; do
+  case "$argument" in
+    --tracked | -t)
+      tracked=true
+      ;;
+    -h | --help)
+      usage
+      exit
+      ;;
+    -*)
+      printf 'Unknown option: %s\n\n' "$argument" >&2
+      usage >&2
+      exit 1
+      ;;
+    *)
+      requested_profiles+=("$argument")
+      ;;
+  esac
+done
+
 if ! project_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
   printf '%s\n' "dev-env must be run inside a Git worktree." >&2
   exit 1
@@ -155,7 +200,7 @@ fi
 
 cd "$project_root"
 
-for requested_profile in "$@"; do
+for requested_profile in "${requested_profiles[@]}"; do
   if [[ "$requested_profile" == all ]]; then
     for profile in frontend go rust zig python cpp lua nix shell docs; do
       add_profile "$profile"
@@ -225,17 +270,22 @@ exclude_file="$(git rev-parse --git-path info/exclude)"
 mkdir -p "$(dirname "$exclude_file")"
 touch "$exclude_file"
 
-for pattern in \
-  /devenv.nix \
-  /devenv.yaml \
-  /devenv.local.nix \
-  /devenv.lock \
-  /.devenv/ \
-  /.devenv.flake.nix; do
+for pattern in /devenv.local.nix /.devenv/ /.devenv.flake.nix; do
   add_exclude "$pattern"
+done
+
+for pattern in /devenv.nix /devenv.yaml /devenv.lock; do
+  if [[ "$tracked" == true ]]; then
+    remove_exclude "$pattern"
+  else
+    add_exclude "$pattern"
+  fi
 done
 
 devenv allow --quiet
 
 printf 'Configured %s with profiles: %s\n' "$project_root" "${selected_profiles[*]}"
+if [[ "$tracked" == true ]]; then
+  printf '%s\n' "devenv.nix, devenv.yaml and devenv.lock are visible to Git."
+fi
 printf '%s\n' "Run 'devenv shell' once now; future directory entries auto-activate."
