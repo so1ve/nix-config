@@ -22,6 +22,7 @@
       "ui/dark-mode"
       "ui/fonts"
       "virtualisation/libvirt"
+      "virtualisation/podman"
       "virtualisation/waydroid"
       "software/ab-download-manager"
       "software/dolphin"
