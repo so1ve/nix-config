@@ -33,17 +33,8 @@
             '';
           };
 
-          starship = {
-            enable = true;
-            enableBashIntegration = true;
-            enableFishIntegration = true;
-          };
-
-          zoxide = {
-            enable = true;
-            enableBashIntegration = true;
-            enableFishIntegration = true;
-          };
+          starship.enable = true;
+          zoxide.enable = true;
         };
 
         xdg.configFile."starship.toml".source = mkDotfilesSymlink {
