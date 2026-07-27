@@ -38,6 +38,12 @@
             enableBashIntegration = true;
             enableFishIntegration = true;
           };
+
+          zoxide = {
+            enable = true;
+            enableBashIntegration = true;
+            enableFishIntegration = true;
+          };
         };
 
         xdg.configFile."starship.toml".source = mkDotfilesSymlink {
