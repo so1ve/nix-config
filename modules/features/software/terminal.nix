@@ -41,7 +41,17 @@
 
           programs.fish.interactiveShellInit = ''
             if set -q KITTY_WINDOW_ID; and not set -q TMUX
-              ${pkgs.tmux}/bin/tmux new-session -A -s main
+              if not ${pkgs.tmux}/bin/tmux has-session -t main 2>/dev/null
+                if ${pkgs.tmux}/bin/tmux new-session -d -s main -n workspace
+                  ${pkgs.tmux}/bin/tmux split-window -h -p 50 -t main:1.1
+                  ${pkgs.tmux}/bin/tmux split-window -v -p 50 -t main:1.2
+                  ${pkgs.tmux}/bin/tmux new-window -t main:2 -n shell
+                  ${pkgs.tmux}/bin/tmux select-window -t main:1
+                  ${pkgs.tmux}/bin/tmux select-pane -t main:1.1
+                end
+              end
+
+              ${pkgs.tmux}/bin/tmux attach-session -t main
             end
           '';
 
