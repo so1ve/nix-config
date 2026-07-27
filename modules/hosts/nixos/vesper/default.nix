@@ -36,6 +36,7 @@
       "software/kitty"
       "software/alger-music-player"
       "software/neovim"
+      "software/obs"
       "software/qq"
       "software/qbittorrent"
       "software/shell"
