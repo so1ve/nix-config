@@ -7,16 +7,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1785127969,
-        "narHash": "sha256-Rl0TsieIViDrb18DIGY3qR8Yt5C8u87u7KyvQYrLGaY=",
+        "lastModified": 1785169110,
+        "narHash": "sha256-uzE5TPWT8ruIoC5ROhAaG4YaAeI5iSeboI111gE0qR0=",
         "owner": "so1ve",
-        "repo": "ab-download-manager-nix",
-        "rev": "396cc3f35acdd5172bc7be40c76e0a08b4c7ef44",
+        "repo": "nur-packages",
+        "rev": "e7da83aebcdbb55ed75beebd72955a14b7bc7360",
         "type": "github"
       },
       "original": {
         "owner": "so1ve",
-        "repo": "ab-download-manager-nix",
+        "repo": "nur-packages",
         "type": "github"
       }
     },

@@ -29,8 +29,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # TODO: Remove this direct input and use nur.repos.so1ve after the
+    # repository entry is merged into nix-community/NUR.
     ab-download-manager = {
-      url = "github:so1ve/ab-download-manager-nix";
+      url = "github:so1ve/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
