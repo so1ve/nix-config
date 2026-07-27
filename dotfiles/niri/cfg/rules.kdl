@@ -44,19 +44,15 @@ window-rule {
 window-rule {
     match app-id=r#"^steam$"#
 
-    open-on-workspace "game"
-    open-focused true
-}
+    // STS2
+    match app-id=r#"(?i)^slay(?:[\s_-]*the)?[\s_-]*spire[\s_-]*2$"#
+    match title=r#"(?i)^slay the spire 2(?:\s|$)"#
 
-window-rule {
+    // HMCL
     match app-id=r#"(?i)^(hmcl|org\.jackhuang\.hmcl(?:\..*)?)$"#
     match app-id=r#"^java$"# title=r#"^HMCL(?:\s|$)"#
 
-    open-on-workspace "game"
-    open-focused true
-}
-
-window-rule {
+    // Endfield cloud game
     match app-id=r#"^waydroid\.com\.hypergryph\.cloud\.endfield$"#
 
     open-on-workspace "game"
