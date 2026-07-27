@@ -32,6 +32,7 @@
       "software/firefox"
       "software/gaming"
       "software/wine"
+      "software/development"
       "software/git"
       "software/hmcl"
       "software/kitty"
