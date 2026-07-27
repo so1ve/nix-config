@@ -34,18 +34,25 @@
     "/" = {
       device = "/dev/disk/by-uuid/96222f57-b670-418a-ad03-352e51153342";
       fsType = "btrfs";
+      options = [ "compress=zstd:1" ];
     };
 
     "/home" = {
       device = "/dev/disk/by-uuid/96222f57-b670-418a-ad03-352e51153342";
       fsType = "btrfs";
-      options = [ "subvol=home" ];
+      options = [
+        "subvol=home"
+        "compress=zstd:1"
+      ];
     };
 
     "/nix" = {
       device = "/dev/disk/by-uuid/96222f57-b670-418a-ad03-352e51153342";
       fsType = "btrfs";
-      options = [ "subvol=nix" ];
+      options = [
+        "subvol=nix"
+        "compress=zstd:1"
+      ];
     };
 
     "/boot" = {

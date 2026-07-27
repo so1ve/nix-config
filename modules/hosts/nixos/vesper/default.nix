@@ -11,6 +11,7 @@
       "core/nix"
       "nixos/base"
       "nixos/desktop"
+      "nixos/performance"
       "hardware/graphics"
       "hardware/uefi-systemd-boot"
       "home/base"
