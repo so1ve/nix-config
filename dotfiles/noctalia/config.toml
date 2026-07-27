@@ -28,8 +28,9 @@ action = "lock_and_suspend"
 enabled = true
 
 [shell.launcher]
-categories = false
+categories = true
 compact = true
+auto_paste = true
 
 [bar.default]
 background_opacity = 0.88
