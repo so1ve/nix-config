@@ -119,29 +119,6 @@
         "type": "github"
       }
     },
-    "jetcookies-nur": {
-      "inputs": {
-        "flake-parts": [
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1784764437,
-        "narHash": "sha256-dWOlC1dmFLoTnzXibL9HOFLfX2++k2wLTdltpAS7Bw8=",
-        "owner": "jetcookies",
-        "repo": "nur-packages",
-        "rev": "489a99127084974c9dd2eb0b176b1cba840ec8eb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jetcookies",
-        "repo": "nur-packages",
-        "type": "github"
-      }
-    },
     "neovim-nightly-overlay": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -277,6 +254,29 @@
         "type": "github"
       }
     },
+    "nur": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785163362,
+        "narHash": "sha256-FV4VoFF/YVtmL5GBc9cTLqXQNq0mK/p/FNsHxgKATDw=",
+        "owner": "nix-community",
+        "repo": "NUR",
+        "rev": "55afdb5742236f078d658894edd54a2269c7ba6b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "NUR",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "ab-download-manager": "ab-download-manager",
@@ -284,11 +284,11 @@
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
-        "jetcookies-nur": "jetcookies-nur",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nixpkgs": "nixpkgs_2",
         "noctalia": "noctalia",
         "noctalia-greeter": "noctalia-greeter",
+        "nur": "nur",
         "waydroid-script": "waydroid-script"
       }
     },

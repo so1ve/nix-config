@@ -1,6 +1,10 @@
+{ inputs, ... }:
+
 {
   ray.features."core/nix" = {
     nixos = {
+      nixpkgs.overlays = [ inputs.nur.overlays.default ];
+
       nix.settings = {
         auto-optimise-store = true;
         experimental-features = [
