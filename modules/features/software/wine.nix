@@ -6,7 +6,9 @@
         home.packages = [
           pkgs.wineWow64Packages.waylandFull
           pkgs.winetricks
-          pkgs.bottles
+          (pkgs.bottles.override {
+            removeWarningPopup = true;
+          })
         ];
       };
   };
