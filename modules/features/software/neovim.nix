@@ -22,7 +22,6 @@
             clang-tools
             docker-compose-language-service
             dockerfile-language-server
-            fish
             fish-lsp
             gofumpt
             gopls
@@ -33,11 +32,13 @@
             prettier
             prettierd
             ruff
+            rust-analyzer
             stylua
             texlab
             texlivePackages.latexindent
             tinymist
             tombi
+            tree-sitter
             vscode-langservers-extracted
             vtsls
             vue-language-server

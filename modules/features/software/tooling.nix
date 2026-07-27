@@ -6,15 +6,10 @@
         home.packages = with pkgs; [
           btop
           fd
-          gcc
-          go
           jq
-          nodejs
-          python3
+          just
           ripgrep
-          rustup
           tokei
-          tree-sitter
           unzip
           wget
           wl-clipboard

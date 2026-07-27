@@ -29,16 +29,6 @@ in
         name: _: nixosConfigurations.${name}.config.system.build.toplevel
       ) config.ray.hosts.nixos;
 
-      devShells.default = pkgs.mkShellNoCC {
-        packages = with pkgs; [
-          deadnix
-          just
-          nixd
-          nixfmt
-          statix
-        ];
-      };
-
       formatter = pkgs.nixfmt-tree;
     };
 }
