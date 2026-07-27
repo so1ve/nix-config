@@ -30,6 +30,8 @@
             lua-language-server
             nixd
             nixfmt
+            nodejs
+            python3
             prettier
             prettierd
             ruff
