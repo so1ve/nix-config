@@ -26,10 +26,14 @@
             echo "Waiting for Remote Desktop..."
             for _ in $(${pkgs.coreutils}/bin/seq 1 90); do
               if ${pkgs.netcat-openbsd}/bin/nc -z -w 1 ${windowsVmAddress} 3389 2>/dev/null; then
+                export SDL_VIDEODRIVER=wayland
                 exec ${pkgs.freerdp}/bin/sdl-freerdp \
                   /v:${windowsVmAddress} \
                   /d:. \
                   /u:${username} \
+                  /f \
+                  -grab-keyboard \
+                  -grab-mouse \
                   /dynamic-resolution \
                   /clipboard \
                   /cert:tofu \
