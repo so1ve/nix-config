@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "ab-download-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785127969,
+        "narHash": "sha256-Rl0TsieIViDrb18DIGY3qR8Yt5C8u87u7KyvQYrLGaY=",
+        "owner": "so1ve",
+        "repo": "ab-download-manager-nix",
+        "rev": "396cc3f35acdd5172bc7be40c76e0a08b4c7ef44",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "ab-download-manager-nix",
+        "type": "github"
+      }
+    },
     "agenix": {
       "inputs": {
         "darwin": [],
@@ -236,6 +256,7 @@
     },
     "root": {
       "inputs": {
+        "ab-download-manager": "ab-download-manager",
         "agenix": "agenix",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
