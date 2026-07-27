@@ -42,6 +42,13 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^steam$"#
+
+    open-on-workspace "game"
+    open-focused true
+}
+
+window-rule {
     match app-id=r#"(?i)^(hmcl|org\.jackhuang\.hmcl(?:\..*)?)$"#
     match app-id=r#"^java$"# title=r#"^HMCL(?:\s|$)"#
 
