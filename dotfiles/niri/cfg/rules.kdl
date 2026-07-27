@@ -43,6 +43,7 @@ window-rule {
 
 window-rule {
     match app-id=r#"^steam$"#
+    exclude app-id=r#"^steam$"# title=r#"^notificationtoasts_\d+_desktop$"#
 
     // STS2
     match app-id=r#"(?i)^slay(?:[\s_-]*the)?[\s_-]*spire[\s_-]*2$"#
@@ -57,6 +58,15 @@ window-rule {
 
     open-on-workspace "game"
     open-focused true
+}
+
+// Steam renders friend and game activity notifications as separate toplevels.
+window-rule {
+    match app-id=r#"^steam$"# title=r#"^notificationtoasts_\d+_desktop$"#
+
+    open-floating true
+    open-focused false
+    default-floating-position x=16 y=16 relative-to="bottom-right"
 }
 
 window-rule {
