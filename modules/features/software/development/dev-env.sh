@@ -256,6 +256,8 @@ trap 'rm -f "$temporary_nix" "$temporary_yaml"' EXIT
   printf '%s\n' '}'
 } >"$temporary_nix"
 
+nixfmt "$temporary_nix"
+
 {
   printf '%s\n' "$generated_marker"
   printf '%s\n' 'inputs:'

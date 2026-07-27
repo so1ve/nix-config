@@ -17,6 +17,7 @@
             pkgs.devenv
             pkgs.git
             pkgs.gnugrep
+            pkgs.nixfmt
           ];
           text = ''
             if [[ -z "''${RAY_DEVENV_MODULE_ROOT:-}" ]]; then
