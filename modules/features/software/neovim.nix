@@ -19,6 +19,7 @@
           sideloadInitLua = true;
           extraPackages = with pkgs; [
             basedpyright
+            bash-language-server
             clang-tools
             docker-compose-language-service
             dockerfile-language-server

@@ -1076,6 +1076,7 @@ local servers = {
       },
     },
   },
+  bashls = {},
   cssls = {},
   docker_compose_language_service = {},
   dockerls = {},
@@ -1449,6 +1450,7 @@ if is_windows then
 
   local mason_tools = {
     "basedpyright",
+    "bash-language-server",
     "clangd",
     "css-lsp",
     "docker-compose-language-service",
