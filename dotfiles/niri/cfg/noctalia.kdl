@@ -21,6 +21,7 @@ switch-events {
 
 binds {
     Alt+Space hotkey-overlay-title="Open Noctalia Launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+Period hotkey-overlay-title="Open Emoji Picker" { spawn "noctalia" "msg" "panel-toggle" "launcher" "/emo "; }
     Mod+S { spawn-sh "noctalia msg panel-toggle control-center"; }
     Mod+Comma { spawn-sh "noctalia msg settings-toggle"; }
     Alt+Tab { spawn-sh "noctalia msg window-switcher"; }
