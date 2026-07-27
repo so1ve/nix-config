@@ -50,6 +50,7 @@
     home =
       {
         config,
+        inputs,
         lib,
         pkgs,
         ...
@@ -58,6 +59,7 @@
         rimeWithWanxiang = pkgs.fcitx5-rime.override {
           rimeDataPkgs = [ pkgs.rime-wanxiang ];
         };
+        rimeLmdg = inputs.jetcookies-nur.packages.${pkgs.stdenv.hostPlatform.system}.rime-lmdg;
       in
       {
         # Fcitx5-Qt renders the candidate window inside Qt applications and
@@ -93,10 +95,8 @@
           '';
         };
 
-        xdg.dataFile."fcitx5/rime/wanxiang-lts-zh-hans.gram".source = pkgs.fetchurl {
-          url = "https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram";
-          hash = "sha256-KAzOrsRfEOlqT9fUCSanjS2qQJyxrULK5NBe9/Ai7vM=";
-        };
+        xdg.dataFile."fcitx5/rime/wanxiang-lts-zh-hans.gram".source =
+          "${rimeLmdg}/share/rime-data/wanxiang-lts-zh-hans.gram";
       };
   };
 }
