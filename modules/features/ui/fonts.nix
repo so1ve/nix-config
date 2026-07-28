@@ -8,7 +8,7 @@
       }:
       {
         fonts.packages = [
-          (pkgs.callPackage ../../../packages/r-maple-mono-nf-cn.nix { })
+          pkgs.nur.repos.so1ve.r-maple-mono-nf-cn
           pkgs.noto-fonts-cjk-sans
           pkgs.noto-fonts-cjk-serif
         ];
