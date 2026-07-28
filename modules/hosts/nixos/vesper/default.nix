@@ -41,6 +41,7 @@
       "software/obs"
       "software/qq"
       "software/qbittorrent"
+      "software/radmin-vpn"
       "software/shell"
       "software/telegram-web"
       "software/tooling"
