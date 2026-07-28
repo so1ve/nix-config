@@ -9,8 +9,6 @@ let
   system = "x86_64-linux";
   pkgs = inputs.nixpkgs.legacyPackages.${system};
 
-  binaryCaches = builtins.attrValues config.ray.registry.binaryCaches;
-
   nixosConfigurations = lib.mapAttrs (
     _: host: config.ray.lib.mkNixosHost host
   ) config.ray.hosts.nixos;
@@ -22,10 +20,7 @@ in
     description = "Ray's NixOS Configuration";
     outputs = "flake-module";
 
-    nixConfig = {
-      extra-substituters = map (cache: cache.url) binaryCaches;
-      extra-trusted-public-keys = map (cache: cache.publicKey) binaryCaches;
-    };
+    nixConfig = config.ray.lib.nixCacheSettings;
 
     inputs = {
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

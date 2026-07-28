@@ -1,4 +1,8 @@
-{ inputs, ... }:
+{
+  config,
+  inputs,
+  ...
+}:
 
 {
   ray.features."core/nix" = {
@@ -11,7 +15,8 @@
           "nix-command"
           "flakes"
         ];
-      };
+      }
+      // config.ray.lib.nixCacheSettings;
 
       nix.gc = {
         automatic = true;
