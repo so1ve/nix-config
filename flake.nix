@@ -3,7 +3,19 @@
 {
   description = "Ray's NixOS Configuration";
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
+  outputs =
+    inputs:
+    (inputs.nixpkgs.lib.evalModules {
+      specialArgs = {
+        inherit inputs;
+        inherit (inputs) self;
+      };
+      modules = [
+        inputs.flake-file.flakeModules.flake
+        ./flake-file.nix
+      ];
+    }).config.outputs
+      inputs;
 
   nixConfig = {
     extra-substituters = [ "https://noctalia.cachix.org" ];
@@ -22,7 +34,6 @@
       };
     };
     flake-file.url = "github:denful/flake-file";
-    flake-parts.url = "github:hercules-ci/flake-parts";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -37,10 +48,7 @@
     };
     nur = {
       url = "github:nix-community/NUR";
-      inputs = {
-        flake-parts.follows = "flake-parts";
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     waydroid-script = {
       url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
