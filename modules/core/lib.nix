@@ -9,6 +9,8 @@ let
   inherit (lib)
     attrValues
     filter
+    filterAttrs
+    mapAttrs
     optional
     ;
 
@@ -26,11 +28,8 @@ let
 
   moduleAttrsFor =
     kind:
-    builtins.listToAttrs (
-      map (feature: {
-        inherit (feature) name;
-        value = feature.${kind};
-      }) (filter (feature: feature.${kind} != null) (attrValues config.ray.features))
+    mapAttrs (_: feature: feature.${kind}) (
+      filterAttrs (_: feature: feature.${kind} != null) config.ray.features
     );
 
   nixCacheSettings =
@@ -53,7 +52,7 @@ let
       mkDotfilesSymlink
       mkFirefoxPwaInstall
       ;
-    registry = config.ray.registry;
+    user = config.ray.registry.users.${host.username};
     inherit (host)
       hostname
       homeStateVersion

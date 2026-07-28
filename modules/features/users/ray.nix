@@ -3,14 +3,12 @@
     nixos =
       {
         pkgs,
-        registry,
+        user,
+        username,
         ...
       }:
-      let
-        user = registry.users.ray;
-      in
       {
-        users.users.ray = {
+        users.users.${username} = {
           isNormalUser = true;
           inherit (user) description extraGroups;
           shell = pkgs.fish;

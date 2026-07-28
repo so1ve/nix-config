@@ -3,31 +3,21 @@
 let
   inherit (lib) mkOption types;
 
-  featureType = types.submodule (
-    { name, ... }:
-    {
-      options = {
-        name = mkOption {
-          type = types.str;
-          default = name;
-          description = "Path-like feature identifier.";
-        };
-
-        nixos = mkOption {
-          type = types.nullOr types.deferredModule;
-          default = null;
-          description = "Optional NixOS module provided by this feature.";
-        };
-
-        home = mkOption {
-          type = types.nullOr types.deferredModule;
-          default = null;
-          description = "Optional Home Manager module provided by this feature.";
-        };
-
+  featureType = types.submodule {
+    options = {
+      nixos = mkOption {
+        type = types.nullOr types.deferredModule;
+        default = null;
+        description = "Optional NixOS module provided by this feature.";
       };
-    }
-  );
+
+      home = mkOption {
+        type = types.nullOr types.deferredModule;
+        default = null;
+        description = "Optional Home Manager module provided by this feature.";
+      };
+    };
+  };
 
   nixosHostType = types.submodule (
     { name, ... }:
