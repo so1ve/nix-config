@@ -6,18 +6,40 @@
 }:
 
 let
-  cfg = config.ray.devenv.rust;
+  projectRoot = /. + config.devenv.root;
+  rustToolchainToml = projectRoot + "/rust-toolchain.toml";
+  rustToolchain = projectRoot + "/rust-toolchain";
+  toolchainFile =
+    if builtins.pathExists rustToolchainToml then
+      rustToolchainToml
+    else if builtins.pathExists rustToolchain then
+      rustToolchain
+    else
+      null;
 in
 {
-  options.ray.devenv.rust.rustupPackage = lib.mkOption {
-    type = lib.types.package;
-    default = pkgs.rustup;
-    description = "Rustup package used to honor the project's rust-toolchain file.";
-  };
+  config = lib.mkMerge [
+    {
+      languages.rust = {
+        enable = true;
+        toolchainFile = lib.mkDefault toolchainFile;
+      };
 
-  config.packages = [
-    cfg.rustupPackage
-    pkgs.clang
-    pkgs.pkg-config
+      packages = [ pkgs.pkg-config ];
+    }
+
+    (lib.mkIf (config.languages.rust.toolchainFile == null) {
+      languages.rust = {
+        channel = lib.mkDefault "stable";
+        components = lib.mkDefault [
+          "rustc"
+          "cargo"
+          "clippy"
+          "rustfmt"
+          "rust-analyzer"
+          "rust-src"
+        ];
+      };
+    })
   ];
 }

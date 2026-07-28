@@ -18,7 +18,7 @@ list_profiles() {
   cat <<'EOF'
 frontend    Node.js and Corepack
 go          Go with native go.mod toolchain selection, Delve and Task
-rust        rustup and native build dependencies
+rust        rust-overlay toolchain and native build dependencies
 zig         Zig
 python      Python and uv
 cpp         GCC, CMake, Ninja, ccache and GDB
@@ -263,6 +263,17 @@ nixfmt "$temporary_nix"
   printf '%s\n' 'inputs:'
   printf '%s\n' '  nixpkgs:'
   printf '%s\n' '    url: github:cachix/devenv-nixpkgs/rolling'
+
+  for profile in "${selected_profiles[@]}"; do
+    if [[ "$profile" == rust ]]; then
+      printf '%s\n' '  rust-overlay:'
+      printf '%s\n' '    url: github:oxalica/rust-overlay'
+      printf '%s\n' '    inputs:'
+      printf '%s\n' '      nixpkgs:'
+      printf '%s\n' '        follows: nixpkgs'
+      break
+    fi
+  done
 } >"$temporary_yaml"
 
 mv "$temporary_nix" "$devenv_nix"
