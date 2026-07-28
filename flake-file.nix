@@ -55,7 +55,10 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-      neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+      neovim-nightly-overlay = {
+        url = "github:nix-community/neovim-nightly-overlay";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
 
       waydroid-script = {
         url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
