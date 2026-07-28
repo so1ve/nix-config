@@ -9,6 +9,8 @@ let
   cfg = config.ray.devenv.frontend;
 in
 {
+  imports = [ ./config.nix ];
+
   options.ray.devenv.frontend = {
     directory = lib.mkOption {
       type = lib.types.str;
@@ -24,15 +26,21 @@ in
   };
 
   config = {
+    env.NVIM_VUE_TYPESCRIPT_PLUGIN_PATH = "${pkgs.vue-language-server}/lib/language-tools/packages/language-server";
+
     languages.javascript = {
       enable = true;
       inherit (cfg) directory;
       package = cfg.nodePackage;
       corepack.enable = true;
 
-      # Neovim provides vtsls in its wrapper. Do not add the module's default
-      # typescript-language-server alongside it.
+      # vtsls is provided below; do not add typescript-language-server too.
       lsp.enable = false;
     };
+
+    packages = with pkgs; [
+      vtsls
+      vue-language-server
+    ];
   };
 }

@@ -7,22 +7,46 @@ MODULE_ROOT: Path = Path("__MODULE_ROOT__")
 GIT: str = "__GIT__"
 DEVENV: str = "__DEVENV__"
 PROFILES: dict[str, tuple[str, tuple[str, ...]]] = {
-    "frontend": ("Node.js and Corepack", ("package.json",)),
-    "go": ("Go, Delve and Task", ("go.mod", "go.work")),
+    "config": ("JSON, YAML, TOML and web document tooling", ()),
+    "container": (
+        "Dockerfile and Compose tooling",
+        (
+            "Dockerfile",
+            "Dockerfile.*",
+            "Containerfile",
+            "Containerfile.*",
+            "compose.yaml",
+            "compose.yml",
+            "docker-compose.yaml",
+            "docker-compose.yml",
+        ),
+    ),
+    "frontend": ("Node.js, Corepack and frontend tooling", ("package.json",)),
+    "go": ("Go, Delve, Task and editor tooling", ("go.mod", "go.work")),
     "rust": (
-        "rust-overlay and native build dependencies",
+        "rust-overlay, native build dependencies and editor tooling",
         ("Cargo.toml", "rust-toolchain", "rust-toolchain.toml"),
     ),
-    "zig": ("Zig", ("build.zig", "build.zig.zon")),
-    "python": ("Python and uv", ("pyproject.toml", "uv.lock", "requirements.txt")),
+    "zig": ("Zig and ZLS", ("build.zig", "build.zig.zon")),
+    "python": (
+        "Python, uv and editor tooling",
+        ("pyproject.toml", "uv.lock", "requirements.txt"),
+    ),
     "cpp": (
-        "GCC, CMake, Ninja, ccache and GDB",
+        "GCC, Clang tools, CMake, Ninja, ccache and GDB",
         ("CMakeLists.txt", "meson.build", "Makefile", "*.c", "*.cc", "*.cpp"),
     ),
-    "lua": ("Lua and LuaRocks", (".luarc.json", "init.lua", "stylua.toml")),
-    "nix": ("deadnix and statix", ("flake.nix", "default.nix", "shell.nix")),
-    "shell": ("ShellCheck and shfmt", ("*.sh", "*.fish")),
-    "typst": ("Typst and Typstyle", ("*.typ",)),
+    "lua": (
+        "Lua, LuaRocks and editor tooling",
+        (".luarc.json", "init.lua", "stylua.toml"),
+    ),
+    "nix": (
+        "nixd, nixfmt, deadnix and statix",
+        ("flake.nix", "default.nix", "shell.nix"),
+    ),
+    "shell": ("Shell language servers, ShellCheck and shfmt", ("*.sh", "*.fish")),
+    "latex": ("TexLab and latexindent", ("*.tex", "*.bib")),
+    "typst": ("Typst, Tinymist and Typstyle", ("*.typ",)),
 }
 LOCAL_EXCLUDES = ("/devenv.local.nix", "/.devenv/", "/.devenv.flake.nix")
 GENERATED_EXCLUDES = ("/devenv.nix", "/devenv.yaml", "/devenv.lock")

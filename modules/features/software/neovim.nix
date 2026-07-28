@@ -18,39 +18,12 @@
           vimAlias = true;
           sideloadInitLua = true;
           extraPackages = with pkgs; [
-            basedpyright
-            bash-language-server
-            clang-tools
             copilot-language-server
-            docker-compose-language-service
-            dockerfile-language-server
-            fish-lsp
-            gofumpt
-            gopls
-            gotools
-            lua-language-server
-            nixd
-            nixfmt
-            prettier
-            prettierd
-            ruff
-            rust-analyzer
-            stylua
-            texlab
-            texlivePackages.latexindent
-            tinymist
-            tombi
+            curl
+            gnutar
+            stdenv.cc
             tree-sitter
-            vscode-langservers-extracted
-            vtsls
-            vue-language-server
-            yaml-language-server
-            zls
           ];
-        };
-
-        home.sessionVariables = {
-          NVIM_VUE_TYPESCRIPT_PLUGIN_PATH = "${pkgs.vue-language-server}/lib/language-tools/packages/language-server";
         };
 
         xdg.configFile."nvim".source = mkDotfilesSymlink {

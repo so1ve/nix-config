@@ -25,7 +25,10 @@ in
         toolchainFile = lib.mkDefault toolchainFile;
       };
 
-      packages = [ pkgs.pkg-config ];
+      packages = with pkgs; [
+        pkg-config
+        tombi
+      ];
     }
 
     (lib.mkIf (config.languages.rust.toolchainFile == null) {
