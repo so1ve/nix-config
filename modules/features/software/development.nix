@@ -10,22 +10,21 @@
       }:
       let
         moduleRoot = "${config.xdg.configHome}/devenv/ray";
-        devEnv = pkgs.writeShellApplication {
-          name = "dev-env";
-          runtimeInputs = [
-            pkgs.coreutils
-            pkgs.devenv
-            pkgs.git
-            pkgs.gnugrep
-            pkgs.nixfmt
+        devEnv = pkgs.writers.writePython3Bin "dev-env" {
+          flakeIgnore = [ "E501" ];
+          makeWrapperArgs = [
+            "--set-default"
+            "RAY_DEVENV_MODULE_ROOT"
+            moduleRoot
+            "--prefix"
+            "PATH"
+            ":"
+            (lib.makeBinPath [
+              pkgs.devenv
+              pkgs.git
+            ])
           ];
-          text = ''
-            if [[ -z "''${RAY_DEVENV_MODULE_ROOT:-}" ]]; then
-              export RAY_DEVENV_MODULE_ROOT=${lib.escapeShellArg moduleRoot}
-            fi
-            ${builtins.readFile ./development/dev-env.sh}
-          '';
-        };
+        } (builtins.readFile ./development/dev_env.py);
       in
       {
         home.packages = [
