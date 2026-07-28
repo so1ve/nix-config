@@ -3,7 +3,7 @@
     home =
       { inputs, ... }:
       {
-        imports = [ inputs.ab-download-manager.homeModules.ab-download-manager ];
+        imports = [ inputs.nur.repos.so1ve.homeModules.ab-download-manager ];
 
         programs.ab-download-manager = {
           enable = true;

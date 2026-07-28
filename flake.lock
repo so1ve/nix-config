@@ -1,25 +1,5 @@
 {
   "nodes": {
-    "ab-download-manager": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1785169110,
-        "narHash": "sha256-uzE5TPWT8ruIoC5ROhAaG4YaAeI5iSeboI111gE0qR0=",
-        "owner": "so1ve",
-        "repo": "nur-packages",
-        "rev": "e7da83aebcdbb55ed75beebd72955a14b7bc7360",
-        "type": "github"
-      },
-      "original": {
-        "owner": "so1ve",
-        "repo": "nur-packages",
-        "type": "github"
-      }
-    },
     "agenix": {
       "inputs": {
         "darwin": [],
@@ -264,11 +244,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785163362,
-        "narHash": "sha256-FV4VoFF/YVtmL5GBc9cTLqXQNq0mK/p/FNsHxgKATDw=",
+        "lastModified": 1785212086,
+        "narHash": "sha256-ZmbE00295JpWD9vKea8rXxzriV1TbPxCkg0BCvHfoHE=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "55afdb5742236f078d658894edd54a2269c7ba6b",
+        "rev": "0ccde6386dfde35a1efdf7404e2448b114c7cb4c",
         "type": "github"
       },
       "original": {
@@ -279,7 +259,6 @@
     },
     "root": {
       "inputs": {
-        "ab-download-manager": "ab-download-manager",
         "agenix": "agenix",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
