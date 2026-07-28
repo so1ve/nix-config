@@ -2,23 +2,26 @@
   ray.features."software/mihomo" = {
     nixos =
       {
+        config,
         pkgs,
-        username,
         ...
       }:
       {
         services.mihomo = {
           enable = true;
-          configFile = "/home/${username}/.config/mihomo/config.yaml";
+          configFile = config.age.secrets.mihomo-config.path;
           webui = pkgs.zashboard;
           tunMode = true;
         };
 
         # Avoid making the first proxy startup depend on downloading its GeoIP
         # database through a proxy that is not running yet.
-        systemd.services.mihomo.serviceConfig.BindReadOnlyPaths = [
-          "${pkgs.dbip-country-lite.mmdb}:/var/lib/private/mihomo/Country.mmdb"
-        ];
+        systemd.services.mihomo = {
+          restartTriggers = [ config.age.secrets.mihomo-config.file ];
+          serviceConfig.BindReadOnlyPaths = [
+            "${pkgs.dbip-country-lite.mmdb}:/var/lib/private/mihomo/Country.mmdb"
+          ];
+        };
 
         # Strict reverse-path filtering can reject traffic routed through the
         # TUN interface.
@@ -35,13 +38,14 @@
       }:
       let
         manifestUrl = "http://127.0.0.1:9090/ui/manifest.webmanifest";
+        mihomoConfig = "/run/agenix/mihomo-config";
 
         showZashboardSecret = pkgs.writeShellApplication {
           name = "zashboard-secret";
           runtimeInputs = [ pkgs.yq-go ];
           text = ''
             exec yq --unwrapScalar '.secret // ""' \
-              ${lib.escapeShellArg "${config.xdg.configHome}/mihomo/config.yaml"}
+              ${lib.escapeShellArg mihomoConfig}
           '';
         };
       in
@@ -61,6 +65,11 @@
 
         {
           home.packages = [ showZashboardSecret ];
+
+          xdg.configFile."mihomo/config.yaml" = {
+            source = config.lib.file.mkOutOfStoreSymlink mihomoConfig;
+            force = true;
+          };
         }
       ];
   };

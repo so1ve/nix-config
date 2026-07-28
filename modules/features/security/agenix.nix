@@ -1,5 +1,24 @@
 {
   ray.features."security/agenix" = {
+    nixos =
+      {
+        inputs,
+        username,
+        ...
+      }:
+      {
+        imports = [ inputs.agenix.nixosModules.default ];
+
+        age = {
+          identityPaths = [ "/home/${username}/.config/agenix/identity" ];
+
+          secrets.mihomo-config = {
+            file = ../../../secrets/mihomo-config.age;
+            owner = username;
+          };
+        };
+      };
+
     home =
       {
         config,

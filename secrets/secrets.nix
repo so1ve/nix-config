@@ -3,4 +3,5 @@ let
 in
 {
   "github-ssh.age".publicKeys = [ ray ];
+  "mihomo-config.age".publicKeys = [ ray ];
 }
