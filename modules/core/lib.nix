@@ -34,6 +34,15 @@ let
       }) (filter (feature: feature.${kind} != null) (attrValues config.ray.features))
     );
 
+  nixCacheSettings =
+    let
+      binaryCaches = attrValues config.ray.registry.binaryCaches;
+    in
+    {
+      extra-substituters = map (cache: cache.url) binaryCaches;
+      extra-trusted-public-keys = map (cache: cache.publicKey) binaryCaches;
+    };
+
   mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
   mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix;
   mkAppImage = import ../../lib/mk-appimage.nix;
@@ -92,6 +101,7 @@ in
       mkNixosHost
       moduleAttrsFor
       modulesFor
+      nixCacheSettings
       selectFeatures
       ;
   };

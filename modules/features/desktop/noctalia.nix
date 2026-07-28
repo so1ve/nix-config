@@ -1,14 +1,7 @@
 {
   ray.features."desktop/noctalia" = {
     nixos =
-      {
-        inputs,
-        registry,
-        ...
-      }:
-      let
-        cache = registry.binaryCaches.noctalia;
-      in
+      { inputs, ... }:
       {
         imports = [ inputs.noctalia.nixosModules.default ];
 
@@ -22,11 +15,6 @@
         services.logind.settings.Login = {
           HandleLidSwitch = "ignore";
           HandleLidSwitchExternalPower = "ignore";
-        };
-
-        nix.settings = {
-          extra-substituters = [ cache.url ];
-          extra-trusted-public-keys = [ cache.publicKey ];
         };
       };
 
