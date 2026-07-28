@@ -38,6 +38,9 @@
         '';
 
         programs.fish.interactiveShellInit = lib.mkAfter ''
+          # A shell spawned by the PWD hook can inherit zoxide's temporary
+          # recursion guard while zoxide is still changing directories.
+          set -e __zoxide_loop
           ${pkgs.devenv}/bin/devenv hook fish | source
         '';
 
