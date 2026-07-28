@@ -28,7 +28,7 @@
             shellAbbrs = {
               alien = "nix run github:thiagokokada/nix-alien#nix-alien --";
               nd = "nix develop -c fish";
-              sr = "nix shell nixpkgs#steam-run -c steam-run";
+              sr = "steam-run";
             };
             interactiveShellInit = ''
               set -gx LANG ${cliLocale}
