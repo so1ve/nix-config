@@ -32,15 +32,15 @@ in
       enable = true;
       inherit (cfg) directory;
       package = cfg.nodePackage;
-      corepack.enable = true;
 
       # vtsls is provided below; do not add typescript-language-server too.
       lsp.enable = false;
     };
 
-    packages = with pkgs; [
-      vtsls
-      vue-language-server
+    packages = [
+      (pkgs.corepack.override { nodejs-slim = cfg.nodePackage; })
+      pkgs.vtsls
+      pkgs.vue-language-server
     ];
   };
 }
