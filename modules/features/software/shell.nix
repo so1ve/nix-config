@@ -25,6 +25,7 @@
 
           fish = {
             enable = true;
+            shellAbbrs.nd = "nix develop -c fish";
             interactiveShellInit = ''
               set -gx LANG ${cliLocale}
               set -gx LANGUAGE en_US
