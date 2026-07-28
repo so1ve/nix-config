@@ -10,21 +10,22 @@
       }:
       let
         moduleRoot = "${config.xdg.configHome}/devenv/ray";
+        script =
+          builtins.replaceStrings
+            [
+              "__MODULE_ROOT__"
+              "__GIT__"
+              "__DEVENV__"
+            ]
+            [
+              moduleRoot
+              (lib.getExe pkgs.git)
+              (lib.getExe pkgs.devenv)
+            ]
+            (builtins.readFile ./development/dev_env.py);
         devEnv = pkgs.writers.writePython3Bin "dev-env" {
           flakeIgnore = [ "E501" ];
-          makeWrapperArgs = [
-            "--set-default"
-            "RAY_DEVENV_MODULE_ROOT"
-            moduleRoot
-            "--prefix"
-            "PATH"
-            ":"
-            (lib.makeBinPath [
-              pkgs.devenv
-              pkgs.git
-            ])
-          ];
-        } (builtins.readFile ./development/dev_env.py);
+        } script;
       in
       {
         home.packages = [
