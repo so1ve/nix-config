@@ -2,7 +2,6 @@
   config,
   inputs,
   lib,
-  self,
   ...
 }:
 
@@ -53,17 +52,13 @@ let
       mkAppImage
       mkDotfilesSymlink
       mkFirefoxPwaInstall
-      self
-      host
       ;
-    flake = self;
     registry = config.ray.registry;
     inherit (host)
       hostname
       homeStateVersion
       stateVersion
       system
-      type
       username
       ;
   };
@@ -100,9 +95,7 @@ in
     inherit
       mkNixosHost
       moduleAttrsFor
-      modulesFor
       nixCacheSettings
-      selectFeatures
       ;
   };
 }
