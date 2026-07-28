@@ -2496,6 +2496,10 @@ require("snacks").setup({
       files = {
         hidden = true,
       },
+      grep = {
+        hidden = true,
+        ignored = false,
+      },
       lsp_symbols = {
         filter = {
           default = {
