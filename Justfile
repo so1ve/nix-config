@@ -22,6 +22,10 @@ switch:
 fmt:
     nix fmt --accept-flake-config
 
+# Regenerate flake.nix from flake-file.nix.
+write-flake:
+    nix run .#write-flake --accept-flake-config
+
 # Update all flake inputs.
 update:
     nix flake update --accept-flake-config
