@@ -35,6 +35,7 @@
         home.packages = [
           devEnv
           pkgs.devenv
+          pkgs.ni
         ];
 
         programs.bash.initExtra = lib.mkAfter ''
