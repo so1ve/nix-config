@@ -446,46 +446,48 @@ autocmd("BufWritePost", {
 -- # Terminal                  #
 -- #############################
 
-load_plugins("later", "betterTerm.nvim", function()
-  require("betterTerm").setup({
-    new_tab_mapping = "<C-n>",
-    jump_tab_mapping = "<A-$tab>",
-    index_base = 1,
-    predefined = {
-      { index = 1, name = "Main" },
-      { index = 2, name = "Server" },
-    },
-  })
-end)
+if is_windows then
+  load_plugins("later", "betterTerm.nvim", function()
+    require("betterTerm").setup({
+      new_tab_mapping = "<C-n>",
+      jump_tab_mapping = "<A-$tab>",
+      index_base = 1,
+      predefined = {
+        { index = 1, name = "Main" },
+        { index = 2, name = "Server" },
+      },
+    })
+  end)
 
-map({ "n", "t" }, "<leader>tt", function()
-  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "better_term" then
-      if vim.api.nvim_get_current_win() == win then
-        require("betterTerm").open()
-      else
-        vim.api.nvim_win_hide(win)
+  map({ "n", "t" }, "<leader>tt", function()
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "better_term" then
+        if vim.api.nvim_get_current_win() == win then
+          require("betterTerm").open()
+        else
+          vim.api.nvim_win_hide(win)
+        end
+        return
       end
-      return
     end
-  end
 
-  require("panels").open("better-term", function()
-    require("betterTerm").open()
-  end, { reuse = false })
-end, { desc = "Toggle terminal" })
+    require("panels").open("better-term", function()
+      require("betterTerm").open()
+    end, { reuse = false })
+  end, { desc = "Toggle terminal" })
 
-map("t", "<C-q>", function()
-  require("betterTerm").close(vim.fn.bufname("%"))
-end, { desc = "Close current terminal" })
+  map("t", "<C-q>", function()
+    require("betterTerm").close(vim.fn.bufname("%"))
+  end, { desc = "Close current terminal" })
 
-map("n", "<leader>ts", function()
-  require("betterTerm").select()
-end, { desc = "Select terminal" })
+  map("n", "<leader>ts", function()
+    require("betterTerm").select()
+  end, { desc = "Select terminal" })
 
-map("n", "<leader>tr", function()
-  require("betterTerm").rename()
-end, { desc = "Rename terminal" })
+  map("n", "<leader>tr", function()
+    require("betterTerm").rename()
+  end, { desc = "Rename terminal" })
+end
 
 -- #############################
 -- # Completion                #
@@ -798,6 +800,12 @@ vim.g.copilot_nes_debounce = 350
 
 load_plugins("later", { "copilot-lsp", "copilot.lua" }, function()
   require("copilot").setup({
+    server = is_windows and {
+      type = "nodejs",
+    } or {
+      type = "binary",
+      custom_server_filepath = "copilot-language-server",
+    },
     filetypes = {
       markdown = true,
     },
