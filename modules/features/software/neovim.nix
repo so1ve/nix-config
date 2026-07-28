@@ -21,6 +21,7 @@
             basedpyright
             bash-language-server
             clang-tools
+            copilot-language-server
             docker-compose-language-service
             dockerfile-language-server
             fish-lsp
@@ -30,8 +31,6 @@
             lua-language-server
             nixd
             nixfmt
-            nodejs
-            python3
             prettier
             prettierd
             ruff
