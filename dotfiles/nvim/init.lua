@@ -696,6 +696,15 @@ require("codesettings").setup({
 vim.env.PRETTIERD_LOCAL_PRETTIER_ONLY = "1"
 
 local prettier = { "prettierd", "prettier", stop_after_first = true }
+local deno_root_markers = { "deno.json", "deno.jsonc", "deno.lock" }
+
+local function deno_or_prettier(bufnr)
+  if vim.fs.root(bufnr, deno_root_markers) then
+    return { "deno_fmt" }
+  end
+
+  return prettier
+end
 
 load_plugins("later", "conform.nvim", function()
   require("conform").setup({
@@ -703,23 +712,28 @@ load_plugins("later", "conform.nvim", function()
       lsp_format = "fallback",
     },
     formatters_by_ft = {
-      css = prettier,
+      css = deno_or_prettier,
       fish = { "fish_indent" },
-      html = prettier,
-      javascript = prettier,
-      javascriptreact = prettier,
-      json = prettier,
-      jsonc = prettier,
+      html = deno_or_prettier,
+      javascript = deno_or_prettier,
+      javascriptreact = deno_or_prettier,
+      json = deno_or_prettier,
+      jsonc = deno_or_prettier,
       lua = { "stylua" },
       nix = { "nixfmt" },
       ps1 = { lsp_format = "never" },
       python = { "ruff_organize_imports", "ruff_format" },
-      scss = prettier,
+      scss = deno_or_prettier,
       toml = prettier,
-      typescript = prettier,
-      typescriptreact = prettier,
+      typescript = deno_or_prettier,
+      typescriptreact = deno_or_prettier,
       vue = prettier,
-      yaml = prettier,
+      yaml = deno_or_prettier,
+    },
+    formatters = {
+      deno_fmt = {
+        cwd = require("conform.util").root_file(deno_root_markers),
+      },
     },
     format_after_save = function(bufnr)
       if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
@@ -1078,6 +1092,7 @@ local servers = {
   },
   bashls = {},
   cssls = {},
+  denols = {},
   docker_compose_language_service = {},
   dockerls = {},
   fish_lsp = {},
