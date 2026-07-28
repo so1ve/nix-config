@@ -15,5 +15,8 @@ in
     description = "Zig compiler package.";
   };
 
-  config.packages = [ cfg.package ];
+  config.packages = [
+    cfg.package
+    pkgs.zls
+  ];
 }

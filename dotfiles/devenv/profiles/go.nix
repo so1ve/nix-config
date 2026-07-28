@@ -23,7 +23,10 @@ in
     packages = with pkgs; [
       cfg.package
       delve
+      gofumpt
+      gopls
       go-task
+      gotools
     ];
   };
 }

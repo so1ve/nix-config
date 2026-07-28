@@ -2,9 +2,7 @@
 
 {
   packages = with pkgs; [
-    deadnix
-    nixd
-    nixfmt
-    statix
+    texlab
+    texlivePackages.latexindent
   ];
 }
