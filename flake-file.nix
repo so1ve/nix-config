@@ -1,17 +1,26 @@
 {
   config,
   inputs,
+  lib,
   ...
 }:
 
 let
+  system = "x86_64-linux";
+  pkgs = inputs.nixpkgs.legacyPackages.${system};
+
   binaryCaches = builtins.attrValues config.ray.registry.binaryCaches;
+
+  nixosConfigurations = lib.mapAttrs (
+    _: host: config.ray.lib.mkNixosHost host
+  ) config.ray.hosts.nixos;
 in
 {
-  imports = [ inputs.flake-file.flakeModules.default ];
+  imports = [ (inputs.import-tree ./modules) ];
 
   flake-file = {
     description = "Ray's NixOS Configuration";
+    outputs = "flake-module";
 
     nixConfig = {
       extra-substituters = map (cache: cache.url) binaryCaches;
@@ -21,14 +30,12 @@ in
     inputs = {
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-      flake-parts.url = "github:hercules-ci/flake-parts";
       flake-file.url = "github:denful/flake-file";
       import-tree.url = "github:denful/import-tree";
 
       nur = {
         url = "github:nix-community/NUR";
         inputs.nixpkgs.follows = "nixpkgs";
-        inputs.flake-parts.follows = "flake-parts";
       };
 
       home-manager = {
@@ -58,7 +65,21 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
     };
+  };
 
-    outputs = "inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules)";
+  outputs = _: {
+    inherit nixosConfigurations;
+
+    nixosModules = config.ray.lib.moduleAttrsFor "nixos";
+    homeModules = config.ray.lib.moduleAttrsFor "home";
+
+    checks.${system} =
+      lib.mapAttrs (_: nixos: nixos.config.system.build.toplevel) nixosConfigurations
+      // {
+        check-flake-file = config.flake-file.check-flake-file pkgs;
+      };
+
+    formatter.${system} = pkgs.nixfmt-tree;
+    packages.${system}.write-flake = config.flake-file.apps.write-flake pkgs;
   };
 }
