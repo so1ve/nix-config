@@ -249,7 +249,7 @@ trap 'rm -f "$temporary_nix" "$temporary_yaml"' EXIT
   printf '%s\n' '  imports = ['
 
   for profile in "${selected_profiles[@]}"; do
-    printf '    (builtins.toPath "%s/profiles/%s.nix")\n' "$RAY_DEVENV_MODULE_ROOT" "$profile"
+    printf '    %s/profiles/%s.nix\n' "$RAY_DEVENV_MODULE_ROOT" "$profile"
   done
 
   printf '%s\n' '  ] ++ lib.optional (builtins.pathExists ./devenv.local.nix) ./devenv.local.nix;'

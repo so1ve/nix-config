@@ -2,7 +2,7 @@
 { lib, ... }:
 {
   imports = [
-    (builtins.toPath "/home/ray/.config/devenv/ray/profiles/nix.nix")
+    /home/ray/.config/devenv/ray/profiles/nix.nix
   ]
   ++ lib.optional (builtins.pathExists ./devenv.local.nix) ./devenv.local.nix;
 }

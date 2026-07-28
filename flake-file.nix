@@ -40,9 +40,11 @@ in
 
       agenix = {
         url = "github:ryantm/agenix";
-        inputs.nixpkgs.follows = "nixpkgs";
-        inputs.home-manager.follows = "home-manager";
-        inputs.darwin.follows = "";
+        inputs = {
+          nixpkgs.follows = "nixpkgs";
+          home-manager.follows = "home-manager";
+          darwin.follows = "";
+        };
       };
 
       # Track the newest Noctalia v5 revision available from its binary cache.

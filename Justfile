@@ -3,9 +3,13 @@ host := "vesper"
 default:
     @just --list
 
-# Evaluate the flake and its checks without building the system.
-check:
+# Verify the generated flake before evaluating the remaining checks.
+check: check-flake-file
     nix flake check . --no-build --show-trace --accept-flake-config
+
+# Check that flake.nix is up to date with flake-file.nix.
+check-flake-file:
+    nix build .#checks.x86_64-linux.check-flake-file --no-link --accept-flake-config
 
 # Build the system without switching to it or creating a result symlink.
 build:

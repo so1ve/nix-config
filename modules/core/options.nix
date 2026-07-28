@@ -43,13 +43,6 @@ let
           default = "x86_64-linux";
         };
 
-        type = mkOption {
-          type = types.enum [
-            "desktop"
-            "server"
-          ];
-        };
-
         username = mkOption {
           type = types.str;
         };

@@ -26,7 +26,7 @@ in
   config = {
     languages.javascript = {
       enable = true;
-      directory = cfg.directory;
+      inherit (cfg) directory;
       package = cfg.nodePackage;
       corepack.enable = true;
 
