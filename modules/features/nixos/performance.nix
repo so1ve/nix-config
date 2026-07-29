@@ -6,6 +6,7 @@
         boot.kernel.sysctl = {
           "vm.swappiness" = 100;
           "vm.page-cluster" = 0;
+          "vm.vfs_cache_pressure" = 50;
         };
 
         services.scx = {
