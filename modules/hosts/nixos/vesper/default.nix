@@ -36,6 +36,7 @@
       "software/development"
       "software/git"
       "software/hmcl"
+      "software/kde-connect"
       "software/kitty"
       "software/alger-music-player"
       "software/neovim"
