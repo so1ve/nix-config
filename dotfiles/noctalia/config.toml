@@ -37,7 +37,6 @@ enabled = true
 [bar.default]
 margin_edge = 4
 background_opacity = 0.88
-shadow = false
 padding = 10
 capsule = true
 capsule_fill = "#202124E6"
