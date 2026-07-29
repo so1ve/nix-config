@@ -3,6 +3,11 @@
     nixos =
       { pkgs, ... }:
       {
+        boot.kernel.sysctl = {
+          "vm.swappiness" = 100;
+          "vm.page-cluster" = 0;
+        };
+
         services.scx = {
           enable = true;
           package = pkgs.scx.rustscheds;
