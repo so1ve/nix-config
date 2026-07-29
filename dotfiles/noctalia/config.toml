@@ -1,6 +1,7 @@
 [shell]
 # Niri has no desktop environment authentication agent of its own.
 polkit_agent = true
+avatar_path = "~/.config/noctalia/assets/avatar.jpg"
 
 [shell.greeter_sync]
 auto_sync = true
