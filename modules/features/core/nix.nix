@@ -15,6 +15,10 @@
           "nix-command"
           "flakes"
         ];
+        trusted-users = [
+          "root"
+          "@wheel"
+        ];
       }
       // config.ray.lib.nixCacheSettings;
 
