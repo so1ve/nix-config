@@ -39,6 +39,7 @@
       "software/kde-connect"
       "software/kitty"
       "software/alger-music-player"
+      "software/swayimg"
       "software/mpv"
       "software/haruna"
       "software/celluloid"
