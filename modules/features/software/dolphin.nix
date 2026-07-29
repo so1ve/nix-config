@@ -13,17 +13,17 @@
       }:
       let
         waydroidPlace = pkgs.writeText "dolphin-waydroid-place.xbel" ''
-           <bookmark href="file://${config.home.homeDirectory}/Waydroid">
-            <title>Waydroid</title>
-            <info>
-             <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="waydroid"/>
-             </metadata>
-             <metadata owner="http://www.kde.org">
-              <ID>nix-waydroid-storage</ID>
-             </metadata>
-            </info>
-           </bookmark>
+          <bookmark href="file://${config.home.homeDirectory}/Waydroid">
+           <title>Waydroid</title>
+           <info>
+            <metadata owner="http://freedesktop.org">
+             <bookmark:icon name="waydroid"/>
+            </metadata>
+            <metadata owner="http://www.kde.org">
+             <ID>nix-waydroid-storage</ID>
+            </metadata>
+           </info>
+          </bookmark>
         '';
       in
       {
@@ -35,7 +35,24 @@
           kdegraphics-thumbnailers
           kio-admin
           kio-extras
+          kservice
         ];
+
+        # KService still builds its application database from applications.menu.
+        # Minimal compositors such as Niri do not provide Plasma's menu file.
+        xdg.configFile."menus/applications.menu".text = ''
+          <!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+            "http://www.freedesktop.org/standards/menu-spec/1.0/menu.dtd">
+          <Menu>
+            <Name>Applications</Name>
+            <DefaultAppDirs/>
+            <DefaultDirectoryDirs/>
+            <DefaultMergeDirs/>
+            <Include>
+              <All/>
+            </Include>
+          </Menu>
+        '';
 
         xdg.mimeApps = {
           enable = true;
