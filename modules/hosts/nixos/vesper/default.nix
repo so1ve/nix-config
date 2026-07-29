@@ -10,6 +10,7 @@
       "core/nix"
       "nixos/base"
       "nixos/desktop"
+      "nixos/kernel/zen"
       "nixos/performance"
       "hardware/graphics"
       "hardware/uefi-systemd-boot"
