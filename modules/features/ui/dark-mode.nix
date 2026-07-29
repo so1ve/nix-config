@@ -1,15 +1,24 @@
 {
   ray.features."ui/dark-mode" = {
-    home = {
-      gtk = {
-        enable = true;
-        colorScheme = "dark";
-      };
+    home =
+      { pkgs, ... }:
+      {
+        gtk = {
+          enable = true;
+          colorScheme = "dark";
+        };
 
-      qt = {
-        enable = true;
-        style.name = "adwaita-dark";
+        qt = {
+          enable = true;
+          platformTheme = {
+            name = "kde";
+            package = pkgs.kdePackages.plasma-integration;
+          };
+          style.name = "breeze";
+        };
+
+        xdg.configFile."kdeglobals".source =
+          "${pkgs.kdePackages.breeze}/share/color-schemes/BreezeDark.colors";
       };
-    };
   };
 }
