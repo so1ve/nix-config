@@ -49,6 +49,7 @@
       "software/wps"
       "security/agenix"
       "security/fingerprint"
+      "security/sudo"
     ];
   };
 }
