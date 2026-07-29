@@ -17,7 +17,6 @@
             background_opacity = "0.85";
             cursor_trail = 3;
             font_family = "R Maple Mono NF CN";
-            hide_window_decorations = "yes";
             linux_display_server = "wayland";
           };
         };
