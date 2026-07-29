@@ -9,23 +9,23 @@ binds {
     }
 
     XF86AudioMicMute allow-when-locked=true {
-        spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"
     }
 
     XF86AudioPlay allow-when-locked=true {
-        spawn-sh "playerctl play-pause"
+        spawn "playerctl" "play-pause"
     }
 
     XF86AudioStop allow-when-locked=true {
-        spawn-sh "playerctl stop"
+        spawn "playerctl" "stop"
     }
 
     XF86AudioPrev allow-when-locked=true {
-        spawn-sh "playerctl previous"
+        spawn "playerctl" "previous"
     }
 
     XF86AudioNext allow-when-locked=true {
-        spawn-sh "playerctl next"
+        spawn "playerctl" "next"
     }
 
     // Window focus and movement.
@@ -268,7 +268,7 @@ binds {
     }
 
     Mod+V {
-        spawn-sh "noctalia msg panel-toggle clipboard"
+        spawn "noctalia" "msg" "panel-toggle" "clipboard"
     }
     Mod+Shift+Space {
         toggle-window-floating
