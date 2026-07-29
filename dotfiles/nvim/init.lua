@@ -1,6 +1,5 @@
 local g = vim.g
 local opt = vim.opt
-local is_windows = vim.fn.has("win32") == 1
 
 local map = vim.keymap.set
 local autocmd = vim.api.nvim_create_autocmd
@@ -59,23 +58,12 @@ opt.virtualedit = "block"
 opt.confirm = true
 opt.keywordprg = ":RayKeywordPrg"
 
-if is_windows then
-  opt.shell = "pwsh -NoLogo"
-  opt.shellcmdflag = "-NoProfile -ExecutionPolicy RemoteSigned -Command"
-  opt.shellquote = ""
-  opt.shellxquote = ""
-  opt.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
-  opt.shellredir = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
-  -- remove this after https://github.com/neovim/neovim/issues/40832 fixed
-  opt.shellslash = false
-else
-  opt.shell = "fish"
-  opt.shellcmdflag = "-c"
-  opt.shellquote = ""
-  opt.shellxquote = ""
-  opt.shellpipe = "2>&1| tee"
-  opt.shellredir = ">%s 2>&1"
-end
+opt.shell = "fish"
+opt.shellcmdflag = "-c"
+opt.shellquote = ""
+opt.shellxquote = ""
+opt.shellpipe = "2>&1| tee"
+opt.shellredir = ">%s 2>&1"
 
 -- scrolling
 opt.scrolloff = 3
@@ -179,7 +167,6 @@ opt.splitbelow = true
 opt.splitkeep = "screen"
 
 -- files
-opt.fileformats = { "unix", "dos", "mac" }
 opt.undofile = true
 opt.swapfile = false
 
@@ -213,13 +200,11 @@ vim.pack.add({
   gh("willothy/flatten.nvim"),
   gh("folke/snacks.nvim"),
   gh("mrjones2014/codesettings.nvim"),
-  gh("mason-org/mason.nvim"),
   gh("saghen/filler-begone.nvim"),
   gh("so1ve/tiny-treesitter.nvim"),
 }, { confirm = false, load = true })
 
 vim.pack.add({
-  gh("CRAG666/betterTerm.nvim"),
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("stevearc/conform.nvim"),
   gh("zbirenbaum/copilot.lua"),
@@ -317,8 +302,8 @@ vim.filetype.add({
     ["docker-compose.yml"] = "yaml.docker-compose",
   },
   pattern = {
-    [".*[\\/]%.github[\\/]workflows[\\/][^\\/]+%.ya?ml%..*"] = { "yaml", { priority = 1 } },
-    [".*[\\/]%.github[\\/]workflows[\\/][^\\/]+%.ya?ml"] = "yaml.github-actions",
+    [".*/%.github/workflows/[^/]+%.ya?ml%..*"] = { "yaml", { priority = 1 } },
+    [".*/%.github/workflows/[^/]+%.ya?ml"] = "yaml.github-actions",
     ["compose%..*%.ya?ml"] = "yaml.docker-compose",
     ["docker%-compose%..*%.ya?ml"] = "yaml.docker-compose",
   },
@@ -384,7 +369,7 @@ local function ignored_files_changed()
 end
 
 local function normalize_ignored_path(path)
-  return vim.fs.normalize(path):gsub("\\", "/"):gsub("/+$", "")
+  return vim.fs.normalize(path):gsub("/+$", "")
 end
 
 local function relative_ignored_path(path)
@@ -441,53 +426,6 @@ autocmd("BufWritePost", {
   pattern = { ".gitignore", "*/.gitignore", ".git/info/exclude", "*/.git/info/exclude" },
   callback = refresh_ignored,
 })
-
--- #############################
--- # Terminal                  #
--- #############################
-
-if is_windows then
-  load_plugins("later", "betterTerm.nvim", function()
-    require("betterTerm").setup({
-      new_tab_mapping = "<C-n>",
-      jump_tab_mapping = "<A-$tab>",
-      index_base = 1,
-      predefined = {
-        { index = 1, name = "Main" },
-        { index = 2, name = "Server" },
-      },
-    })
-  end)
-
-  map({ "n", "t" }, "<leader>tt", function()
-    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-      if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "better_term" then
-        if vim.api.nvim_get_current_win() == win then
-          require("betterTerm").open()
-        else
-          vim.api.nvim_win_hide(win)
-        end
-        return
-      end
-    end
-
-    require("panels").open("better-term", function()
-      require("betterTerm").open()
-    end, { reuse = false })
-  end, { desc = "Toggle terminal" })
-
-  map("t", "<C-q>", function()
-    require("betterTerm").close(vim.fn.bufname("%"))
-  end, { desc = "Close current terminal" })
-
-  map("n", "<leader>ts", function()
-    require("betterTerm").select()
-  end, { desc = "Select terminal" })
-
-  map("n", "<leader>tr", function()
-    require("betterTerm").rename()
-  end, { desc = "Rename terminal" })
-end
 
 -- #############################
 -- # Completion                #
@@ -800,9 +738,7 @@ vim.g.copilot_nes_debounce = 350
 
 load_plugins("later", { "copilot-lsp", "copilot.lua" }, function()
   require("copilot").setup({
-    server = is_windows and {
-      type = "nodejs",
-    } or {
+    server = {
       type = "binary",
       custom_server_filepath = "copilot-language-server",
     },
@@ -1183,18 +1119,6 @@ local servers = {
     },
   },
   eslint = {
-    before_init = function(_, config)
-      if not config.root_dir then
-        return
-      end
-
-      -- vscode-eslint expects a file URI here. On Windows, the upstream
-      -- default raw path can make projectService resolve test files wrong.
-      config.settings.workspaceFolder = {
-        name = vim.fn.fnamemodify(config.root_dir, ":t"),
-        uri = vim.uri_from_fname(config.root_dir),
-      }
-    end,
     filetypes = {
       "javascript",
       "typescript",
@@ -1271,9 +1195,6 @@ local servers = {
       },
     },
   },
-  powershell_es = is_windows and {
-    bundle_path = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "powershell-editor-services"),
-  } or nil,
   basedpyright = {
     settings = {
       basedpyright = {
@@ -1323,15 +1244,7 @@ local servers = {
           globalPlugins = {
             {
               name = "@vue/typescript-plugin",
-              location = is_windows and vim.fs.joinpath(
-                vim.fn.stdpath("data"),
-                "mason",
-                "packages",
-                "vue-language-server",
-                "node_modules",
-                "@vue",
-                "language-server"
-              ) or vim.env.NVIM_VUE_TYPESCRIPT_PLUGIN_PATH,
+              location = vim.env.NVIM_VUE_TYPESCRIPT_PLUGIN_PATH,
               languages = { "vue" },
               configNamespace = "typescript",
               enableForWorkspaceTypeScriptVersions = true,
@@ -1463,65 +1376,6 @@ load_plugins("now", { "schemastore.nvim", "nvim-lspconfig" }, function()
     callback = configure_lsp_buffer,
   })
 end)
-
--- #############################
--- # Mason                     #
--- #############################
-
-if is_windows then
-  require("mason").setup()
-
-  local mason_tools = {
-    "basedpyright",
-    "bash-language-server",
-    "clangd",
-    "css-lsp",
-    "docker-compose-language-service",
-    "dockerfile-language-server",
-    "eslint-lsp",
-    "fish-lsp",
-    "gofumpt",
-    "goimports",
-    "gopls",
-    "html-lsp",
-    "json-lsp",
-    "latexindent",
-    "lua-language-server",
-    "nixfmt",
-    "powershell-editor-services",
-    "prettier",
-    "prettierd",
-    "ruff",
-    "stylua",
-    "texlab",
-    "tinymist",
-    "tombi",
-    "vtsls",
-    "vue-language-server",
-    "yaml-language-server",
-    "zls",
-  }
-
-  local mason_registry = require("mason-registry")
-  local mason_notify = vim.schedule_wrap(function(message, level)
-    vim.notify(message, level, { title = "Mason" })
-  end)
-
-  mason_registry.refresh(function()
-    for _, name in ipairs(mason_tools) do
-      local tool = mason_registry.get_package(name)
-      if not tool:is_installed() then
-        mason_notify(name .. ": installing", vim.log.levels.INFO)
-        tool:install({}, function(success)
-          mason_notify(
-            name .. (success and ": successfully installed" or ": failed to install"),
-            success and vim.log.levels.INFO or vim.log.levels.ERROR
-          )
-        end)
-      end
-    end
-  end)
-end
 
 -- #############################
 -- # Mini                      #
@@ -1933,17 +1787,11 @@ local sessions = require("mini.sessions")
 local session_dir = vim.fs.joinpath(vim.fn.stdpath("state"), "sessions")
 
 local function decode_path(path)
-  local decoded = path:gsub("%%", "/")
-
-  if jit.os:find("Windows") then
-    decoded = decoded:gsub("^(%w)/", "%1:/")
-  end
-
-  return decoded
+  return path:gsub("%%", "/")
 end
 
 local function current_session_name()
-  return vim.fn.getcwd():gsub("[\\/:]+", "%%") .. ".vim"
+  return vim.fn.getcwd():gsub("/+", "%%") .. ".vim"
 end
 
 local function session_path(name)
@@ -2194,7 +2042,7 @@ safely("now", function()
     local cwd = vim.fs.normalize(vim.fn.getcwd(0))
     local relative = vim.fs.relpath(cwd, path)
 
-    relative = (relative or path):gsub("\\", "/")
+    relative = relative or path
 
     if vim.fn.strdisplaywidth(relative) <= max_path_width then
       return relative
@@ -2238,7 +2086,7 @@ safely("now", function()
     end
 
     local pretty_path = statusline_pretty_path()
-    local directory, filename = pretty_path:match("^(.*[/\\])([^/\\]+)$")
+    local directory, filename = pretty_path:match("^(.*/)([^/]+)$")
     local path_part = "%#MiniStatuslineFilename#" .. statusline_escape(filename or pretty_path)
 
     if filename then
@@ -2415,11 +2263,6 @@ load_plugins("later", "panels.nvim", function()
         position = "right",
         ft = "grug-far",
       },
-      ["better-term"] = {
-        position = "bottom",
-        ft = "better_term",
-        size = 15,
-      },
       ["trouble.problems"] = {
         title = "Problems",
         position = "bottom",
@@ -2453,7 +2296,7 @@ load_plugins("later", "panels.nvim", function()
         position = "bottom",
         ft = "",
         filter = function(buf)
-          return vim.bo[buf].buftype == "terminal" and vim.bo[buf].filetype ~= "better_term"
+          return vim.bo[buf].buftype == "terminal"
         end,
       },
     },
@@ -2632,7 +2475,6 @@ require("tiny-treesitter").setup({
     "lua",
     "markdown",
     "latex",
-    "powershell",
     "python",
     "rust",
     "scss",
@@ -2837,7 +2679,7 @@ map("n", "<leader>,", function()
 end, { desc = "Duplicate line" })
 map("n", "gK", "i<CR><Esc>", { desc = "Split line at cursor" })
 
--- Windows
+-- Window management
 map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 for key, direction in pairs({

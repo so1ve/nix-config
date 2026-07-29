@@ -4,10 +4,6 @@
       "rev": "46adf61a022d5c923f981d527443f406e7d0f63e",
       "src": "https://github.com/lewis6991/async.nvim"
     },
-    "betterTerm.nvim": {
-      "rev": "8111818c82a5ed01a24317f32892ad67765375b2",
-      "src": "https://github.com/CRAG666/betterTerm.nvim"
-    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/saghen/blink.cmp",
@@ -52,10 +48,6 @@
     "grug-far.nvim": {
       "rev": "1cc080f55706b38aabfa97d40acb6adf59ac4a5a",
       "src": "https://github.com/MagicDuck/grug-far.nvim"
-    },
-    "mason.nvim": {
-      "rev": "2a6940af80375532e5e9e7c1f2fc6319a1b7a69d",
-      "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
       "rev": "9459d7f41ae77d909579dab0aea2bdd3210fac9f",
