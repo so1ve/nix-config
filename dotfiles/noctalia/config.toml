@@ -5,6 +5,11 @@ polkit_agent = true
 [shell.greeter_sync]
 auto_sync = true
 
+[shell.launcher]
+categories = true
+compact = true
+auto_paste = true
+
 [lockscreen]
 enabled = true
 fingerprint = true
@@ -27,10 +32,6 @@ timeout = 1800
 action = "lock_and_suspend"
 enabled = true
 
-[shell.launcher]
-categories = true
-compact = true
-auto_paste = true
 
 [bar.default]
 background_opacity = 0.88
