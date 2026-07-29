@@ -1,7 +1,0 @@
-// Run `niri msg outputs` to find output names, then remove `/-` to enable.
-/-output "eDP-1" {
-    mode "1920x1080@120.030"
-    scale 2
-    transform "normal"
-    position x=1280 y=0
-}
