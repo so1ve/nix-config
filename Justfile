@@ -13,14 +13,14 @@ check-flake-file:
 
 # Build the system without switching to it or creating a result symlink.
 build:
-    nix build .#nixosConfigurations.{{host}}.config.system.build.toplevel --no-link --accept-flake-config
+    nix build .#nixosConfigurations.{{ host }}.config.system.build.toplevel --no-link --accept-flake-config
 
 boot:
-    sudo nixos-rebuild boot --flake .#{{host}} --accept-flake-config
+    sudo nixos-rebuild boot --flake .#{{ host }} --accept-flake-config
 
 # Activate the configuration immediately.
 switch:
-    sudo nixos-rebuild switch --flake .#{{host}} --accept-flake-config
+    sudo nixos-rebuild switch --flake .#{{ host }} --accept-flake-config
 
 # Format all Nix files with the formatter exported by the flake.
 fmt:
