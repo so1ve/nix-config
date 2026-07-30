@@ -30,7 +30,8 @@ enabled = true
 
 [idle.behavior.suspend]
 timeout = 1800
-action = "lock_and_suspend"
+action = "command"
+command = "if ! systemd-ac-power; then noctalia msg session lock-and-suspend; fi"
 enabled = true
 
 

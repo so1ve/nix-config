@@ -10,8 +10,8 @@
           recommendedServices.enable = true;
         };
 
-        # Niri routes lid-close through Noctalia so the session is locked
-        # before suspend instead of racing logind's built-in lid action.
+        # Niri handles lid-close through Noctalia: lock on external power,
+        # lock then suspend on battery, without racing logind's lid action.
         services.logind.settings.Login = {
           HandleLidSwitch = "ignore";
           HandleLidSwitchExternalPower = "ignore";
