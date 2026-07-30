@@ -39,6 +39,10 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
+    disko = {
+      url = "github:nix-community/disko/latest";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     flake-file.url = "github:denful/flake-file";
     home-manager = {
       url = "github:nix-community/home-manager";

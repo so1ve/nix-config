@@ -50,10 +50,10 @@ let
           default = [ ];
         };
 
-        hardware = mkOption {
-          type = types.nullOr types.path;
-          default = null;
-          description = "Optional host hardware module.";
+        modules = mkOption {
+          type = types.listOf types.raw;
+          default = [ ];
+          description = "Host-specific NixOS modules.";
         };
       };
     }
