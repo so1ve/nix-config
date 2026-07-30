@@ -1,22 +1,18 @@
 {
   ray.features."desktop/noctalia" = {
-    nixos =
-      { inputs, ... }:
-      {
-        imports = [ inputs.noctalia.nixosModules.default ];
-
-        programs.noctalia = {
-          enable = true;
-          recommendedServices.enable = true;
-        };
-
-        # Niri handles lid-close through Noctalia: lock on external power,
-        # lock then suspend on battery, without racing logind's lid action.
-        services.logind.settings.Login = {
-          HandleLidSwitch = "ignore";
-          HandleLidSwitchExternalPower = "ignore";
-        };
+    nixos = {
+      programs.noctalia = {
+        enable = true;
+        recommendedServices.enable = true;
       };
+
+      # Niri handles lid-close through Noctalia: lock on external power,
+      # lock then suspend on battery, without racing logind's lid action.
+      services.logind.settings.Login = {
+        HandleLidSwitch = "ignore";
+        HandleLidSwitchExternalPower = "ignore";
+      };
+    };
 
     home =
       {

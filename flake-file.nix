@@ -47,13 +47,7 @@ in
         };
       };
 
-      # Track the newest Noctalia v5 revision available from its binary cache.
-      noctalia.url = "github:noctalia-dev/noctalia/cachix";
-
-      noctalia-greeter = {
-        url = "github:noctalia-dev/noctalia-greeter";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter";
 
       neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
