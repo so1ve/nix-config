@@ -84,7 +84,7 @@ let
       specialArgs = specialArgsFor host;
       modules =
         nixosModules
-        ++ optional (host.hardware != null) host.hardware
+        ++ host.modules
         ++ optional (homeModules != [ ]) inputs.home-manager.nixosModules.home-manager
         ++ optional (homeModules != [ ]) (homeManagerModule host homeModules);
     };

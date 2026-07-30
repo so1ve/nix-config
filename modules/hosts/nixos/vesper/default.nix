@@ -4,7 +4,10 @@
     username = "ray";
     stateVersion = "26.05";
     homeStateVersion = "26.05";
-    hardware = ./_hardware.nix;
+    modules = [
+      ./_hardware.nix
+      ./_disko.nix
+    ];
 
     features = [
       "core/nix"
