@@ -15,7 +15,8 @@ debug {
 
 switch-events {
     lid-close {
-        spawn "noctalia" "msg" "session" "lock-and-suspend"
+        // Keep the session awake on external power; still lock it when the lid closes.
+        spawn "sh" "-c" "if systemd-ac-power; then exec noctalia msg session lock; else exec noctalia msg session lock-and-suspend; fi"
     }
 }
 
