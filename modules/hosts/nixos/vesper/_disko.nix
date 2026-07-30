@@ -7,9 +7,7 @@ in
   imports = [ inputs.disko.nixosModules.disko ];
 
   # /home contains the agenix identity used during activation, while early
-  # services may need /tmp before local-fs.target.  Both therefore have to
-  # cover the inode-2 stubs left in a snapshot of the old top-level root
-  # before initrd activation starts.
+  # services may need /tmp before local-fs.target.
   fileSystems."/home".neededForBoot = true;
   fileSystems."/tmp".neededForBoot = true;
 
@@ -48,8 +46,6 @@ in
             extraArgs = [ "-f" ];
 
             subvolumes = {
-              # The current installation still uses the top-level subvolume
-              # (ID 5); migrate it before activating this mount layout.
               "@root" = {
                 mountpoint = "/";
                 mountOptions = btrfsMountOptions;
@@ -81,7 +77,7 @@ in
               };
 
               # Keep large, frequently modified runtime images outside the
-              # root snapshot. Their configuration remains in @root.
+              # root snapshot.
               "@var-lib-containers" = {
                 mountpoint = "/var/lib/containers";
                 mountOptions = btrfsMountOptions;
