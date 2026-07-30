@@ -1,7 +1,17 @@
 { inputs, ... }:
 
+let
+  btrfsMountOptions = [ "compress=zstd:1" ];
+in
 {
   imports = [ inputs.disko.nixosModules.disko ];
+
+  # /home contains the agenix identity used during activation, while early
+  # services may need /tmp before local-fs.target.  Both therefore have to
+  # cover the inode-2 stubs left in a snapshot of the old top-level root
+  # before initrd activation starts.
+  fileSystems."/home".neededForBoot = true;
+  fileSystems."/tmp".neededForBoot = true;
 
   disko.devices.disk.system = {
     type = "disk";
@@ -36,23 +46,56 @@
           content = {
             type = "btrfs";
             extraArgs = [ "-f" ];
-            mountpoint = "/";
-            mountOptions = [ "compress=zstd:1" ];
 
             subvolumes = {
+              # The current installation still uses the top-level subvolume
+              # (ID 5); migrate it before activating this mount layout.
+              "@root" = {
+                mountpoint = "/";
+                mountOptions = btrfsMountOptions;
+              };
+
               home = {
                 mountpoint = "/home";
-                mountOptions = [ "compress=zstd:1" ];
+                mountOptions = btrfsMountOptions;
               };
 
               nix = {
                 mountpoint = "/nix";
-                mountOptions = [ "compress=zstd:1" ];
+                mountOptions = btrfsMountOptions;
               };
 
-              # The top-level filesystem exposes this subvolume directly at
-              # /tmp, matching the current installation without another mount.
-              tmp = { };
+              tmp = {
+                mountpoint = "/tmp";
+                mountOptions = btrfsMountOptions;
+              };
+
+              "@snapshots" = {
+                mountpoint = "/.snapshots";
+                mountOptions = btrfsMountOptions;
+              };
+
+              "@home-snapshots" = {
+                mountpoint = "/home/.snapshots";
+                mountOptions = btrfsMountOptions;
+              };
+
+              # Keep large, frequently modified runtime images outside the
+              # root snapshot. Their configuration remains in @root.
+              "@var-lib-containers" = {
+                mountpoint = "/var/lib/containers";
+                mountOptions = btrfsMountOptions;
+              };
+
+              "@var-lib-libvirt-images" = {
+                mountpoint = "/var/lib/libvirt/images";
+                mountOptions = btrfsMountOptions;
+              };
+
+              "@var-lib-waydroid" = {
+                mountpoint = "/var/lib/waydroid";
+                mountOptions = btrfsMountOptions;
+              };
             };
           };
         };
