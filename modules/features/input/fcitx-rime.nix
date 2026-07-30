@@ -86,7 +86,7 @@
             onChange = ''
               rime_data_dir=${lib.escapeShellArg "${config.xdg.dataHome}/fcitx5/rime"}
 
-              rm -f "$rime_data_dir/build/default.yaml"
+              rm -rf "$rime_data_dir/build"
               ${pkgs.librime}/bin/rime_deployer \
                 --build "$rime_data_dir" "${rimeWithWanxiang}/share/rime-data" "$rime_data_dir/build"
 
