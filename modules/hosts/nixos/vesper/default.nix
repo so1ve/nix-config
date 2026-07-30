@@ -22,6 +22,7 @@
       "input/fcitx-rime"
       "ui/dark-mode"
       "ui/fonts"
+      "storage/nas"
       "virtualisation/libvirt"
       "virtualisation/podman"
       "virtualisation/waydroid"
