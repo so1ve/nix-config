@@ -2,7 +2,7 @@ let
   mountPoint = "/mnt/nas";
 in
 {
-  ray.features."storage/nas" = {
+  ray.features."storage/mount/nas" = {
     nixos =
       {
         config,
