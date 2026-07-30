@@ -26,6 +26,7 @@
       "ui/dark-mode"
       "ui/fonts"
       "storage/nas"
+      "storage/snapper"
       "virtualisation/libvirt"
       "virtualisation/podman"
       "virtualisation/waydroid"
