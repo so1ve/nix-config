@@ -101,4 +101,6 @@ show_label = false
 show_label = false
 
 [control_center]
+sidebar = "full"
+sidebar_section = "full"
 hidden_tabs = ["weather", "screen-time"]
