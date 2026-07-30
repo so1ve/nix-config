@@ -12,7 +12,7 @@ in
       }:
       {
         age.secrets.nas-smb-credentials = {
-          file = ../../../secrets/nas-smb-credentials.age;
+          file = ../../../../secrets/nas-smb-credentials.age;
           mode = "0400";
         };
 
