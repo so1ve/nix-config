@@ -18,9 +18,13 @@
           vimAlias = true;
           sideloadInitLua = true;
           extraPackages = with pkgs; [
+            bash-language-server
             copilot-language-server
             curl
+            fish-lsp
             gnutar
+            shellcheck
+            shfmt
             stdenv.cc
             tree-sitter
           ];
