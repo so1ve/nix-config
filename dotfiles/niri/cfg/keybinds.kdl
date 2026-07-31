@@ -4,12 +4,12 @@ binds {
         show-hotkey-overlay
     }
 
-    Mod+T hotkey-overlay-title="Open Kitty" {
-        spawn "kitty"
+    Mod+T hotkey-overlay-title="Focus or Open Kitty" {
+        spawn "sh" "/home/ray/.config/niri/scripts/focus-or-launch" "kitty" "kitty"
     }
 
-    Mod+B hotkey-overlay-title="Open Firefox" {
-        spawn "firefox"
+    Mod+B hotkey-overlay-title="Focus or Open Firefox" {
+        spawn "sh" "/home/ray/.config/niri/scripts/focus-or-launch" "firefox" "firefox"
     }
 
     XF86AudioMicMute allow-when-locked=true {
