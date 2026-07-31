@@ -13,6 +13,7 @@
       "core/nix"
       "nixos/base"
       "nixos/desktop"
+      # TODO: Update zen kernel to 7.1.5 to fix CIFS issue
       "nixos/kernel/zen"
       "nixos/performance"
       "hardware/graphics"
