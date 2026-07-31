@@ -32,7 +32,8 @@ in
             "nofail"
             "noauto"
             "x-systemd.automount"
-            "x-systemd.idle-timeout=10min"
+            # Keep the share mounted once accessed.  This avoids unnecessary
+            # CIFS teardown races while the system is running.
             "x-systemd.mount-timeout=10s"
           ];
         };
