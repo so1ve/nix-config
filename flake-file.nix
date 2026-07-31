@@ -20,7 +20,7 @@ in
     description = "Ray's NixOS Configuration";
     outputs = "flake-module";
 
-    nixConfig = config.ray.lib.nixCacheSettings;
+    nixConfig = config.ray.registry.nixCacheSettings;
 
     inputs = {
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

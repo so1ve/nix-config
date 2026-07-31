@@ -17,7 +17,7 @@
         ];
         trusted-users = [ "@wheel" ];
       }
-      // config.ray.lib.nixCacheSettings;
+      // config.ray.registry.nixCacheSettings;
 
       nix.gc = {
         automatic = true;

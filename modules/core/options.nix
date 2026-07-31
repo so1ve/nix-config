@@ -80,17 +80,6 @@ let
     };
   };
 
-  binaryCacheType = types.submodule {
-    options = {
-      url = mkOption {
-        type = types.str;
-      };
-
-      publicKey = mkOption {
-        type = types.str;
-      };
-    };
-  };
 in
 {
   options.ray = {
@@ -112,8 +101,20 @@ in
         default = { };
       };
 
-      binaryCaches = mkOption {
-        type = types.attrsOf binaryCacheType;
+      nixCacheSettings = mkOption {
+        type = types.submodule {
+          options = {
+            extra-substituters = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+            };
+
+            extra-trusted-public-keys = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+            };
+          };
+        };
         default = { };
       };
     };

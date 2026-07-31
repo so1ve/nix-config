@@ -7,7 +7,6 @@
 
 let
   inherit (lib)
-    attrValues
     filter
     filterAttrs
     mapAttrs
@@ -31,15 +30,6 @@ let
     mapAttrs (_: feature: feature.${kind}) (
       filterAttrs (_: feature: feature.${kind} != null) config.ray.features
     );
-
-  nixCacheSettings =
-    let
-      binaryCaches = attrValues config.ray.registry.binaryCaches;
-    in
-    {
-      extra-substituters = map (cache: cache.url) binaryCaches;
-      extra-trusted-public-keys = map (cache: cache.publicKey) binaryCaches;
-    };
 
   mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix { inherit lib; };
   mkAppImage = import ../../lib/mk-appimage.nix { inherit lib; };
@@ -100,7 +90,6 @@ in
     inherit
       mkNixosHost
       moduleAttrsFor
-      nixCacheSettings
       ;
   };
 }
