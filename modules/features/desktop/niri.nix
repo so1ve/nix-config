@@ -16,9 +16,13 @@
       {
         config,
         mkDotfilesSymlink,
+        mkFocusOrLaunch,
+        pkgs,
         ...
       }:
       {
+        home.packages = [ (mkFocusOrLaunch pkgs) ];
+
         xdg.configFile."niri".source = mkDotfilesSymlink {
           inherit config;
           name = "niri";
