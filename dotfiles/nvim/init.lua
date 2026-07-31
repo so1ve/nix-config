@@ -28,6 +28,8 @@ g.loaded_matchit = 1
 g.loaded_matchparen = 1
 g.loaded_netrw = 1
 g.loaded_netrwPlugin = 1
+-- Neovim introduced a lightweight directory viewer plugin recently, but we don't want to use it because we have our own file explorer mini.files
+g.loaded_nvim_dir_plugin = 1
 g.loaded_remote_plugins = 1
 g.loaded_spellfile_plugin = 1
 g.loaded_tarPlugin = 1
@@ -1593,7 +1595,7 @@ safely("later", function()
   end, { desc = "Current file hunks" })
 end)
 
-safely("later", function()
+safely("now", function()
   local show_hidden = false
 
   local files = require("mini.files")
