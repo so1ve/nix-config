@@ -3,6 +3,7 @@
     nixos =
       {
         config,
+        lib,
         pkgs,
         ...
       }:
@@ -17,6 +18,11 @@
         # Avoid making the first proxy startup depend on downloading its GeoIP
         # database through a proxy that is not running yet.
         systemd.services.mihomo = {
+          # Mihomo can initialize its TUN and listeners before connectivity is
+          # established.  Waiting for DHCP here only delays the whole desktop.
+          requires = lib.mkForce [ ];
+          wants = [ "network.target" ];
+          after = lib.mkForce [ "network.target" ];
           restartTriggers = [ config.age.secrets.mihomo-config.file ];
           serviceConfig.BindReadOnlyPaths = [
             "${pkgs.dbip-country-lite.mmdb}:/var/lib/private/mihomo/Country.mmdb"
