@@ -4,5 +4,4 @@ in
 {
   "github-ssh.age".publicKeys = [ ray ];
   "mihomo-config.age".publicKeys = [ ray ];
-  "nas-smb-credentials.age".publicKeys = [ ray ];
 }

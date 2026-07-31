@@ -4,36 +4,18 @@ in
 {
   ray.features."storage/mount/nas" = {
     nixos =
+      { ... }:
       {
-        config,
-        pkgs,
-        username,
-        ...
-      }:
-      {
-        age.secrets.nas-smb-credentials = {
-          file = ../../../../secrets/nas-smb-credentials.age;
-          mode = "0400";
-        };
-
-        environment.systemPackages = [ pkgs.cifs-utils ];
-
         fileSystems.${mountPoint} = {
-          device = "//192.168.10.60/data";
-          fsType = "cifs";
+          device = "192.168.10.60:/volume4/data";
+          fsType = "nfs";
           options = [
-            "credentials=${config.age.secrets.nas-smb-credentials.path}"
-            "uid=${username}"
-            "gid=users"
-            "file_mode=0644"
-            "dir_mode=0755"
-            "vers=3.1.1"
+            "nfsvers=4.1"
+            "proto=tcp"
             "_netdev"
             "nofail"
             "noauto"
             "x-systemd.automount"
-            # Keep the share mounted once accessed.  This avoids unnecessary
-            # CIFS teardown races while the system is running.
             "x-systemd.mount-timeout=10s"
           ];
         };
