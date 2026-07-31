@@ -58,7 +58,7 @@ let
         mkDotfilesSymlink
         mkFirefoxPwaInstall
         ;
-      mkDolphinPlace = import ../../lib/mk-dolphin-place.nix { inherit hasFeatureEnabled lib; };
+      mkDolphinPlace = import ../../lib/mk-dolphin-place.nix { inherit hasFeatureEnabled; };
       user = config.ray.registry.users.${host.username};
       inherit (host)
         hostname
