@@ -19,6 +19,11 @@ in
             "x-systemd.mount-timeout=10s"
           ];
         };
+
+        # NFS must be detached while the network is still available.  The
+        # reverse shutdown ordering of this dependency stops the mount before
+        # NetworkManager tears down Wi-Fi.
+        systemd.services.NetworkManager.before = [ "mnt-nas.mount" ];
       };
 
     home =
