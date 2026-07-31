@@ -1,3 +1,4 @@
+# Consider use chromium for PWAs
 { lib }:
 
 {
