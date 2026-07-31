@@ -23,27 +23,21 @@
     "software/netease-cloud-game".home =
       {
         config,
-        mkFirefoxPwaInstall,
+        mkChromiumPwa,
         pkgs,
         ...
       }:
-      mkFirefoxPwaInstall {
+      mkChromiumPwa {
         inherit config pkgs;
         name = "netease-cloud-game";
-        description = "Install NetEase Cloud Game as a Firefox PWA";
-        manifestUrl = "https://cg.163.com/manifestindex.json";
-        installArgs = [
-          "--document-url"
-          "https://cg.163.com/"
-          "--start-url"
-          "https://cg.163.com/"
-          "--icon-url"
-          "https://cg.163.com/logo2.png"
-          "--name"
-          "网易云游戏"
-          "--description"
-          "网易官方云游戏平台"
-        ];
+        desktopName = "网易云游戏";
+        description = "网易官方云游戏平台";
+        categories = [ "Game" ];
+        url = "https://cg.163.com/";
+        icon = pkgs.fetchurl {
+          url = "https://cg.163.com/logo2.png";
+          hash = "sha256-bK/ZWd44q1MD+ldoem4So0TyctRqnl5JFT/eGOUF9oM=";
+        };
       };
 
     "software/hmcl".home =

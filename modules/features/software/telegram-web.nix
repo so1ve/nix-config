@@ -3,15 +3,20 @@
     home =
       {
         config,
-        mkFirefoxPwaInstall,
+        mkChromiumPwa,
         pkgs,
         ...
       }:
-      mkFirefoxPwaInstall {
+      mkChromiumPwa {
         inherit config pkgs;
         name = "telegram-web";
-        description = "Install Telegram Web K as a Firefox PWA";
-        manifestUrl = "https://web.telegram.org/k/site.webmanifest";
+        desktopName = "Telegram Web";
+        description = "Telegram Web K";
+        url = "https://web.telegram.org/k/";
+        icon = pkgs.fetchurl {
+          url = "https://web.telegram.org/k/assets/img/android-chrome-512x512.png?v=jw3mK7G9Ry";
+          hash = "sha256-e1BW46Z7+K9yIftBUDVaDIN8Du9NfWinVAp7SHnp1ko=";
+        };
       };
   };
 }
