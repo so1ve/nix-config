@@ -14,12 +14,11 @@ in
             what = "192.168.10.60:/volume4/data";
             where = mountPoint;
             type = "nfs";
+            # Keep NFS available until every user process has exited.  The
+            # reverse shutdown order is user.slice -> mount -> automount.
+            before = [ "user.slice" ];
             options = "nfsvers=4.1,proto=tcp,hard";
-            mountConfig = {
-              TimeoutSec = "10s";
-              LazyUnmount = true;
-              ForceUnmount = true;
-            };
+            mountConfig.TimeoutSec = "10s";
           }
         ];
 
@@ -28,7 +27,10 @@ in
             description = "Automount NAS NFS share";
             where = mountPoint;
             wantedBy = [ "remote-fs.target" ];
-            before = [ "remote-fs.target" ];
+            before = [
+              "remote-fs.target"
+              "user.slice"
+            ];
             automountConfig.TimeoutIdleSec = "5min";
           }
         ];
