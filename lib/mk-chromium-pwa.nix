@@ -1,4 +1,7 @@
-{ lib }:
+{
+  lib,
+  mkFocusOrLaunch,
+}:
 
 {
   config,
@@ -12,10 +15,14 @@
 }:
 
 let
+  focusOrLaunch = mkFocusOrLaunch pkgs;
+
   launcher = pkgs.writeShellApplication {
     inherit name;
     text = ''
-      exec ${lib.getExe pkgs.chromium} \
+      exec ${lib.getExe focusOrLaunch} \
+        ${lib.escapeShellArg name} \
+        ${lib.getExe pkgs.chromium} \
         --app=${lib.escapeShellArg url} \
         --class=${lib.escapeShellArg name} \
         --no-first-run \
