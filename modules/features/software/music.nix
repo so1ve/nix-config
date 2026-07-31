@@ -10,7 +10,7 @@
       {
         home.packages = [
           (mkAppImage {
-            inherit lib pkgs;
+            inherit pkgs;
             pname = "alger-music-player";
             version = "5.1.0";
             url = "https://github.com/algerkong/AlgerMusicPlayer/releases/download/v5.1.0/AlgerMusicPlayer-5.1.0-linux-x86_64.AppImage";
@@ -34,7 +34,7 @@
       {
         home.packages = [
           (mkAppImage {
-            inherit lib pkgs;
+            inherit pkgs;
             pname = "yesplaymusic";
             version = "0.4.10";
             url = "https://github.com/qier222/YesPlayMusic/releases/download/v0.4.10/YesPlayMusic-0.4.10.AppImage";

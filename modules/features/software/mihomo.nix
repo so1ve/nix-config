@@ -59,7 +59,6 @@
         (mkFirefoxPwaInstall {
           inherit
             config
-            lib
             manifestUrl
             pkgs
             ;

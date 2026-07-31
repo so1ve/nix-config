@@ -42,25 +42,32 @@ let
     };
 
   mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
-  mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix;
-  mkAppImage = import ../../lib/mk-appimage.nix;
+  mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix { inherit lib; };
+  mkAppImage = import ../../lib/mk-appimage.nix { inherit lib; };
 
-  specialArgsFor = host: {
-    inherit
-      inputs
-      mkAppImage
-      mkDotfilesSymlink
-      mkFirefoxPwaInstall
-      ;
-    user = config.ray.registry.users.${host.username};
-    inherit (host)
-      hostname
-      homeStateVersion
-      stateVersion
-      system
-      username
-      ;
-  };
+  specialArgsFor =
+    host:
+    let
+      hasFeatureEnabled = name: lib.elem name host.features;
+    in
+    {
+      inherit
+        hasFeatureEnabled
+        inputs
+        mkAppImage
+        mkDotfilesSymlink
+        mkFirefoxPwaInstall
+        ;
+      mkDolphinPlace = import ../../lib/mk-dolphin-place.nix { inherit hasFeatureEnabled lib; };
+      user = config.ray.registry.users.${host.username};
+      inherit (host)
+        hostname
+        homeStateVersion
+        stateVersion
+        system
+        username
+        ;
+    };
 
   homeManagerModule = host: homeModules: {
     home-manager = {

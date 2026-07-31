@@ -1,10 +1,11 @@
+{ lib }:
+
 {
   description,
   desktopFile,
   hash,
   homepage,
   iconPath,
-  lib,
   license,
   pkgs,
   pname,
