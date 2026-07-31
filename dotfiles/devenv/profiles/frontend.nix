@@ -10,14 +10,8 @@ let
   cfg = config.ray.devenv.frontend;
   projectRoot = /. + config.devenv.root;
   projectDirectory = projectRoot + "/${cfg.directory}";
-  projectNodeVersion = builtins.tryEval (
-    inputs.node-overlay.lib.nodeVersionFromProject projectDirectory
-  );
-  nodePackage =
-    if projectNodeVersion.success then
-      pkgs.nodejs-bin.fromNodeVersion projectNodeVersion.value
-    else
-      pkgs.nodejs-bin.latest;
+  projectNodePackage = pkgs.nodejs-bin.fromProject projectDirectory;
+  nodePackage = if projectNodePackage == null then pkgs.nodejs-bin.latest else projectNodePackage;
 in
 {
   imports = [ ./config.nix ];
