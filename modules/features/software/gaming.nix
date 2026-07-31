@@ -23,13 +23,12 @@
     "software/netease-cloud-game".home =
       {
         config,
-        lib,
         mkFirefoxPwaInstall,
         pkgs,
         ...
       }:
       mkFirefoxPwaInstall {
-        inherit config lib pkgs;
+        inherit config pkgs;
         name = "netease-cloud-game";
         description = "Install NetEase Cloud Game as a Firefox PWA";
         manifestUrl = "https://cg.163.com/manifestindex.json";

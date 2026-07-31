@@ -1,6 +1,7 @@
+{ lib }:
+
 {
   config,
-  lib,
   pkgs,
   name,
   description,
