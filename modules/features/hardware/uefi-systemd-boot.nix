@@ -4,6 +4,7 @@
       boot.loader = {
         timeout = 2;
         systemd-boot = {
+          configurationLimit = 10;
           enable = true;
           # consoleMode = "1";
         };
