@@ -16,11 +16,15 @@
 
     home =
       {
-        dotfilesRoot,
+        config,
+        mkDotfilesSymlink,
         ...
       }:
       {
-        xdg.configFile."noctalia".source = dotfilesRoot + "/noctalia";
+        xdg.configFile."noctalia".source = mkDotfilesSymlink {
+          inherit config;
+          name = "noctalia";
+        };
       };
   };
 

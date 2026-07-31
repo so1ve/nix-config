@@ -31,6 +31,7 @@ let
       filterAttrs (_: feature: feature.${kind} != null) config.ray.features
     );
 
+  mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
   mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix { inherit lib; };
   mkAppImage = import ../../lib/mk-appimage.nix { inherit lib; };
 
@@ -40,11 +41,11 @@ let
       hasFeatureEnabled = name: lib.elem name host.features;
     in
     {
-      dotfilesRoot = inputs.self.outPath + "/dotfiles";
       inherit
         hasFeatureEnabled
         inputs
         mkAppImage
+        mkDotfilesSymlink
         mkFirefoxPwaInstall
         ;
       mkDolphinPlace = import ../../lib/mk-dolphin-place.nix { inherit hasFeatureEnabled; };
