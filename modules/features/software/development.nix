@@ -3,8 +3,8 @@
     home =
       {
         config,
-        dotfilesRoot,
         lib,
+        mkDotfilesSymlink,
         pkgs,
         ...
       }:
@@ -49,7 +49,10 @@
           ${pkgs.devenv}/bin/devenv hook fish | source
         '';
 
-        xdg.configFile."devenv/ray".source = dotfilesRoot + "/devenv";
+        xdg.configFile."devenv/ray".source = mkDotfilesSymlink {
+          inherit config;
+          name = "devenv";
+        };
       };
   };
 }

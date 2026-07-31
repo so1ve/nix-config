@@ -28,7 +28,8 @@
     "software/tmux" = {
       home =
         {
-          dotfilesRoot,
+          config,
+          mkDotfilesSymlink,
           pkgs,
           ...
         }:
@@ -51,7 +52,10 @@
             end
           '';
 
-          xdg.configFile."tmux/tmux.conf".source = dotfilesRoot + "/tmux/tmux.conf";
+          xdg.configFile."tmux/tmux.conf".source = mkDotfilesSymlink {
+            inherit config;
+            name = "tmux/tmux.conf";
+          };
         };
     };
   };

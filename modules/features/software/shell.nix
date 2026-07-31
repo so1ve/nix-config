@@ -6,7 +6,8 @@
 
     home =
       {
-        dotfilesRoot,
+        config,
+        mkDotfilesSymlink,
         ...
       }:
       let
@@ -41,7 +42,10 @@
           zoxide.enable = true;
         };
 
-        xdg.configFile."starship.toml".source = dotfilesRoot + "/starship.toml";
+        xdg.configFile."starship.toml".source = mkDotfilesSymlink {
+          inherit config;
+          name = "starship.toml";
+        };
       };
   };
 }
