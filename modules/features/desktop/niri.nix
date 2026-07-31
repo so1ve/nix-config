@@ -14,15 +14,11 @@
 
     home =
       {
-        config,
-        mkDotfilesSymlink,
+        dotfilesRoot,
         ...
       }:
       {
-        xdg.configFile."niri".source = mkDotfilesSymlink {
-          inherit config;
-          name = "niri";
-        };
+        xdg.configFile."niri".source = dotfilesRoot + "/niri";
       };
   };
 }

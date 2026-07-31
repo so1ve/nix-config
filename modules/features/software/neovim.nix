@@ -2,9 +2,8 @@
   ray.features."software/neovim" = {
     home =
       {
-        config,
+        dotfilesRoot,
         inputs,
-        mkDotfilesSymlink,
         pkgs,
         system,
         ...
@@ -30,10 +29,7 @@
           ];
         };
 
-        xdg.configFile."nvim".source = mkDotfilesSymlink {
-          inherit config;
-          name = "nvim";
-        };
+        xdg.configFile."nvim".source = dotfilesRoot + "/nvim";
       };
   };
 }
