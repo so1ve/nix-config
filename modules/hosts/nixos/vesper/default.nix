@@ -17,6 +17,7 @@
       "nixos/kernel/zen"
       "nixos/performance"
       "hardware/graphics"
+      "hardware/smartd"
       "hardware/uefi-systemd-boot"
       "home/base"
       "users/ray"
