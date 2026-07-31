@@ -6,24 +6,32 @@ in
     nixos =
       { ... }:
       {
-        fileSystems.${mountPoint} = {
-          device = "192.168.10.60:/volume4/data";
-          fsType = "nfs";
-          options = [
-            "nfsvers=4.1"
-            "proto=tcp"
-            "_netdev"
-            "nofail"
-            "noauto"
-            "x-systemd.automount"
-            "x-systemd.mount-timeout=10s"
-          ];
-        };
+        boot.supportedFilesystems = [ "nfs" ];
 
-        # NFS must be detached while the network is still available.  The
-        # reverse shutdown ordering of this dependency stops the mount before
-        # NetworkManager tears down Wi-Fi.
-        systemd.services.NetworkManager.before = [ "mnt-nas.mount" ];
+        systemd.mounts = [
+          {
+            description = "NAS NFS share";
+            what = "192.168.10.60:/volume4/data";
+            where = mountPoint;
+            type = "nfs";
+            options = "nfsvers=4.1,proto=tcp,hard";
+            mountConfig = {
+              TimeoutSec = "10s";
+              LazyUnmount = true;
+              ForceUnmount = true;
+            };
+          }
+        ];
+
+        systemd.automounts = [
+          {
+            description = "Automount NAS NFS share";
+            where = mountPoint;
+            wantedBy = [ "remote-fs.target" ];
+            before = [ "remote-fs.target" ];
+            automountConfig.TimeoutIdleSec = "5min";
+          }
+        ];
       };
 
     home =
