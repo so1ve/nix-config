@@ -2633,7 +2633,6 @@ map("n", "]b", "<cmd>bnext<cr>", { desc = "Next buffer" })
 map("n", "<leader>lw", "<cmd>setlocal wrap!<CR>", { desc = "Toggle line wrap" })
 
 -- Quit / close
-map("n", "<leader>Q", "<cmd>qa<CR>", { desc = "Quit all" })
 map("n", "<leader>qb", function()
   Snacks.bufdelete()
 end, { desc = "Quit buffer" })
