@@ -12,6 +12,7 @@
 }:
 
 let
+  firefoxpwa = pkgs.nur.repos.so1ve.firefoxpwa-xwayland;
   firefoxPwaConfig = "${config.xdg.dataHome}/firefoxpwa/config.json";
 
   installPwa = pkgs.writeShellScript "install-${name}-pwa" ''
@@ -41,14 +42,14 @@ let
       exit 0
     fi
 
-    exec ${lib.getExe pkgs.firefoxpwa} site install \
+    exec ${lib.getExe firefoxpwa} site install \
       ${lib.escapeShellArgs installArgs} "$manifest_url"
   '';
 in
 {
-  home.packages = [ pkgs.firefoxpwa ];
+  home.packages = [ firefoxpwa ];
 
-  programs.firefox.nativeMessagingHosts = [ pkgs.firefoxpwa ];
+  programs.firefox.nativeMessagingHosts = [ firefoxpwa ];
 
   systemd.user.services."${name}-pwa-install" = {
     Unit = {
