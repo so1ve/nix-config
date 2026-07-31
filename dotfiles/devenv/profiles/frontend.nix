@@ -8,22 +8,24 @@
 
 let
   cfg = config.ray.devenv.frontend;
+  projectRoot = /. + config.devenv.root;
+  projectDirectory = projectRoot + "/${cfg.directory}";
+  projectNodeVersion = builtins.tryEval (
+    inputs.node-overlay.lib.nodeVersionFromProject projectDirectory
+  );
+  nodePackage =
+    if projectNodeVersion.success then
+      pkgs.nodejs-bin.fromNodeVersion projectNodeVersion.value
+    else
+      pkgs.nodejs-bin.latest;
 in
 {
   imports = [ ./config.nix ];
 
-  options.ray.devenv.frontend = {
-    directory = lib.mkOption {
-      type = lib.types.str;
-      default = ".";
-      description = "Directory containing package.json, relative to the project root.";
-    };
-
-    nodePackage = lib.mkOption {
-      type = lib.types.package;
-      default = pkgs.nodejs-bin.latest;
-      description = "Node.js package used to bootstrap Corepack.";
-    };
+  options.ray.devenv.frontend.directory = lib.mkOption {
+    type = lib.types.str;
+    default = ".";
+    description = "JavaScript project directory, relative to the devenv root.";
   };
 
   config = {
@@ -34,7 +36,7 @@ in
     languages.javascript = {
       enable = true;
       inherit (cfg) directory;
-      package = cfg.nodePackage;
+      package = lib.mkDefault nodePackage;
       corepack.enable = true;
 
       # vtsls is provided below; do not add typescript-language-server too.
