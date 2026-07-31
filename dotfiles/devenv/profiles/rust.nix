@@ -33,7 +33,7 @@ in
 
     (lib.mkIf (config.languages.rust.toolchainFile == null) {
       languages.rust = {
-        channel = lib.mkDefault "stable";
+        channel = lib.mkDefault "nightly";
         components = lib.mkDefault [
           "rustc"
           "cargo"
