@@ -100,6 +100,17 @@ def init(profiles: list[str], tracked: bool) -> None:
         if "rust" in profiles
         else ""
     )
+    node_overlay = (
+        """\
+  node-overlay:
+    url: github:so1ve/node-overlay
+    inputs:
+      nixpkgs:
+        follows: nixpkgs
+"""
+        if "frontend" in profiles
+        else ""
+    )
     devenv_yaml = root / "devenv.yaml"
     devenv_yaml.write_text(
         f"""\
@@ -107,7 +118,7 @@ def init(profiles: list[str], tracked: bool) -> None:
 inputs:
   nixpkgs:
     url: github:cachix/devenv-nixpkgs/rolling
-{rust_overlay}"""
+{rust_overlay}{node_overlay}"""
     )
     subprocess.run([NIXFMT, devenv_nix], check=True)
     subprocess.run([PRETTIER, "--write", devenv_yaml], check=True)

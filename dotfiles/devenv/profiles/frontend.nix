@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -20,25 +21,27 @@ in
 
     nodePackage = lib.mkOption {
       type = lib.types.package;
-      default = pkgs.nodejs_26;
+      default = pkgs.nodejs-bin.latest;
       description = "Node.js package used to bootstrap Corepack.";
     };
   };
 
   config = {
+    overlays = [ inputs.node-overlay.overlays.default ];
+
     env.NVIM_VUE_TYPESCRIPT_PLUGIN_PATH = "${pkgs.vue-language-server}/lib/language-tools/packages/language-server";
 
     languages.javascript = {
       enable = true;
       inherit (cfg) directory;
       package = cfg.nodePackage;
+      corepack.enable = true;
 
       # vtsls is provided below; do not add typescript-language-server too.
       lsp.enable = false;
     };
 
     packages = [
-      (pkgs.corepack.override { nodejs-slim = cfg.nodePackage; })
       pkgs.vtsls
       pkgs.vue-language-server
     ];
