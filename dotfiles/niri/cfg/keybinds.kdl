@@ -8,6 +8,11 @@ binds {
         spawn "sh" "/home/ray/.config/niri/scripts/focus-or-launch" "kitty" "kitty"
     }
 
+    // TODO: use dolphin if yazi doesn't fit my needs
+    Mod+E hotkey-overlay-title="Focus or Open Yazi" {
+        spawn "sh" "/home/ray/.config/niri/scripts/focus-or-launch" "yazi" "kitty" "--class" "yazi" "--title" "Yazi" "yazi"
+    }
+
     Mod+B hotkey-overlay-title="Focus or Open Firefox" {
         spawn "sh" "/home/ray/.config/niri/scripts/focus-or-launch" "firefox" "firefox"
     }
