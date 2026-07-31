@@ -32,6 +32,7 @@ let
     );
 
   mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
+  mkChromiumPwa = import ../../lib/mk-chromium-pwa.nix { inherit lib; };
   mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix { inherit lib; };
   mkAppImage = import ../../lib/mk-appimage.nix { inherit lib; };
 
@@ -45,6 +46,7 @@ let
         hasFeatureEnabled
         inputs
         mkAppImage
+        mkChromiumPwa
         mkDotfilesSymlink
         mkFirefoxPwaInstall
         ;
