@@ -16,6 +16,11 @@
           extraArgs = [ "--autopower" ];
         };
 
+        systemd.settings.Manager = {
+          DefaultTimeoutStartSec = "15s";
+          DefaultTimeoutStopSec = "10s";
+        };
+
         zramSwap = {
           enable = true;
           algorithm = "zstd";
