@@ -59,6 +59,7 @@
       "software/tmux"
       "software/wemeet"
       "software/wps"
+      "software/yazi"
       "security/agenix"
       "security/fingerprint"
       "security/sudo"
