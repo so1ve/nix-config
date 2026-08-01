@@ -9,6 +9,7 @@
           fd
           jq
           just
+          nvd
           ripgrep
           tokei
           unzip
