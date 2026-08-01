@@ -48,6 +48,7 @@
           paths = [ pkgs.hmcl ];
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
+            # Intentionally kept at 2x scaling instead of 1.75 for better font rendering
             wrapProgram "$out/bin/hmcl" --set GDK_SCALE 2
           '';
         };
