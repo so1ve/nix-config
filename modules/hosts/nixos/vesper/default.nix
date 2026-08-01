@@ -30,7 +30,6 @@
       "storage/snapper"
       "storage/mount/nas"
       "virtualisation/podman"
-      "virtualisation/winapps"
       "virtualisation/waydroid"
       "software/ab-download-manager"
       "software/dolphin"
