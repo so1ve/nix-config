@@ -89,6 +89,10 @@
       "rev": "64e10d782ae5b9653558482910213b8946651456",
       "src": "https://github.com/ThePrimeagen/refactoring.nvim"
     },
+    "render-markdown.nvim": {
+      "rev": "f422cb5c6855f150e2ddcfaf44e7157b98b34f6a",
+      "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
+    },
     "schemastore.nvim": {
       "rev": "19e40cef03a380bfb578793a08222826118664dd",
       "src": "https://github.com/b0o/schemastore.nvim"
@@ -104,6 +108,10 @@
     "tiny-comment.nvim": {
       "rev": "9466b3b95dbc517956f32a943223bf3cfa572c37",
       "src": "https://github.com/so1ve/tiny-comment.nvim"
+    },
+    "tiny-md.nvim": {
+      "rev": "53f9b3ee41a74dadf958408286cff94b53a5c0bd",
+      "src": "https://github.com/so1ve/tiny-md.nvim"
     },
     "tiny-treesitter.nvim": {
       "rev": "35b137ab2893fcc87c30955c3e0f247ee163a256",
