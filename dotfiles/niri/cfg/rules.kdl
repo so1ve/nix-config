@@ -5,6 +5,27 @@ window-rule {
     open-maximized true
 }
 
+// Dense, multi-pane applications benefit from a wider initial column.
+window-rule {
+    match app-id=r#"^QQ$"#
+    match app-id=r#"(?i)^(org\.kde\.)?dolphin$"#
+    match app-id=r#"(?i)^(org\.qbittorrent\.)?qbittorrent$"#
+
+    default-column-width { proportion 0.66667; }
+}
+
+window-rule {
+    match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
+
+    default-column-width { proportion 0.6; }
+}
+
+window-rule {
+    match app-id=r#"^AlgerMusicPlayer$"#
+
+    default-column-width { proportion 0.4; }
+}
+
 window-rule {
     match is-window-cast-target=true
 
@@ -33,6 +54,13 @@ window-rule {
     match app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
 
     open-floating true
+}
+
+window-rule {
+    match app-id=r#"^(wps|et|wpp)$"#
+    exclude app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
+
+    default-column-width { proportion 0.66667; }
 }
 
 window-rule {
