@@ -16,20 +16,14 @@
               "__MODULE_ROOT__"
               "__GIT__"
               "__DEVENV__"
-              "__NIXFMT__"
-              "__PRETTIER__"
             ]
             [
               moduleRoot
               (lib.getExe pkgs.git)
               (lib.getExe pkgs.devenv)
-              (lib.getExe pkgs.nixfmt)
-              (lib.getExe pkgs.prettier)
             ]
-            (builtins.readFile ./development/dev_env.py);
-        devEnv = pkgs.writers.writePython3Bin "dev-env" {
-          flakeIgnore = [ "E501" ];
-        } script;
+            (builtins.readFile ./development/dev-env.js);
+        devEnv = pkgs.writers.writeJSBin "dev-env" { } script;
       in
       {
         home.packages = [
