@@ -92,8 +92,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^FFPWA-01KYBT8MTCMC3ZTDGCNGD80FVB$"#
-    match app-id=r#"^FFPWA-.*$"# title=r#"^网易云游戏(?:\s|$)"#
+    match app-id=r#"^chrome-cg\.163\.com__-Default$"#
 
     open-on-workspace "game"
     open-focused true
