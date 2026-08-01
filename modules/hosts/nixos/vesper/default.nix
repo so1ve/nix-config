@@ -29,7 +29,6 @@
       "ui/fonts"
       "storage/snapper"
       "storage/mount/nas"
-      "virtualisation/libvirt"
       "virtualisation/podman"
       "virtualisation/waydroid"
       "software/ab-download-manager"

@@ -83,11 +83,6 @@ in
                 mountOptions = btrfsMountOptions;
               };
 
-              "@var-lib-libvirt-images" = {
-                mountpoint = "/var/lib/libvirt/images";
-                mountOptions = btrfsMountOptions;
-              };
-
               "@var-lib-waydroid" = {
                 mountpoint = "/var/lib/waydroid";
                 mountOptions = btrfsMountOptions;
