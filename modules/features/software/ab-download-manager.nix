@@ -7,7 +7,7 @@
 
         programs.ab-download-manager = {
           enable = true;
-          uiScale = 2;
+          uiScale = 1.75;
         };
       };
   };
