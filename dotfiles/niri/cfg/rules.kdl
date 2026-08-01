@@ -19,13 +19,13 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
+    match app-id=r#"^AlgerMusicPlayer$"#
 
     default-column-width { proportion 0.6; }
 }
 
 window-rule {
-    match app-id=r#"^AlgerMusicPlayer$"#
+    match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
 
     default-column-width { proportion 0.4; }
 }
