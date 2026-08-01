@@ -11,6 +11,7 @@ window-rule {
     match app-id=r#"(?i)^(org\.kde\.)?dolphin$"#
     match app-id=r#"(?i)^(org\.qbittorrent\.)?qbittorrent$"#
     match app-id=r#"^(wps|et|wpp)$"#
+    match app-id=r#"^AlgerMusicPlayer$"#
 
     // WPS exposes font selectors as XWayland toplevels instead of popups.
     exclude app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
@@ -19,15 +20,9 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^AlgerMusicPlayer$"#
-
-    default-column-width { proportion 0.6; }
-}
-
-window-rule {
     match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
 
-    default-column-width { proportion 0.4; }
+    default-column-width { proportion 0.33333; }
 }
 
 window-rule {
