@@ -2610,7 +2610,7 @@ end
 map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -- Editing
-map("n", "x", '"_x', { desc = "Delete without yanking" })
+map({ "n", "x" }, "x", '"_x', { desc = "Delete without yanking" })
 map("n", "q", "<Nop>", { noremap = true, silent = true })
 map("n", "Q", "q", { noremap = true, silent = true })
 map({ "i", "c" }, "jj", "<Esc>", { desc = "Exit insert or command-line mode" })
