@@ -1,6 +1,7 @@
 window-rule {
     match app-id=r#"^kitty$"#
 
+    open-on-workspace "dev"
     open-maximized true
 }
 
