@@ -1,0 +1,41 @@
+name: winapps
+
+services:
+  windows:
+    image: ghcr.io/dockur/windows:6.03
+    container_name: WinApps
+
+    env_file:
+      - .env
+
+    environment:
+      VERSION: "11"
+      LANGUAGE: "Chinese"
+      REGION: "zh-CN"
+      KEYBOARD: "zh-CN"
+      RAM_SIZE: "8G"
+      CPU_CORES: "6"
+      DISK_SIZE: "128G"
+
+    ports:
+      - "127.0.0.1:8006:8006"
+      - "127.0.0.1:3389:3389/tcp"
+      - "127.0.0.1:3389:3389/udp"
+
+    cap_add:
+      - NET_ADMIN
+
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+
+    group_add:
+      - keep-groups
+
+    volumes:
+      - "/var/lib/containers/${USERNAME}/winapps/storage:/storage"
+      - "${HOME}/公共/Windows:/shared"
+      - ./oem:/oem:ro
+
+    restart: on-failure
+    stop_grace_period: 120s
