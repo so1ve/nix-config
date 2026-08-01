@@ -219,6 +219,7 @@ vim.pack.add({
   gh("DrKJeff16/wezterm-types"),
   gh("Saecki/crates.nvim"),
   gh("mrjones2014/smart-splits.nvim"),
+  gh("MeanderingProgrammer/render-markdown.nvim"),
   gh("neovim/nvim-lspconfig"),
   gh("b0o/schemastore.nvim"),
   gh("nvim-treesitter/nvim-treesitter-textobjects"),
@@ -230,6 +231,7 @@ vim.pack.add({
   gh("windwp/nvim-ts-autotag"),
   gh("folke/trouble.nvim"),
   gh("so1ve/tiny-comment.nvim"),
+  gh("so1ve/tiny-md.nvim"),
   gh("so1ve/code-action-menu.nvim"),
   gh("so1ve/noicelet.nvim"),
   gh("so1ve/panels.nvim"),
@@ -433,6 +435,20 @@ autocmd("BufWritePost", {
 -- # Completion                #
 -- #############################
 
+load_plugins("now", { "render-markdown.nvim", "tiny-md.nvim" }, function()
+  require("render-markdown").setup({
+    file_types = {},
+  })
+  require("tiny-md").setup({
+    render_markdown = {
+      bullet = { enabled = false },
+      html = {
+        comment = { conceal = false },
+      },
+    },
+  })
+end)
+
 load_plugins("now", "blink.cmp", function()
   require("blink.cmp").setup({
     appearance = {
@@ -553,6 +569,7 @@ load_plugins("now", "blink.cmp", function()
       documentation = {
         auto_show = true,
         auto_show_delay_ms = 0,
+        draw = require("tiny-md.blink").draw,
         window = {
           desired_min_width = 24,
           desired_min_height = 5,
@@ -989,7 +1006,7 @@ local function configure_lsp_buffer(event)
     map("n", lhs, rhs, { buffer = bufnr, desc = desc })
   end
 
-  buf_map("K", vim.lsp.buf.hover, "Hover documentation")
+  buf_map("K", require("tiny-md.hover").hover, "Hover documentation")
   buf_map("gd", Snacks.picker.lsp_definitions, "Go to definition")
   buf_map("gD", Snacks.picker.lsp_declarations, "Go to declaration")
   buf_map("gi", Snacks.picker.lsp_implementations, "Go to implementation")
