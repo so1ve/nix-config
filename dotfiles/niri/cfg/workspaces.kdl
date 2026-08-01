@@ -1,3 +1,4 @@
 workspace "main"
+workspace "dev"
 workspace "browser"
 workspace "game"
