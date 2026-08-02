@@ -20,10 +20,6 @@
             waylandFrontend = true;
 
             settings = {
-              globalOptions = {
-                "Hotkey/TriggerKeys"."0" = "Super+space";
-              };
-
               addons.classicui.globalSection = {
                 Theme = "mellow-wechat";
                 DarkTheme = "mellow-wechat-dark";
@@ -66,6 +62,13 @@
         # Fcitx5-Qt renders the candidate window inside Qt applications and
         # only reads this user-level file, not /etc/xdg/fcitx5.
         xdg = {
+          configFile."fcitx5/config".text = lib.generators.toINI { } {
+            "Hotkey/TriggerKeys"."0" = "Super+space";
+            # Do not let Fcitx consume Left Shift before Rime sees it.
+            # Rime maps both Shift keys to the same ascii_mode toggle.
+            "Hotkey/AltTriggerKeys"."0" = "";
+          };
+
           configFile."fcitx5/conf/classicui.conf".text = ''
             Theme=mellow-wechat
             DarkTheme=mellow-wechat-dark
