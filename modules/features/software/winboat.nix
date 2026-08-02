@@ -8,6 +8,8 @@
           # NOCOW
           "h /var/lib/containers/${username}/winboat - - - - +C"
         ];
+
+        users.users.${username}.extraGroups = [ "kvm" ];
       };
 
     home =
