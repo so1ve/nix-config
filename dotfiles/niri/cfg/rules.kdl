@@ -1,37 +1,17 @@
 window-rule {
-    match app-id=r#"^kitty$"#
-
-    open-on-workspace "dev"
-    open-maximized true
-}
-
-// Dense, multi-pane applications benefit from a wider initial column.
-window-rule {
-    match app-id=r#"^QQ$"#
-    match app-id=r#"(?i)^(org\.kde\.)?dolphin$"#
-    match app-id=r#"(?i)^(org\.qbittorrent\.)?qbittorrent$"#
-    match app-id=r#"^(wps|et|wpp)$"#
-    match app-id=r#"^AlgerMusicPlayer$"#
-
-    // WPS exposes font selectors as XWayland toplevels instead of popups.
-    exclude app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
-
-    default-column-width { proportion 0.66667; }
-}
-
-window-rule {
-    match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
-
-    default-column-width { proportion 0.33333; }
-}
-
-window-rule {
     match is-window-cast-target=true
 
     focus-ring {
         active-color "#e01b24"
         inactive-color "#7d0d2d"
     }
+}
+
+window-rule {
+    match app-id=r#"^kitty$"#
+
+    open-on-workspace "dev"
+    open-maximized true
 }
 
 window-rule {
@@ -45,12 +25,6 @@ window-rule {
 
 window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-    open-floating true
-}
-
-// WPS exposes font selectors as XWayland toplevels instead of popups.
-window-rule {
-    match app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
 
     open-floating true
 }
@@ -89,4 +63,30 @@ window-rule {
     open-on-workspace "game"
     open-focused true
     open-maximized true
+}
+
+window-rule {
+    match app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
+
+    open-floating true
+}
+
+// Sizes
+window-rule {
+    match app-id=r#"^QQ$"#
+    match app-id=r#"(?i)^(org\.kde\.)?dolphin$"#
+    match app-id=r#"(?i)^(org\.qbittorrent\.)?qbittorrent$"#
+    match app-id=r#"^(wps|et|wpp)$"#
+    match app-id=r#"^AlgerMusicPlayer$"#
+
+    // WPS exposes font selectors as XWayland toplevels instead of popups.
+    exclude app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
+
+    default-column-width { proportion 0.66667; }
+}
+
+window-rule {
+    match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
+
+    default-column-width { proportion 0.33333; }
 }
