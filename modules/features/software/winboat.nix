@@ -1,5 +1,15 @@
 {
   ray.features."software/winboat" = {
+    nixos =
+      { username, ... }:
+      {
+        systemd.tmpfiles.rules = [
+          "d /var/lib/containers/${username}/winboat 0700 ${username} users - -"
+          # NOCOW
+          "h /var/lib/containers/${username}/winboat - - - - +C"
+        ];
+      };
+
     home =
       { inputs, pkgs, ... }:
       {
