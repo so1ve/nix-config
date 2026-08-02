@@ -34,6 +34,12 @@ action = "command"
 command = "if ! systemd-ac-power; then noctalia msg session lock-and-suspend; fi"
 enabled = true
 
+[wallpaper]
+directory = "~/.config/noctalia/assets/wallpapers"
+
+[wallpaper.default]
+path = "~/.config/noctalia/assets/wallpapers/nier-automata-2b-snow.png"
+
 
 [bar.default]
 margin_edge = 4
