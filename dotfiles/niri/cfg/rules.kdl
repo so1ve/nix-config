@@ -9,6 +9,7 @@ window-rule {
 
 window-rule {
     match app-id=r#"^kitty$"#
+    match app-id=r#"^dev\.zed\.Zed$"#
 
     open-on-workspace "dev"
     open-maximized true
