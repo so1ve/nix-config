@@ -53,6 +53,7 @@
       "software/neovim"
       "software/zed"
       "software/obs"
+      "software/cinny"
       "software/qq"
       "software/qbittorrent"
       "software/shell"
