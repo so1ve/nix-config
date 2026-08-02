@@ -19,24 +19,16 @@
             ];
             waylandFrontend = true;
 
-            settings = {
-              addons.classicui.globalSection = {
-                Theme = "mellow-wechat";
-                DarkTheme = "mellow-wechat-dark";
-                UseDarkTheme = "True";
+            settings.inputMethod = {
+              "Groups/0" = {
+                Name = "Default";
+                "Default Layout" = "us";
+                DefaultIM = "rime";
               };
 
-              inputMethod = {
-                "Groups/0" = {
-                  Name = "Default";
-                  "Default Layout" = "us";
-                  DefaultIM = "rime";
-                };
-
-                "Groups/0/Items/0".Name = "rime";
-                "Groups/0/Items/1".Name = "keyboard-us";
-                GroupOrder."0" = "Default";
-              };
+              "Groups/0/Items/0".Name = "rime";
+              "Groups/0/Items/1".Name = "keyboard-us";
+              GroupOrder."0" = "Default";
             };
           };
         };
