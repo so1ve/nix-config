@@ -43,13 +43,13 @@ path = "~/.config/noctalia/assets/wallpapers/nier-automata-2b-snow.png"
 
 [bar.default]
 margin_edge = 4
-background_opacity = 0.88
+background_opacity = 0.72
 padding = 10
 capsule = true
-capsule_fill = "#202124E6"
+capsule_fill = "#302D33CC"
 capsule_opacity = 1.0
 capsule_padding = 6
-capsule_thickness = 0.76
+capsule_thickness = 0.80
 
 start = ["group:system-monitor"]
 center = ["workspaces"]
@@ -68,7 +68,7 @@ end = [
 [[bar.default.capsule_group]]
 id = "system-monitor"
 members = ["cpu", "temp", "ram", "net-up", "net-down"]
-fill = "#202124E6"
+fill = "#302D33CC"
 
 [widget.workspaces]
 style = "focus_hint"
