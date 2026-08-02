@@ -15,6 +15,7 @@
       {
         config,
         mkChromiumPwa,
+        mkIcon,
         pkgs,
         ...
       }:
@@ -24,16 +25,14 @@
         desktopName = "Telegram Web";
         description = "Telegram Web K";
         url = "https://web.telegram.org/k/";
-        icon = pkgs.fetchurl {
-          url = "https://web.telegram.org/k/assets/img/android-chrome-512x512.png?v=jw3mK7G9Ry";
-          hash = "sha256-e1BW46Z7+K9yIftBUDVaDIN8Du9NfWinVAp7SHnp1ko=";
-        };
+        icon = mkIcon "telegram.png";
       };
 
     "software/cinny".home =
       {
         config,
         mkChromiumPwa,
+        mkIcon,
         pkgs,
         ...
       }:
@@ -43,10 +42,7 @@
         desktopName = "Cinny";
         description = "Matrix client";
         url = "https://app.cinny.in/";
-        icon = pkgs.fetchurl {
-          url = "https://app.cinny.in/public/android/android-chrome-512x512.png";
-          hash = "sha256-4O1XGmsSqjPmGVtvSiRD3AquvUDK/7Y6aLt5iKV84hg=";
-        };
+        icon = mkIcon "cinny.png";
       };
   };
 }
