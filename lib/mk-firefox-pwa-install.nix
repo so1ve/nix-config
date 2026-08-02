@@ -1,5 +1,5 @@
 # Consider use chromium for PWAs
-{ lib }:
+{ inputs, lib }:
 
 {
   config,
@@ -13,7 +13,7 @@
 }:
 
 let
-  firefoxpwa = pkgs.nur.repos.so1ve.firefoxpwa-xwayland;
+  firefoxpwa = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.firefoxpwa-xwayland;
   firefoxPwaConfig = "${config.xdg.dataHome}/firefoxpwa/config.json";
 
   installPwa = pkgs.writeShellScript "install-${name}-pwa" ''

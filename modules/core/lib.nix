@@ -36,7 +36,7 @@ let
   mkChromiumPwa = import ../../lib/mk-chromium-pwa.nix {
     inherit lib mkFocusOrLaunch;
   };
-  mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix { inherit lib; };
+  mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix { inherit inputs lib; };
   mkAppImage = import ../../lib/mk-appimage.nix { inherit lib; };
 
   specialArgsFor =

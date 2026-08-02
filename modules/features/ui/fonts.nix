@@ -2,13 +2,14 @@
   ray.features."ui/fonts" = {
     nixos =
       {
+        inputs,
         lib,
         pkgs,
         ...
       }:
       {
         fonts.packages = [
-          pkgs.nur.repos.so1ve.r-maple-mono-nf-cn
+          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.r-maple-mono-nf-cn
           pkgs.noto-fonts-cjk-sans
           pkgs.noto-fonts-cjk-serif
         ];

@@ -38,6 +38,8 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      so1ve.url = "github:so1ve/nur-packages";
+
       home-manager = {
         url = "github:nix-community/home-manager";
         inputs.nixpkgs.follows = "nixpkgs";

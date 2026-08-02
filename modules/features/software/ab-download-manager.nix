@@ -1,12 +1,13 @@
 {
   ray.features."software/ab-download-manager" = {
     home =
-      { inputs, ... }:
+      { inputs, pkgs, ... }:
       {
-        imports = [ inputs.nur.repos.so1ve.homeModules.ab-download-manager ];
+        imports = [ inputs.so1ve.homeModules.ab-download-manager ];
 
         programs.ab-download-manager = {
           enable = true;
+          package = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.ab-download-manager;
           uiScale = 1.75;
         };
       };
