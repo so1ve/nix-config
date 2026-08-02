@@ -56,7 +56,7 @@ end = [
   "battery",
   "clock",
   "notifications",
-  "control-center",
+  "session",
 ]
 
 [[bar.default.capsule_group]]
