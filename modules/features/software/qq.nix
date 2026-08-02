@@ -3,7 +3,12 @@
     home =
       { pkgs, ... }:
       {
-        home.packages = [ pkgs.qq ];
+        # FIXME: revert this after upstream fixes the Wayland issue
+        home.packages = [
+          (pkgs.qq.override {
+            commandLineArgs = "--ozone-platform=wayland";
+          })
+        ];
       };
   };
 }
