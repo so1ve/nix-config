@@ -59,6 +59,7 @@
       "software/tooling"
       "software/tmux"
       "software/wemeet"
+      "software/winboat"
       "software/wps"
       "software/yazi"
       "security/agenix"
