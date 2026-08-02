@@ -1,9 +1,9 @@
 {
   ray.features."software/winboat" = {
     home =
-      { pkgs, ... }:
+      { inputs, pkgs, ... }:
       {
-        home.packages = [ pkgs.nur.repos.so1ve.winboat ];
+        home.packages = [ inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.winboat ];
       };
   };
 }

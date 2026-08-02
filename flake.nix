@@ -56,6 +56,7 @@
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    so1ve.url = "github:so1ve/nur-packages";
     waydroid-script = {
       url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
       inputs.nixpkgs.follows = "nixpkgs";

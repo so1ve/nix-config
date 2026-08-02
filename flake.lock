@@ -219,6 +219,22 @@
         "url": "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz"
       }
     },
+    "nixpkgs_4": {
+      "locked": {
+        "lastModified": 1784796856,
+        "narHash": "sha256-wWFrV5/Qbm+lyt5x20E/bSbfJiGKMo4RCxZV8cl/WZI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e2587caef70cea85dd97d7daab492899902dbf5d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "noctalia-greeter": {
       "inputs": {
         "nixpkgs": "nixpkgs_3"
@@ -269,7 +285,26 @@
         "nixpkgs": "nixpkgs_2",
         "noctalia-greeter": "noctalia-greeter",
         "nur": "nur",
+        "so1ve": "so1ve",
         "waydroid-script": "waydroid-script"
+      }
+    },
+    "so1ve": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_4"
+      },
+      "locked": {
+        "lastModified": 1785656740,
+        "narHash": "sha256-hjdk2Wuns8crmwEYi99Iv/xrHbOMgMPUQ2QUW/KRYGM=",
+        "owner": "so1ve",
+        "repo": "nur-packages",
+        "rev": "8dc83d18ef7f594cb8cdb1ff99d6e85eb59e7119",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "nur-packages",
+        "type": "github"
       }
     },
     "systems": {
