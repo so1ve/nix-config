@@ -51,6 +51,7 @@
       "software/celluloid"
       "software/vlc"
       "software/neovim"
+      "software/zed"
       "software/obs"
       "software/qq"
       "software/qbittorrent"
