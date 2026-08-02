@@ -32,6 +32,7 @@ let
     );
 
   mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
+  mkIcon = import ../../lib/mk-icon.nix { inherit lib; };
   mkFocusOrLaunch = import ../../lib/mk-focus-or-launch.nix;
   mkChromiumPwa = import ../../lib/mk-chromium-pwa.nix {
     inherit lib mkFocusOrLaunch;
@@ -53,6 +54,7 @@ let
         mkDotfilesSymlink
         mkFirefoxPwaInstall
         mkFocusOrLaunch
+        mkIcon
         ;
       mkDolphinPlace = import ../../lib/mk-dolphin-place.nix { inherit hasFeatureEnabled; };
       user = config.ray.registry.users.${host.username};

@@ -24,6 +24,7 @@
       {
         config,
         mkChromiumPwa,
+        mkIcon,
         pkgs,
         ...
       }:
@@ -34,10 +35,7 @@
         description = "网易官方云游戏平台";
         categories = [ "Game" ];
         url = "https://cg.163.com/";
-        icon = pkgs.fetchurl {
-          url = "https://cg.163.com/logo2.png";
-          hash = "sha256-bK/ZWd44q1MD+ldoem4So0TyctRqnl5JFT/eGOUF9oM=";
-        };
+        icon = mkIcon "netease-cloud-game.png";
       };
 
     "software/hmcl".home =
