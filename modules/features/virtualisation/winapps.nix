@@ -16,7 +16,7 @@
 
         systemd.tmpfiles.rules = [
           "d /var/lib/containers/${username}/winapps/storage 0700 ${username} users - -"
-          # New files created below this directory inherit Btrfs NOCOW.
+          # NOCOW
           "h /var/lib/containers/${username}/winapps/storage - - - - +C"
         ];
 
@@ -36,9 +36,7 @@
         configDirectory = "${config.xdg.configHome}/winapps";
         winappsPackage = inputs.winapps.packages.${pkgs.stdenv.hostPlatform.system}.winapps;
         winappsConfig = pkgs.writeText "winapps.conf" (
-          builtins.replaceStrings [ "@username@" ] [ username ] (
-            builtins.readFile ./winapps/winapps.conf
-          )
+          builtins.replaceStrings [ "@username@" ] [ username ] (builtins.readFile ./winapps/winapps.conf)
         );
         winappsVm = pkgs.writeShellApplication {
           name = "winapps-vm";
