@@ -13,7 +13,5 @@ in
     "system/kernel/latest" = kernel "linuxPackages_latest";
     "system/kernel/testing" = kernel "linuxPackages_testing";
     "system/kernel/zen" = kernel "linuxPackages_zen";
-    "system/kernel/xanmod" = kernel "linuxPackages_xanmod";
-    "system/kernel/xanmod-latest" = kernel "linuxPackages_xanmod_latest";
   };
 }
