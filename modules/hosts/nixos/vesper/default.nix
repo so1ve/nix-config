@@ -42,6 +42,7 @@
       "software/neovim"
       "software/zed"
       "software/codex"
+      "software/pi"
       "software/development"
       "software/git"
       "software/tooling"
