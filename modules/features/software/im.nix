@@ -44,5 +44,22 @@
         url = "https://app.cinny.in/";
         icon = mkIcon "cinny.png";
       };
+
+    "software/rust-zulip".home =
+      {
+        config,
+        mkChromiumPwa,
+        mkIcon,
+        pkgs,
+        ...
+      }:
+      mkChromiumPwa {
+        inherit config pkgs;
+        name = "rust-zulip";
+        desktopName = "Rust Zulip";
+        description = "Rust project Zulip";
+        url = "https://rust-lang.zulipchat.com/";
+        icon = mkIcon "zulip.svg";
+      };
   };
 }
