@@ -157,9 +157,35 @@
     };
 
     "software/peazip".home =
-      { pkgs, ... }:
+      {
+        lib,
+        pkgs,
+        ...
+      }:
       {
         home.packages = [ pkgs.peazip ];
+
+        xdg.dataFile."kio/servicemenus/peazip.desktop".source =
+          "${pkgs.peazip}/share/kio/servicemenus/peazip-kde6.desktop";
+
+        xdg.mimeApps = {
+          enable = true;
+          defaultApplications = lib.genAttrs [
+            "application/bzip2"
+            "application/gzip"
+            "application/vnd.rar"
+            "application/x-7z-compressed"
+            "application/x-bzip-compressed-tar"
+            "application/x-compressed-tar"
+            "application/x-gzip"
+            "application/x-rar"
+            "application/x-rar-compressed"
+            "application/x-tar"
+            "application/x-xz"
+            "application/x-xz-compressed-tar"
+            "application/zip"
+          ] (_: "peazip.desktop");
+        };
       };
   };
 }
