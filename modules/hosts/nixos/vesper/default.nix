@@ -54,7 +54,7 @@
       "software/wine"
 
       # Files and network
-      "software/dolphin"
+      "software/nautilus"
       "software/peazip"
       "software/yazi"
       "software/firefox"

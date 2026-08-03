@@ -8,7 +8,7 @@ binds {
         spawn "focus-or-launch" "kitty" "kitty"
     }
 
-    // TODO: use dolphin if yazi doesn't fit my needs
+    // TODO: use Nautilus if yazi doesn't fit my needs
     Mod+E hotkey-overlay-title="Focus or Open Yazi" {
         spawn "focus-or-launch" "yazi" "kitty" "--class" "yazi" "--title" "Yazi" "yazi"
     }

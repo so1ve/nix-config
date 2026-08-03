@@ -75,7 +75,7 @@ window-rule {
 // Sizes
 window-rule {
     match app-id=r#"^QQ$"#
-    match app-id=r#"(?i)^(org\.kde\.)?dolphin$"#
+    match app-id=r#"^org\.gnome\.Nautilus$"#
     match app-id=r#"(?i)^(org\.qbittorrent\.)?qbittorrent$"#
     match app-id=r#"^(wps|et|wpp)$"#
     match app-id=r#"^AlgerMusicPlayer$"#
