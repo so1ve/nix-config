@@ -22,7 +22,10 @@ const PROFILES = {
       "docker-compose.yml",
     ],
   ],
-  frontend: ["Node.js, Corepack and frontend tooling", ["package.json"]],
+  frontend: [
+    "Node.js, Bun, Deno, Corepack and frontend tooling",
+    ["package.json"],
+  ],
   go: ["Go, Delve, Task and editor tooling", ["go.mod", "go.work"]],
   rust: [
     "rust-overlay, native build dependencies and editor tooling",
@@ -113,8 +116,8 @@ ${imports}
   }
 
   if (profiles.includes("frontend")) {
-    extraInputs.push(`  node-overlay:
-    url: github:so1ve/node-overlay
+    extraInputs.push(`  js-toolchain-overlay:
+    url: github:so1ve/js-toolchain-overlay
     inputs:
       nixpkgs:
         follows: nixpkgs`);
