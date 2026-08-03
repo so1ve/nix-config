@@ -33,7 +33,7 @@
       "desktop/noctalia"
       "desktop/noctalia-greeter"
       "input/fcitx-rime"
-      "ui/theme"
+      "ui/core"
       "ui/fonts"
 
       # Development
