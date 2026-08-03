@@ -17,7 +17,7 @@
     home =
       { inputs, pkgs, ... }:
       {
-        home.packages = [ inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.winboat ];
+        home.packages = [ inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.winboat-unstable ];
       };
   };
 }
