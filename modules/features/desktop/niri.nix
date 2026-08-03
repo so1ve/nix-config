@@ -8,7 +8,12 @@
         programs.niri.enable = true;
         services.displayManager.defaultSession = "niri";
 
-        # Niri automatically starts xwayland-satellite when it is on PATH.
+        # GNOME/GTK portal file choosers use GVfs to discover removable media.
+        services = {
+          gvfs.enable = true;
+          udisks2.enable = true;
+        };
+
         environment.systemPackages = [ pkgs.xwayland-satellite ];
       };
 
