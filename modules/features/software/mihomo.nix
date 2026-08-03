@@ -1,13 +1,21 @@
 {
   ray.features."software/mihomo" = {
+    requires = [ "security/agenix" ];
+
     nixos =
       {
         config,
         lib,
         pkgs,
+        username,
         ...
       }:
       {
+        age.secrets.mihomo-config = {
+          file = ../../../secrets/mihomo-config.age;
+          owner = username;
+        };
+
         services.mihomo = {
           enable = true;
           configFile = config.age.secrets.mihomo-config.path;

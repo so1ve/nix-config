@@ -20,7 +20,26 @@ let
     config.ray.features.${name}
       or (throw "Unknown feature '${name}'. Available features: ${lib.concatStringsSep ", " availableFeatures}");
 
-  selectFeatures = host: map featureByName host.features;
+  selectFeatures =
+    host:
+    let
+      missingRequirements = lib.concatMap (
+        name:
+        let
+          feature = featureByName name;
+        in
+        map (required: "${name} requires ${required}") (
+          filter (required: !lib.elem required host.features) feature.requires
+        )
+      ) host.features;
+    in
+    if missingRequirements == [ ] then
+      map featureByName host.features
+    else
+      throw ''
+        Missing feature dependencies for host '${host.hostname}':
+        ${lib.concatMapStringsSep "\n" (dependency: "  - ${dependency}") missingRequirements}
+      '';
 
   modulesFor =
     kind: features: map (feature: feature.${kind}) (filter (feature: feature.${kind} != null) features);

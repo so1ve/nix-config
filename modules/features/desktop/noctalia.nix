@@ -1,5 +1,7 @@
 {
   ray.features."desktop/noctalia" = {
+    requires = [ "desktop/niri" ];
+
     nixos = {
       programs.noctalia = {
         enable = true;
@@ -29,6 +31,8 @@
   };
 
   ray.features."desktop/noctalia-greeter" = {
+    requires = [ "desktop/niri" ];
+
     nixos =
       { inputs, ... }:
       {
