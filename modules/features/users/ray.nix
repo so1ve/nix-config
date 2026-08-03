@@ -1,5 +1,7 @@
 {
   ray.features."users/ray" = {
+    requires = [ "software/shell" ];
+
     nixos =
       {
         pkgs,

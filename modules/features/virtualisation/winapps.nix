@@ -1,19 +1,13 @@
 {
   ray.features."virtualisation/winapps" = {
+    requires = [ "virtualisation/podman" ];
+
     nixos =
       {
-        hasFeatureEnabled,
         username,
         ...
       }:
       {
-        assertions = [
-          {
-            assertion = hasFeatureEnabled "virtualisation/podman";
-            message = "The virtualisation/winapps feature requires virtualisation/podman.";
-          }
-        ];
-
         systemd.tmpfiles.rules = [
           "d /var/lib/containers/${username}/winapps/storage 0700 ${username} users - -"
           # NOCOW

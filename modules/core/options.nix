@@ -16,6 +16,12 @@ let
         default = null;
         description = "Optional Home Manager module provided by this feature.";
       };
+
+      requires = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = "Features that must be explicitly enabled alongside this feature.";
+      };
     };
   };
 

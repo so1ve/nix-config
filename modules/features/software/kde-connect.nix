@@ -3,6 +3,8 @@ let
 in
 {
   ray.features."software/kde-connect" = {
+    requires = [ "software/dolphin" ];
+
     nixos = {
       programs.kdeconnect = {
         enable = true;

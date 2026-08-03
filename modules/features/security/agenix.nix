@@ -9,14 +9,7 @@
       {
         imports = [ inputs.agenix.nixosModules.default ];
 
-        age = {
-          identityPaths = [ "/home/${username}/.config/agenix/identity" ];
-
-          secrets.mihomo-config = {
-            file = ../../../secrets/mihomo-config.age;
-            owner = username;
-          };
-        };
+        age.identityPaths = [ "/home/${username}/.config/agenix/identity" ];
       };
 
     home =
@@ -29,14 +22,7 @@
       {
         imports = [ inputs.agenix.homeManagerModules.default ];
 
-        age = {
-          identityPaths = [ "${config.xdg.configHome}/agenix/identity" ];
-
-          secrets.github-ssh = {
-            file = ../../../secrets/github-ssh.age;
-            path = "${config.home.homeDirectory}/.ssh/id_ed25519_github";
-          };
-        };
+        age.identityPaths = [ "${config.xdg.configHome}/agenix/identity" ];
 
         home.packages = [
           inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default

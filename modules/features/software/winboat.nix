@@ -1,5 +1,7 @@
 {
   ray.features."software/winboat" = {
+    requires = [ "virtualisation/podman" ];
+
     nixos =
       { username, ... }:
       {

@@ -1,5 +1,7 @@
 {
   ray.features."software/git" = {
+    requires = [ "security/agenix" ];
+
     home =
       {
         config,
@@ -12,6 +14,11 @@
         allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
       in
       {
+        age.secrets.github-ssh = {
+          file = ../../../secrets/github-ssh.age;
+          path = "${config.home.homeDirectory}/.ssh/id_ed25519_github";
+        };
+
         programs = {
           gh = {
             enable = true;
@@ -30,16 +37,11 @@
             settings = {
               core = {
                 autocrlf = false;
-                editor = "nvim";
                 eol = "lf";
               };
 
-              diff.tool = "nvimdiff";
               init.defaultBranch = "main";
-              merge = {
-                conflictStyle = "zdiff3";
-                tool = "nvimdiff";
-              };
+              merge.conflictStyle = "zdiff3";
               pull.rebase = true;
               push.autoSetupRemote = true;
               status.showUntrackedFiles = "all";
