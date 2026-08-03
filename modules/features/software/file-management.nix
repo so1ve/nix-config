@@ -46,14 +46,14 @@
         home.packages = [ pkgs.peazip ];
 
         xdg.dataFile = {
-          "nautilus/scripts/PeaZip/Add to Archive" = mkNautilusScript "add-to-archive" "-add2archive";
-          "nautilus/scripts/PeaZip/Convert" = mkNautilusScript "convert" "-add2convert";
-          "nautilus/scripts/PeaZip/Extract Archive" = mkNautilusScript "extract-archive" "-ext2main";
-          "nautilus/scripts/PeaZip/Extract Here" = mkNautilusScript "extract-here" "-ext2here";
-          "nautilus/scripts/PeaZip/Extract to New Folder" =
+          "nautilus/scripts/PeaZip/添加到压缩包" = mkNautilusScript "add-to-archive" "-add2archive";
+          "nautilus/scripts/PeaZip/转换压缩包" = mkNautilusScript "convert" "-add2convert";
+          "nautilus/scripts/PeaZip/解压缩" = mkNautilusScript "extract-archive" "-ext2main";
+          "nautilus/scripts/PeaZip/解压到此处" = mkNautilusScript "extract-here" "-ext2here";
+          "nautilus/scripts/PeaZip/解压到新文件夹" =
             mkNautilusScript "extract-to-new-folder" "-ext2folder";
-          "nautilus/scripts/PeaZip/Open Archive" = mkNautilusScript "open-archive" "-ext2openasarchive";
-          "nautilus/scripts/PeaZip/Test" = mkNautilusScript "test" "-ext2test";
+          "nautilus/scripts/PeaZip/打开压缩包" = mkNautilusScript "open-archive" "-ext2openasarchive";
+          "nautilus/scripts/PeaZip/测试压缩包" = mkNautilusScript "test" "-ext2test";
         };
 
         xdg.mimeApps = {
