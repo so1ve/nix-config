@@ -8,6 +8,16 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^QQ$"#
+    match app-id=r#"^chrome-app\.cinny\.in__-Default$"#
+    match app-id=r#"^chrome-rust-lang\.zulipchat\.com__-Default$"#
+    match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
+
+    open-on-workspace "main"
+    open-focused true
+}
+
+window-rule {
     match app-id=r#"^kitty$"#
     match app-id=r#"^dev\.zed\.Zed$"#
 
@@ -79,6 +89,7 @@ window-rule {
     match app-id=r#"(?i)^(org\.qbittorrent\.)?qbittorrent$"#
     match app-id=r#"^(wps|et|wpp)$"#
     match app-id=r#"^AlgerMusicPlayer$"#
+    match app-id=r#"^chrome-rust-lang\.zulipchat\.com__-Default$"#
 
     // WPS exposes font selectors as XWayland toplevels instead of popups.
     exclude app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
