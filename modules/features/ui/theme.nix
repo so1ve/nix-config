@@ -1,8 +1,10 @@
 {
-  ray.features."ui/dark-mode" = {
+  ray.features."ui/theme" = {
     home =
       { pkgs, ... }:
       {
+        home.packages = [ pkgs.qt6.qtsvg ];
+
         gtk = {
           enable = true;
           colorScheme = "dark";
