@@ -8,8 +8,6 @@
 let
   inherit (lib)
     filter
-    filterAttrs
-    mapAttrs
     optional
     ;
 
@@ -43,12 +41,6 @@ let
 
   modulesFor =
     kind: features: map (feature: feature.${kind}) (filter (feature: feature.${kind} != null) features);
-
-  moduleAttrsFor =
-    kind:
-    mapAttrs (_: feature: feature.${kind}) (
-      filterAttrs (_: feature: feature.${kind} != null) config.ray.features
-    );
 
   mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
   mkIcon = import ../../lib/mk-icon.nix { inherit lib; };
@@ -115,9 +107,6 @@ let
 in
 {
   config.ray.lib = {
-    inherit
-      mkNixosHost
-      moduleAttrsFor
-      ;
+    inherit mkNixosHost;
   };
 }

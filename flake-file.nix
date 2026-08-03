@@ -69,9 +69,6 @@ in
   outputs = _: {
     inherit nixosConfigurations;
 
-    nixosModules = config.ray.lib.moduleAttrsFor "nixos";
-    homeModules = config.ray.lib.moduleAttrsFor "home";
-
     checks.${system} =
       lib.mapAttrs (_: nixos: nixos.config.system.build.toplevel) nixosConfigurations
       // {
