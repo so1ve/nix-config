@@ -10,63 +10,79 @@
     ];
 
     features = [
-      "core/nix"
-      "nixos/base"
-      "nixos/desktop"
-      # TODO: Update zen kernel to 7.1.5 to fix CIFS issue
-      "nixos/kernel/zen"
-      "nixos/performance"
+      # System
+      "system/nix"
+      "system/base"
+      "system/kernel/zen"
+      "system/performance"
+      "boot/systemd-boot"
       "hardware/graphics"
       "hardware/smartd"
-      "hardware/uefi-systemd-boot"
+      "storage/snapper"
+      "storage/mount/nas"
+      "security/agenix"
+      "security/fingerprint"
+      "security/sudo"
+
+      # User and desktop
       "home/base"
+      "software/shell"
       "users/ray"
+      "desktop/audio"
       "desktop/niri"
       "desktop/noctalia"
       "desktop/noctalia-greeter"
       "input/fcitx-rime"
       "ui/dark-mode"
       "ui/fonts"
-      "storage/snapper"
-      "storage/mount/nas"
-      "virtualisation/podman"
-      "virtualisation/waydroid"
-      "software/ab-download-manager"
-      "software/dolphin"
-      "software/mihomo"
-      "software/netease-cloud-game"
+
+      # Development
+      "software/kitty"
+      "software/tmux"
+      "software/neovim"
+      "software/zed"
       "software/codex"
-      "software/firefox"
-      "software/gaming"
-      "software/wine"
       "software/development"
       "software/git"
-      "software/hmcl"
+      "software/tooling"
+
+      # Virtualisation and compatibility
+      "virtualisation/podman"
+      "virtualisation/waydroid"
+      "virtualisation/winboat"
+      "software/wine"
+
+      # Files and network
+      "software/dolphin"
+      "software/yazi"
+      "software/firefox"
+      "software/mihomo"
+      "software/ab-download-manager"
+      "software/qbittorrent"
       "software/kde-connect"
-      "software/kitty"
-      "software/alger-music-player"
+
+      # Gaming
+      "software/gaming"
+      "software/hmcl"
+      "software/netease-cloud-game"
+
+      # Media
       "software/swayimg"
       "software/mpv"
       "software/haruna"
       "software/celluloid"
       "software/vlc"
-      "software/neovim"
-      "software/zed"
+      "software/alger-music-player"
       "software/obs"
+
+      # IM
       "software/cinny"
       "software/qq"
-      "software/qbittorrent"
-      "software/shell"
       "software/telegram-web"
-      "software/tooling"
-      "software/tmux"
+
+      # Misc
       "software/wemeet"
-      "software/winboat"
       "software/wps"
-      "software/yazi"
-      "security/agenix"
-      "security/fingerprint"
-      "security/sudo"
     ];
   };
 }

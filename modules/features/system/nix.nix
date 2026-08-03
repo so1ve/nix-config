@@ -5,7 +5,7 @@
 }:
 
 {
-  ray.features."core/nix" = {
+  ray.features."system/nix" = {
     nixos = {
       nixpkgs.overlays = [ inputs.nur.overlays.default ];
 
