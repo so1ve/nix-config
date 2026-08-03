@@ -77,6 +77,7 @@
       # IM
       "software/cinny"
       "software/qq"
+      "software/rust-zulip"
       "software/telegram-web"
 
       # Misc
