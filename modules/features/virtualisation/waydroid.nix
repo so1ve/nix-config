@@ -75,18 +75,5 @@
           setupWaydroid
         ];
       };
-
-    home =
-      {
-        mkDolphinPlace,
-        username,
-        ...
-      }:
-      mkDolphinPlace {
-        id = "nix-waydroid-storage";
-        href = "file:///home/${username}/Waydroid";
-        title = "Waydroid";
-        icon = "waydroid";
-      };
   };
 }

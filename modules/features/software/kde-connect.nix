@@ -3,8 +3,6 @@ let
 in
 {
   ray.features."software/kde-connect" = {
-    requires = [ "software/dolphin" ];
-
     nixos = {
       programs.kdeconnect = {
         enable = true;
@@ -47,10 +45,6 @@ in
           commands="@ByteArray(${builtins.replaceStrings [ "\"" ] [ "\\\"" ] commands})"
         '';
 
-        xdg.mimeApps = {
-          enable = true;
-          defaultApplications."x-scheme-handler/kdeconnect" = "org.kde.dolphin.desktop";
-        };
       };
   };
 }
