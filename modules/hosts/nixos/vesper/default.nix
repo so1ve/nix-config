@@ -71,9 +71,6 @@
       # Media
       "software/swayimg"
       "software/mpv"
-      "software/haruna"
-      "software/celluloid"
-      "software/vlc"
       "software/alger-music-player"
       "software/obs"
 
