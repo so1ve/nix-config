@@ -1,5 +1,5 @@
 {
-  ray.features."nixos/base" = {
+  ray.features."system/base" = {
     nixos =
       {
         hostname,

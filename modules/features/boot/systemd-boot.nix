@@ -1,5 +1,5 @@
 {
-  ray.features."hardware/uefi-systemd-boot" = {
+  ray.features."boot/systemd-boot" = {
     nixos = {
       boot.loader = {
         timeout = 2;

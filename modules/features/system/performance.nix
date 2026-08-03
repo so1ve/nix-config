@@ -1,5 +1,5 @@
 {
-  ray.features."nixos/performance" = {
+  ray.features."system/performance" = {
     nixos =
       { pkgs, ... }:
       {
