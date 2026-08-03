@@ -19,11 +19,13 @@
 
   nixConfig = {
     extra-substituters = [
+      "https://attic.xuyh0120.win/lantian"
       "https://nix-community.cachix.org"
       "https://noctalia.cachix.org"
       "https://so1ve.cachix.org"
     ];
     extra-trusted-public-keys = [
+      "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
       "so1ve.cachix.org-1:51jcW4FkJhiLcqPsiUx3nglRP469les8F9zjFxio1nw="
@@ -50,6 +52,7 @@
     };
     import-tree.url = "github:denful/import-tree";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter";
     nur = {

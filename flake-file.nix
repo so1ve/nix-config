@@ -25,6 +25,8 @@ in
     inputs = {
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+      nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
+
       flake-file.url = "github:denful/flake-file";
       import-tree.url = "github:denful/import-tree";
 
