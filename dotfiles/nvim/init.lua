@@ -1753,11 +1753,7 @@ safely("later", function()
 
   minimap.setup({
     integrations = {
-      -- FIXME: `builtin_search` moves the source cursor and restores it via
-      -- `winrestview()`, but cursor-relative float geometry stays stale until redraw,
-      -- so DiagnosticChanged refreshes can send blink.cmp to the top-left corner.
-      -- Wait for https://github.com/nvim-mini/mini.nvim/issues/2509
-      -- minimap.gen_integration.builtin_search({ search = "MiniMapSearch" }),
+      minimap.gen_integration.builtin_search({ search = "MiniMapSearch" }),
       minimap.gen_integration.diagnostic({
         error = "MiniMapDiagnosticError",
         warn = "MiniMapDiagnosticWarn",
@@ -1780,9 +1776,12 @@ safely("later", function()
       return
     end
 
+    if vim.api.nvim_win_get_config(0).relative ~= "" then
+      return
+    end
+
     if
-      vim.api.nvim_win_get_config(0).relative ~= ""
-      or vim.bo.buftype ~= ""
+      vim.bo.buftype ~= ""
       or vim.api.nvim_buf_get_name(0) == ""
       or vim.tbl_contains(mini_excluded_filetypes, vim.bo.filetype)
     then
@@ -1795,7 +1794,7 @@ safely("later", function()
 
   map("n", "<leader>um", minimap.toggle, { desc = "Toggle minimap" })
 
-  autocmd({ "BufWinEnter", "FileType" }, {
+  autocmd({ "BufWinEnter", "FileType", "WinEnter" }, {
     callback = sync_map,
   })
   sync_map()
