@@ -27,6 +27,17 @@
       let
         mkNautilusScript = name: operation: {
           source = pkgs.writeShellScript "peazip-nautilus-${name}" ''
+            selected_paths=()
+            while IFS= read -r selected_path; do
+              if [[ -n "$selected_path" ]]; then
+                selected_paths+=("$selected_path")
+              fi
+            done < <(printf '%s' "''${NAUTILUS_SCRIPT_SELECTED_FILE_PATHS:-}")
+
+            if (( ''${#selected_paths[@]} > 0 )); then
+              exec ${lib.getExe pkgs.peazip} ${operation} "''${selected_paths[@]}"
+            fi
+
             exec ${lib.getExe pkgs.peazip} ${operation} "$@"
           '';
         };
