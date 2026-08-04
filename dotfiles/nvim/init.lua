@@ -2255,7 +2255,7 @@ load_plugins("later", "panels.nvim", function()
         position = "bottom",
         ft = "",
         filter = function(buf)
-          return vim.bo[buf].buftype == "terminal"
+          return vim.bo[buf].buftype == "terminal" and vim.b[buf].terminal_job_pid ~= nil
         end,
       },
     },
