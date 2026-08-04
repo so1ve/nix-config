@@ -13,6 +13,10 @@
       home = {
         programs.kitty = {
           enable = true;
+          keybindings = {
+            "ctrl+shift+h" = "";
+            "ctrl+shift+l" = "";
+          };
           settings = {
             background_opacity = "0.9";
             cursor_trail = 3;
