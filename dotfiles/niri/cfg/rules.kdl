@@ -9,9 +9,7 @@ window-rule {
 
 window-rule {
     match app-id=r#"^QQ$"#
-    match app-id=r#"^chrome-app\.cinny\.in__-Default$"#
-    match app-id=r#"^chrome-rust-lang\.zulipchat\.com__-Default$"#
-    match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
+    match app-id=r#"^FFPWA-[0-9A-HJKMNP-TV-Z]{26}$"# title=r#"^(Cinny|Rust Zulip|Telegram Web)$"#
 
     open-on-workspace "main"
     open-focused true
@@ -69,7 +67,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^chrome-cg\.163\.com__-Default$"#
+    match app-id=r#"^FFPWA-[0-9A-HJKMNP-TV-Z]{26}$"# title=r#"^网易云游戏$"#
 
     open-on-workspace "game"
     open-focused true
@@ -89,7 +87,7 @@ window-rule {
     match app-id=r#"(?i)^(org\.qbittorrent\.)?qbittorrent$"#
     match app-id=r#"^(wps|et|wpp)$"#
     match app-id=r#"^AlgerMusicPlayer$"#
-    match app-id=r#"^chrome-rust-lang\.zulipchat\.com__-Default$"#
+    match app-id=r#"^FFPWA-[0-9A-HJKMNP-TV-Z]{26}$"# title=r#"^Rust Zulip$"#
 
     // WPS exposes font selectors as XWayland toplevels instead of popups.
     exclude app-id=r#"^(wps|et|wpp)$"# title=r#"^(wps|et|wpp)$"#
@@ -98,7 +96,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^chrome-web\.telegram\.org__k_-Default$"#
+    match app-id=r#"^FFPWA-[0-9A-HJKMNP-TV-Z]{26}$"# title=r#"^Telegram Web$"#
 
     default-column-width { proportion 0.33333; }
 }

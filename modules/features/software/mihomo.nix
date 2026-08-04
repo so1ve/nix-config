@@ -46,11 +46,12 @@
       {
         config,
         lib,
-        mkChromiumPwa,
+        mkFirefoxPwaInstall,
         pkgs,
         ...
       }:
       let
+        manifestUrl = "http://127.0.0.1:9090/ui/manifest.webmanifest";
         mihomoConfig = "/run/agenix/mihomo-config";
 
         showZashboardSecret = pkgs.writeShellApplication {
@@ -63,13 +64,16 @@
         };
       in
       lib.mkMerge [
-        (mkChromiumPwa {
-          inherit config pkgs;
+        (mkFirefoxPwaInstall {
+          inherit
+            config
+            manifestUrl
+            pkgs
+            ;
           name = "zashboard";
-          desktopName = "Zashboard";
-          description = "Mihomo dashboard";
-          url = "http://127.0.0.1:9090/ui/";
-          icon = "${pkgs.zashboard}/pwa-512x512.png";
+          description = "Install Zashboard as a Firefox PWA";
+          waitForManifest = true;
+          timeoutStartSec = 45;
         })
 
         {
