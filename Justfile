@@ -11,16 +11,16 @@ check: check-flake-file
 check-flake-file:
     nix build .#checks.x86_64-linux.check-flake-file --no-link --accept-flake-config
 
-# Build the system without switching to it or creating a result symlink.
+# Build the system without activating it.
 build:
-    nix build .#nixosConfigurations.{{ host }}.config.system.build.toplevel --no-link --accept-flake-config
+    nh os build . -H {{ host }} --accept-flake-config
 
 boot:
-    sudo nixos-rebuild boot --flake .#{{ host }} --accept-flake-config
+    nh os boot . -H {{ host }} --accept-flake-config
 
 # Activate the configuration immediately.
 switch:
-    sudo nixos-rebuild switch --flake .#{{ host }} --accept-flake-config
+    nh os switch . -H {{ host }} --accept-flake-config
 
 # Format all Nix files with the formatter exported by the flake.
 fmt:

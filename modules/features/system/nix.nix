@@ -9,6 +9,8 @@
     nixos = {
       nixpkgs.overlays = [ inputs.nur.overlays.default ];
 
+      programs.nh.enable = true;
+
       nix.settings = {
         auto-optimise-store = true;
         experimental-features = [
