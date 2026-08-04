@@ -41,10 +41,6 @@
       "rev": "122018c0f54519b9ee16fb0e31b96989a7682e1c",
       "src": "https://github.com/saghen/filler-begone.nvim"
     },
-    "flatten.nvim": {
-      "rev": "d92ca41e9c330f45c1b854a80c89c8488a9d730c",
-      "src": "https://github.com/willothy/flatten.nvim"
-    },
     "grug-far.nvim": {
       "rev": "6e05398cf6cad05b3fb46569db96b1ccfcbbd402",
       "src": "https://github.com/MagicDuck/grug-far.nvim"

@@ -199,7 +199,6 @@ end
 
 vim.pack.add({
   gh("nvim-mini/mini.nvim"),
-  gh("willothy/flatten.nvim"),
   gh("folke/snacks.nvim"),
   gh("mrjones2014/codesettings.nvim"),
   gh("saghen/filler-begone.nvim"),
@@ -260,12 +259,6 @@ local function load_plugins(when, names, configure)
     end
   end)
 end
-
-require("flatten").setup({
-  window = {
-    open = "alternate",
-  },
-})
 
 -- #############################
 -- # Diagnostics               #
