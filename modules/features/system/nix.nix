@@ -17,6 +17,8 @@
           "nix-command"
           "flakes"
         ];
+        min-free = 50 * 1024 * 1024 * 1024;
+        max-free = 100 * 1024 * 1024 * 1024;
         trusted-users = [ "@wheel" ];
       }
       // config.ray.registry.nixCacheSettings;
