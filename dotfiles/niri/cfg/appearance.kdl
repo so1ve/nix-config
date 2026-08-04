@@ -39,6 +39,13 @@ animations {
     // }
 }
 
+blur {
+    passes 2
+    offset 2.5
+    noise 0.03
+    saturation 1.0
+}
+
 window-rule {
     geometry-corner-radius 6
     clip-to-geometry true
