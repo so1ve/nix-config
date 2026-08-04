@@ -18,7 +18,7 @@
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "codesettings.nvim": {
-      "rev": "133d78abd27f4853dc436ddd1fb354763d9df028",
+      "rev": "be7b18f714f4579870b709115f3c4b3584688b4a",
       "src": "https://github.com/mrjones2014/codesettings.nvim"
     },
     "conform.nvim": {
@@ -46,7 +46,7 @@
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
     "mini.nvim": {
-      "rev": "8bf5c57bc82dd590932faa41bfde9fd6d40a9433",
+      "rev": "8cef23520832134c05e4524e49f0468623501053",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "multicursor.nvim": {
@@ -78,7 +78,7 @@
       "src": "https://github.com/windwp/nvim-ts-autotag"
     },
     "panels.nvim": {
-      "rev": "61f9ffe29e84b8ea8b64ba130c6d0ab4b0ac314f",
+      "rev": "8129bb824f65137d7841155aed67f942bb762e5d",
       "src": "https://github.com/so1ve/panels.nvim"
     },
     "refactoring.nvim": {
@@ -90,11 +90,11 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "schemastore.nvim": {
-      "rev": "9f98b46e1dd61aeb666989c344d76517df63af55",
+      "rev": "885ecf4fa0ffcd20d052b14701540a451898fb34",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "smart-splits.nvim": {
-      "rev": "89ab35b282783efc1c49deadd72c22afd5eac356",
+      "rev": "8c16dc71bf75221793f3f6d83061fee031790c3c",
       "src": "https://github.com/mrjones2014/smart-splits.nvim"
     },
     "snacks.nvim": {
