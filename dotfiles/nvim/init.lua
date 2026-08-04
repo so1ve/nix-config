@@ -1748,58 +1748,6 @@ safely("later", function()
   })
 end)
 
-safely("later", function()
-  local minimap = require("mini.map")
-
-  minimap.setup({
-    integrations = {
-      minimap.gen_integration.builtin_search({ search = "MiniMapSearch" }),
-      minimap.gen_integration.diagnostic({
-        error = "MiniMapDiagnosticError",
-        warn = "MiniMapDiagnosticWarn",
-        info = "MiniMapDiagnosticInfo",
-        hint = "MiniMapDiagnosticHint",
-      }),
-      minimap.gen_integration.diff({
-        add = "MiniMapDiffAdd",
-        change = "MiniMapDiffChange",
-        delete = "MiniMapDiffDelete",
-      }),
-    },
-    window = {
-      zindex = 60,
-    },
-  })
-
-  local function sync_map(event)
-    if event and event.buf ~= vim.api.nvim_get_current_buf() then
-      return
-    end
-
-    if vim.api.nvim_win_get_config(0).relative ~= "" then
-      return
-    end
-
-    if
-      vim.bo.buftype ~= ""
-      or vim.api.nvim_buf_get_name(0) == ""
-      or vim.tbl_contains(mini_excluded_filetypes, vim.bo.filetype)
-    then
-      minimap.close()
-      return
-    end
-
-    minimap.open()
-  end
-
-  map("n", "<leader>um", minimap.toggle, { desc = "Toggle minimap" })
-
-  autocmd({ "BufWinEnter", "FileType", "WinEnter" }, {
-    callback = sync_map,
-  })
-  sync_map()
-end)
-
 local sessions = require("mini.sessions")
 
 local session_dir = vim.fs.joinpath(vim.fn.stdpath("state"), "sessions")
