@@ -34,6 +34,6 @@ write-flake:
 update:
     nix flake update --accept-flake-config
 
-# Delete generations older than 7 days, then collect unreachable store paths.
-gc period="7d":
-    sudo nix-collect-garbage --delete-older-than {{ period }}
+# Keep at least 3 generations and recent gcroots, then collect all unreachable store paths.
+gc period="7d" keep="3":
+    nh clean all --keep {{ keep }} --keep-since {{ period }} --ask
