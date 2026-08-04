@@ -1380,6 +1380,28 @@ load_plugins("now", { "schemastore.nvim", "nvim-lspconfig" }, function()
     vim.lsp.config(server_name, config)
 
     if server_name ~= "*" then
+      local lsp_name = server_name
+      local default_cmd = vim.lsp.config[lsp_name].cmd
+      vim.lsp.config(lsp_name, {
+        cmd = function(dispatchers, client_config)
+          local loader = require("codesettings").loader()
+          if client_config.root_dir then
+            loader = loader:root_dir(client_config.root_dir)
+          end
+
+          local local_cmd = loader:local_settings():get(("nvim-lsp.%s.cmd"):format(lsp_name))
+          local cmd = local_cmd or default_cmd
+          if type(cmd) == "function" then
+            return cmd(dispatchers, client_config)
+          end
+
+          return vim.lsp.rpc.start(cmd, dispatchers, {
+            cwd = client_config.cmd_cwd or client_config.root_dir,
+            env = client_config.cmd_env,
+            detached = client_config.detached,
+          })
+        end,
+      })
       vim.lsp.enable(server_name)
     end
   end
