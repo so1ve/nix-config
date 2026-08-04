@@ -1,4 +1,3 @@
-# Consider use chromium for PWAs
 { inputs, lib }:
 
 {

@@ -14,52 +14,63 @@
     "software/telegram-web".home =
       {
         config,
-        mkChromiumPwa,
-        mkIcon,
+        mkFirefoxPwaInstall,
         pkgs,
         ...
       }:
-      mkChromiumPwa {
+      mkFirefoxPwaInstall {
         inherit config pkgs;
         name = "telegram-web";
-        desktopName = "Telegram Web";
-        description = "Telegram Web K";
-        url = "https://web.telegram.org/k/";
-        icon = mkIcon "telegram.png";
+        description = "Install Telegram Web K as a Firefox PWA";
+        manifestUrl = "https://web.telegram.org/k/site.webmanifest";
       };
 
     "software/cinny".home =
       {
         config,
-        mkChromiumPwa,
-        mkIcon,
+        mkFirefoxPwaInstall,
         pkgs,
         ...
       }:
-      mkChromiumPwa {
+      mkFirefoxPwaInstall {
         inherit config pkgs;
         name = "cinny";
-        desktopName = "Cinny";
-        description = "Matrix client";
-        url = "https://app.cinny.in/";
-        icon = mkIcon "cinny.png";
+        description = "Install Cinny as a Firefox PWA";
+        manifestUrl = "https://app.cinny.in/manifest.json";
       };
 
     "software/rust-zulip".home =
       {
         config,
-        mkChromiumPwa,
-        mkIcon,
+        lib,
+        mkFirefoxPwaInstall,
         pkgs,
         ...
       }:
-      mkChromiumPwa {
+      let
+        url = "https://rust-lang.zulipchat.com/";
+        manifest = builtins.toJSON {
+          name = "Rust Zulip";
+          description = "Rust project Zulip";
+          start_url = url;
+          icons = [
+            {
+              src = "https://avatars.zulip.com/4715/realm/icon.png?version=2";
+              sizes = "512x512";
+              type = "image/png";
+            }
+          ];
+        };
+      in
+      mkFirefoxPwaInstall {
         inherit config pkgs;
         name = "rust-zulip";
-        desktopName = "Rust Zulip";
-        description = "Rust project Zulip";
-        url = "https://rust-lang.zulipchat.com/";
-        icon = mkIcon "zulip.svg";
+        description = "Install Rust Zulip as a Firefox PWA";
+        manifestUrl = "data:application/manifest+json,${lib.escapeURL manifest}";
+        installArgs = [
+          "--document-url"
+          url
+        ];
       };
   };
 }

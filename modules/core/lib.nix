@@ -43,11 +43,7 @@ let
     kind: features: map (feature: feature.${kind}) (filter (feature: feature.${kind} != null) features);
 
   mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
-  mkIcon = import ../../lib/mk-icon.nix { inherit lib; };
   mkFocusOrLaunch = import ../../lib/mk-focus-or-launch.nix;
-  mkChromiumPwa = import ../../lib/mk-chromium-pwa.nix {
-    inherit lib mkFocusOrLaunch;
-  };
   mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix { inherit inputs lib; };
   mkAppImage = import ../../lib/mk-appimage.nix { inherit lib; };
 
@@ -55,11 +51,9 @@ let
     inherit
       inputs
       mkAppImage
-      mkChromiumPwa
       mkDotfilesSymlink
       mkFirefoxPwaInstall
       mkFocusOrLaunch
-      mkIcon
       ;
     user = config.ray.registry.users.${host.username};
     inherit (host)
