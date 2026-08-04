@@ -18,6 +18,11 @@ let
   installPwa = pkgs.writeShellScript "install-${name}-pwa" ''
     set -eu
 
+    install_dir=${lib.escapeShellArg "${config.xdg.dataHome}/firefoxpwa"}
+    ${pkgs.coreutils}/bin/mkdir -p "$install_dir"
+    exec 9>"$install_dir/install.lock"
+    ${lib.getExe' pkgs.util-linux "flock"} 9
+
     manifest_url=${lib.escapeShellArg manifestUrl}
     pwa_config=${lib.escapeShellArg firefoxPwaConfig}
 
