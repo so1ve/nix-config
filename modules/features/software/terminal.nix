@@ -16,12 +16,14 @@
           keybindings = {
             "ctrl+shift+h" = "";
             "ctrl+shift+l" = "";
+            "ctrl+shift+p" = "show_scrollback";
           };
           settings = {
             background_opacity = "0.9";
             cursor_trail = 3;
             font_family = "R Maple Mono NF CN";
             linux_display_server = "wayland";
+            scrollback_pager = "nvim --cmd 'set eventignore=FileType' +'nnoremap q ZQ' +'call nvim_open_term(0, {})' +'set nomodified nolist' +'$' -";
           };
         };
 
