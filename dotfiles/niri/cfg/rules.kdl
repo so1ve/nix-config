@@ -9,7 +9,7 @@ window-rule {
 
 window-rule {
     match app-id=r#"^QQ$"#
-    match app-id=r#"^FFPWA-[0-9A-HJKMNP-TV-Z]{26}$"# title=r#"^(Cinny|Rust Zulip|Telegram Web)$"#
+    match app-id=r#"^FFPWA-[0-9A-HJKMNP-TV-Z]{26}$"# title=r#"^(Cinny|Discord|Rust Zulip|Telegram Web)$"#
 
     open-on-workspace "main"
     open-focused true

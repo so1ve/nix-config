@@ -39,6 +39,40 @@
         manifestUrl = "https://app.cinny.in/manifest.json";
       };
 
+    "software/discord".home =
+      {
+        config,
+        lib,
+        mkFirefoxPwaInstall,
+        pkgs,
+        ...
+      }:
+      let
+        url = "https://discord.com/app";
+        manifest = builtins.toJSON {
+          name = "Discord";
+          description = "Discord";
+          start_url = url;
+          icons = [
+            {
+              src = "https://discord.com/assets/favicon.ico";
+              sizes = "256x256";
+              type = "image/x-icon";
+            }
+          ];
+        };
+      in
+      mkFirefoxPwaInstall {
+        inherit config pkgs;
+        name = "discord";
+        description = "Install Discord as a Firefox PWA";
+        manifestUrl = "data:application/manifest+json,${lib.escapeURL manifest}";
+        installArgs = [
+          "--document-url"
+          url
+        ];
+      };
+
     "software/rust-zulip".home =
       {
         config,
