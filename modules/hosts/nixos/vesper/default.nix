@@ -76,6 +76,7 @@
 
       # IM
       "software/cinny"
+      "software/discord"
       "software/qq"
       "software/rust-zulip"
       "software/telegram-web"
