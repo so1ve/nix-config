@@ -21,7 +21,7 @@
       mkFirefoxPwaInstall {
         inherit config pkgs;
         name = "telegram-web";
-        description = "Install Telegram Web K as a Firefox PWA";
+        description = "Install Telegram Web K";
         manifestUrl = "https://web.telegram.org/k/site.webmanifest";
       };
 
@@ -35,7 +35,7 @@
       mkFirefoxPwaInstall {
         inherit config pkgs;
         name = "cinny";
-        description = "Install Cinny as a Firefox PWA";
+        description = "Install Cinny";
         manifestUrl = "https://app.cinny.in/manifest.json";
       };
 
@@ -65,7 +65,7 @@
       mkFirefoxPwaInstall {
         inherit config pkgs;
         name = "discord";
-        description = "Install Discord as a Firefox PWA";
+        description = "Install Discord";
         manifestUrl = "data:application/manifest+json,${lib.escapeURL manifest}";
         installArgs = [
           "--document-url"
@@ -99,7 +99,7 @@
       mkFirefoxPwaInstall {
         inherit config pkgs;
         name = "rust-zulip";
-        description = "Install Rust Zulip as a Firefox PWA";
+        description = "Install Rust Zulip";
         manifestUrl = "data:application/manifest+json,${lib.escapeURL manifest}";
         installArgs = [
           "--document-url"

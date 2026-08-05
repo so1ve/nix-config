@@ -30,7 +30,7 @@
       mkFirefoxPwaInstall {
         inherit config pkgs;
         name = "netease-cloud-game";
-        description = "Install NetEase Cloud Game as a Firefox PWA";
+        description = "Install NetEase Cloud Game";
         manifestUrl = "https://cg.163.com/manifestindex.json";
         installArgs = [
           "--document-url"
