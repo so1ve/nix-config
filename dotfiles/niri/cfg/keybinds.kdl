@@ -13,8 +13,8 @@ binds {
         spawn "focus-or-launch" "yazi" "kitty" "--class" "yazi" "--title" "Yazi" "yazi"
     }
 
-    Mod+B hotkey-overlay-title="Focus or Open Firefox" {
-        spawn "focus-or-launch" "firefox" "firefox"
+    Mod+B hotkey-overlay-title="Focus or Open Chrome" {
+        spawn "focus-or-launch" "google-chrome" "google-chrome-stable"
     }
 
     XF86AudioMicMute allow-when-locked=true {

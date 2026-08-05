@@ -1,6 +1,9 @@
 {
   ray.features."software/mihomo" = {
-    requires = [ "security/agenix" ];
+    requires = [
+      "security/agenix"
+      "software/chrome"
+    ];
 
     nixos =
       {
@@ -41,18 +44,23 @@
         # Strict reverse-path filtering can reject traffic routed through the
         # TUN interface.
         networking.firewall.checkReversePath = "loose";
+
+        ray.chromeWebApps = [
+          {
+            url = "http://127.0.0.1:9090/ui/";
+            custom_name = "Zashboard";
+          }
+        ];
       };
 
     home =
       {
         config,
         lib,
-        mkFirefoxPwaInstall,
         pkgs,
         ...
       }:
       let
-        manifestUrl = "http://127.0.0.1:9090/ui/manifest.webmanifest";
         mihomoConfig = "/run/agenix/mihomo-config";
 
         showZashboardSecret = pkgs.writeShellApplication {
@@ -64,27 +72,13 @@
           '';
         };
       in
-      lib.mkMerge [
-        (mkFirefoxPwaInstall {
-          inherit
-            config
-            manifestUrl
-            pkgs
-            ;
-          name = "zashboard";
-          description = "Install Zashboard";
-          waitForManifest = true;
-          timeoutStartSec = 45;
-        })
+      {
+        home.packages = [ showZashboardSecret ];
 
-        {
-          home.packages = [ showZashboardSecret ];
-
-          xdg.configFile."mihomo/config.yaml" = {
-            source = config.lib.file.mkOutOfStoreSymlink mihomoConfig;
-            force = true;
-          };
-        }
-      ];
+        xdg.configFile."mihomo/config.yaml" = {
+          source = config.lib.file.mkOutOfStoreSymlink mihomoConfig;
+          force = true;
+        };
+      };
   };
 }

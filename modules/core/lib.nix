@@ -44,7 +44,6 @@ let
 
   mkDotfilesSymlink = import "${inputs.self}/lib/mk-dotfiles-symlink.nix";
   mkFocusOrLaunch = import "${inputs.self}/lib/mk-focus-or-launch.nix";
-  mkFirefoxPwaInstall = import "${inputs.self}/lib/mk-firefox-pwa-install.nix" { inherit inputs lib; };
   mkAppImage = import "${inputs.self}/lib/mk-appimage.nix" { inherit lib; };
 
   specialArgsFor = host: {
@@ -52,7 +51,6 @@ let
       inputs
       mkAppImage
       mkDotfilesSymlink
-      mkFirefoxPwaInstall
       mkFocusOrLaunch
       ;
     user = config.ray.registry.users.${host.username};
