@@ -42,10 +42,10 @@ let
   modulesFor =
     kind: features: map (feature: feature.${kind}) (filter (feature: feature.${kind} != null) features);
 
-  mkDotfilesSymlink = import ../../lib/mk-dotfiles-symlink.nix;
-  mkFocusOrLaunch = import ../../lib/mk-focus-or-launch.nix;
-  mkFirefoxPwaInstall = import ../../lib/mk-firefox-pwa-install.nix { inherit inputs lib; };
-  mkAppImage = import ../../lib/mk-appimage.nix { inherit lib; };
+  mkDotfilesSymlink = import "${inputs.self}/lib/mk-dotfiles-symlink.nix";
+  mkFocusOrLaunch = import "${inputs.self}/lib/mk-focus-or-launch.nix";
+  mkFirefoxPwaInstall = import "${inputs.self}/lib/mk-firefox-pwa-install.nix" { inherit inputs lib; };
+  mkAppImage = import "${inputs.self}/lib/mk-appimage.nix" { inherit lib; };
 
   specialArgsFor = host: {
     inherit

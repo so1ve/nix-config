@@ -5,17 +5,18 @@
     home =
       {
         config,
+        inputs,
         user,
         ...
       }:
       let
         githubKey = config.age.secrets.github-ssh.path;
-        githubPublicKey = builtins.readFile ../../../keys/ray-github.pub;
+        githubPublicKey = builtins.readFile "${inputs.self}/keys/ray-github.pub";
         allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
       in
       {
         age.secrets.github-ssh = {
-          file = ../../../secrets/github-ssh.age;
+          file = "${inputs.self}/secrets/github-ssh.age";
           path = "${config.home.homeDirectory}/.ssh/id_ed25519_github";
         };
 
