@@ -72,7 +72,7 @@
             pkgs
             ;
           name = "zashboard";
-          description = "Install Zashboard as a Firefox PWA";
+          description = "Install Zashboard";
           waitForManifest = true;
           timeoutStartSec = 45;
         })
