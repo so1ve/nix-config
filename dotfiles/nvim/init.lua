@@ -847,7 +847,7 @@ end)
 -- # Git                       #
 -- #############################
 
-load_plugins("later", { "codediff.nvim", "neogit" }, function()
+load_plugins("now", { "codediff.nvim", "neogit" }, function()
   require("codediff").setup({
     diff = {
       compute_moves = true,
