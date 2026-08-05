@@ -20,6 +20,7 @@
           };
           settings = {
             background_opacity = "0.9";
+            confirm_os_window_close = 0;
             cursor_trail = 3;
             font_family = "R Maple Mono NF CN";
             linux_display_server = "wayland";
