@@ -13,7 +13,7 @@
       # System
       "system/nix"
       "system/base"
-      "system/kernel/cachyos-lto-zen4"
+      "system/kernel/cachyos-lts-lto-zen4"
       "system/performance"
       "boot/systemd-boot"
       "hardware/graphics"
