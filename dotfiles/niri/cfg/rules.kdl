@@ -10,7 +10,7 @@ window-rule {
 window-rule {
     match app-id=r#"^QQ$"#
     // Policy-installed Chrome WebAppIds: Cinny, Discord, Rust Zulip, Telegram.
-    match app-id=r#"^chrome-(bcngdmpegpihnheapppgoniglphkpfhm|pliiebkcmokkgndfalahlmimanmbjlab|doaomjibpoemjdfcplalmkmdhgaadood|majiogicmcnmdhhlgmkahaleckhjbmlk)-Default$"#
+    match app-id=r#"^chrome-(bcngdmpegpihnheapppgoniglphkpfhm|pliiebkcmokkgndfalahlmimanmbjlab|doaomjibpoemjdfcplalmkmdhgaadood|nigookeodlehlnjcpdfifmophdcbjoma)-Default$"#
 
     open-on-workspace "main"
     open-focused true
@@ -90,7 +90,8 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^chrome-majiogicmcnmdhhlgmkahaleckhjbmlk-Default$"#
+    // Telegram
+    match app-id=r#"^chrome-nigookeodlehlnjcpdfifmophdcbjoma-Default$"#
 
     default-column-width { proportion 0.33333; }
 }
