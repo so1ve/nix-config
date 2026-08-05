@@ -5,6 +5,7 @@
     nixos =
       {
         config,
+        inputs,
         lib,
         pkgs,
         username,
@@ -12,7 +13,7 @@
       }:
       {
         age.secrets.mihomo-config = {
-          file = ../../../secrets/mihomo-config.age;
+          file = "${inputs.self}/secrets/mihomo-config.age";
           owner = username;
         };
 
