@@ -57,7 +57,7 @@
       "software/nautilus"
       "software/peazip"
       "software/yazi"
-      "software/firefox"
+      "software/chrome"
       "software/mihomo"
       "software/ab-download-manager"
       "software/qbittorrent"

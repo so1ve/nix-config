@@ -20,33 +20,17 @@
       };
     };
 
-    "software/netease-cloud-game".home =
-      {
-        config,
-        mkFirefoxPwaInstall,
-        pkgs,
-        ...
-      }:
-      mkFirefoxPwaInstall {
-        inherit config pkgs;
-        name = "netease-cloud-game";
-        description = "Install NetEase Cloud Game";
-        manifestUrl = "https://cg.163.com/manifestindex.json";
-        installArgs = [
-          "--document-url"
-          "https://cg.163.com/"
-          "--start-url"
-          "https://cg.163.com/"
-          "--icon-url"
-          "https://cg.163.com/logo2.png"
-          "--name"
-          "网易云游戏"
-          "--description"
-          "网易官方云游戏平台"
-          "--categories"
-          "Game"
+    "software/netease-cloud-game" = {
+      requires = [ "software/chrome" ];
+      nixos = {
+        ray.chromeWebApps = [
+          {
+            url = "https://cg.163.com/";
+            custom_name = "网易云游戏";
+          }
         ];
       };
+    };
 
     "software/hmcl".home =
       { pkgs, ... }:
