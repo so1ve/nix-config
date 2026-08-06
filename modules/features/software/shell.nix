@@ -35,6 +35,14 @@
               set -gx LANG ${cliLocale}
               set -gx LANGUAGE en_US
               set -g fish_greeting
+
+              fish_vi_key_bindings
+
+              # Fish normally cancels an open completion pager on Escape and
+              # moves the cursor left when entering Normal mode. Keep the
+              # pager and cursor position so both Escape -> Tab and
+              # Tab -> Escape -> j/k remain useful.
+              bind -M insert -m default escape repaint-mode
             '';
           };
 
