@@ -16,6 +16,7 @@
       "system/kernel/zen"
       "system/performance"
       "boot/systemd-boot"
+      "hardware/battery"
       "hardware/graphics"
       "hardware/smartd"
       "storage/snapper"
