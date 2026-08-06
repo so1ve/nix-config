@@ -37,6 +37,8 @@
               set -g fish_greeting
 
               fish_vi_key_bindings
+              bind -M default H beginning-of-line
+              bind -M default L end-of-line
 
               # Fish normally cancels an open completion pager on Escape and
               # moves the cursor left when entering Normal mode. Keep the
