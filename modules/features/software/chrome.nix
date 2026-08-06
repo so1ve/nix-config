@@ -45,7 +45,14 @@
         ...
       }:
       let
-        chrome = pkgs.google-chrome;
+        chromeFeatures = [
+          "VerticalTabs"
+          "Vulkan"
+          "WaylandWindowDecorations"
+        ];
+        chrome = pkgs.google-chrome.override {
+          commandLineArgs = "--enable-features=${lib.concatStringsSep "," chromeFeatures}";
+        };
         focusOrLaunch = mkFocusOrLaunch pkgs;
         chromeLauncher = pkgs.writeShellApplication {
           name = "google-chrome-stable";
