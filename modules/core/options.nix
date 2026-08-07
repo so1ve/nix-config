@@ -78,11 +78,6 @@ let
       gitEmail = mkOption {
         type = types.str;
       };
-
-      extraGroups = mkOption {
-        type = types.listOf types.str;
-        default = [ ];
-      };
     };
   };
 

@@ -1,5 +1,5 @@
 {
-  ray.features."system/base" = {
+  ray.features."system/core" = {
     nixos =
       {
         hostname,
@@ -7,14 +7,10 @@
         ...
       }:
       {
-        networking = {
-          hostName = hostname;
-          networkmanager.enable = true;
-        };
-
+        networking.hostName = hostname;
         time.timeZone = "Asia/Shanghai";
 
-        # use zh_CN in desktop environment and en_US in terminal
+        # Use zh_CN in desktop environments and en_US in terminals.
         i18n = {
           defaultLocale = "zh_CN.UTF-8";
           supportedLocales = [
@@ -22,9 +18,6 @@
             "zh_CN.UTF-8/UTF-8"
           ];
         };
-
-        services.fwupd.enable = true;
-        services.printing.enable = true;
 
         system.stateVersion = stateVersion;
       };

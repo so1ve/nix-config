@@ -27,6 +27,11 @@ in
 
       nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
 
+      nixos-wsl = {
+        url = "github:nix-community/NixOS-WSL/main";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       flake-file.url = "github:denful/flake-file";
       import-tree.url = "github:denful/import-tree";
 
