@@ -222,7 +222,6 @@ vim.pack.add({
   gh("neovim/nvim-lspconfig"),
   gh("b0o/schemastore.nvim"),
   gh("nvim-treesitter/nvim-treesitter-textobjects"),
-  gh("wakatime/vim-wakatime"),
   gh("jake-stewart/multicursor.nvim"),
   gh("ThePrimeagen/refactoring.nvim"),
   gh("lewis6991/async.nvim"),
@@ -2136,12 +2135,6 @@ safely("now", function()
     tabpage_section = "right",
   })
 end)
-
--- #############################
--- # Miscellaneous             #
--- #############################
-
-load_plugins("later", "vim-wakatime")
 
 -- #############################
 -- # Multicursor               #
