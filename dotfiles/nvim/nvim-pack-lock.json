@@ -121,10 +121,6 @@
       "rev": "bd67efe408d4816e25e8491cc5ad4088e708a69a",
       "src": "https://github.com/folke/trouble.nvim"
     },
-    "vim-wakatime": {
-      "rev": "2a856d0b7863dc34ffc80647cb52fbd1319fe144",
-      "src": "https://github.com/wakatime/vim-wakatime"
-    },
     "wezterm-types": {
       "rev": "ad5d3319a9b3358a7953db34677a554a4268ae58",
       "src": "https://github.com/DrKJeff16/wezterm-types"
