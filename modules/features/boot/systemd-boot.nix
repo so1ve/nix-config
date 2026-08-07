@@ -2,7 +2,7 @@
   ray.features."boot/systemd-boot" = {
     nixos = {
       boot.loader = {
-        timeout = 2;
+        timeout = 1;
         systemd-boot = {
           configurationLimit = 10;
           enable = true;
