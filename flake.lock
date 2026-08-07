@@ -229,6 +229,26 @@
         "type": "github"
       }
     },
+    "nix-index-database": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785650611,
+        "narHash": "sha256-q4kR7g+pCcz6NASvoVPYu+CWWUurX03wogtBqGmR4h0=",
+        "owner": "nix-community",
+        "repo": "nix-index-database",
+        "rev": "dbc756c9d7287de19b3e0e38c928c47510d42c3e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-index-database",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1785747939,
@@ -369,6 +389,7 @@
         "import-tree": "import-tree",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
+        "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs_3",
         "noctalia-greeter": "noctalia-greeter",
         "nur": "nur",

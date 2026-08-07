@@ -46,6 +46,7 @@
       "software/pi"
       "software/development"
       "software/git"
+      "software/comma"
       "software/tooling"
 
       # Virtualisation and compatibility
