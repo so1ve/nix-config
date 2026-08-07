@@ -12,7 +12,8 @@
     features = [
       # System
       "system/nix"
-      "system/base"
+      "system/core"
+      "system/workstation"
       "system/kernel/zen"
       "system/performance"
       "boot/systemd-boot"
@@ -46,6 +47,7 @@
       "software/pi"
       "software/development"
       "software/git"
+      "software/git/github"
       "software/comma"
       "software/tooling"
 

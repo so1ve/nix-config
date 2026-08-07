@@ -44,7 +44,14 @@
           home.packages = [ pkgs.tmux ];
 
           programs.fish.interactiveShellInit = ''
-            if set -q KITTY_WINDOW_ID; and not set -q TMUX
+            set -l auto_attach_tmux false
+            if set -q KITTY_WINDOW_ID
+              set auto_attach_tmux true
+            else if set -q WSL_DISTRO_NAME; and test "$TERM_PROGRAM" = WezTerm
+              set auto_attach_tmux true
+            end
+
+            if $auto_attach_tmux; and not set -q TMUX
               if not ${pkgs.tmux}/bin/tmux has-session -t main 2>/dev/null
                 if ${pkgs.tmux}/bin/tmux new-session -d -x "$COLUMNS" -y "$LINES" -s main -n workspace
                   ${pkgs.tmux}/bin/tmux split-window -h -p 75 -t main:1.1

@@ -4,10 +4,6 @@
       description = "Ray";
       gitName = "so1ve";
       gitEmail = "58381667+so1ve@users.noreply.github.com";
-      extraGroups = [
-        "networkmanager"
-        "wheel"
-      ];
     };
 
     nixCacheSettings = {

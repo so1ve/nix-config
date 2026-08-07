@@ -12,7 +12,7 @@
       {
         users.users.${username} = {
           isNormalUser = true;
-          inherit (user) description extraGroups;
+          inherit (user) description;
           shell = pkgs.fish;
         };
       };
