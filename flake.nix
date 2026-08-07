@@ -53,6 +53,10 @@
     import-tree.url = "github:denful/import-tree";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter";
     nur = {

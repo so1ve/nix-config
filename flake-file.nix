@@ -30,6 +30,11 @@ in
       flake-file.url = "github:denful/flake-file";
       import-tree.url = "github:denful/import-tree";
 
+      nix-index-database = {
+        url = "github:nix-community/nix-index-database";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       disko = {
         url = "github:nix-community/disko/latest";
         inputs.nixpkgs.follows = "nixpkgs";
