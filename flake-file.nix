@@ -40,6 +40,8 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      nix-alien.url = "github:thiagokokada/nix-alien";
+
       disko = {
         url = "github:nix-community/disko/latest";
         inputs.nixpkgs.follows = "nixpkgs";
