@@ -10,7 +10,10 @@
     nixos = {
       nixpkgs.overlays = [ inputs.nur.overlays.default ];
 
-      programs.nh.enable = true;
+      programs = {
+        nh.enable = true;
+        nix-ld.enable = true;
+      };
 
       nix.settings = {
         auto-optimise-store = true;
