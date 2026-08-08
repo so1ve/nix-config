@@ -52,6 +52,7 @@
     };
     import-tree.url = "github:denful/import-tree";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    nix-alien.url = "github:thiagokokada/nix-alien";
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     nix-index-database = {
       url = "github:nix-community/nix-index-database";

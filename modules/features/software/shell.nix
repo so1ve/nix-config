@@ -27,7 +27,6 @@
             enable = true;
             shellAbbrs = {
               ae = "agenix -i ~/.config/agenix/identity -e";
-              alien = "nix run github:thiagokokada/nix-alien#nix-alien --";
               nd = "nix develop -c fish";
               sr = "steam-run";
             };
