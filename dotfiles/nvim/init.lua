@@ -82,15 +82,7 @@ opt.foldcolumn = "1"
 opt.foldlevel = 99
 opt.foldlevelstart = 99
 opt.foldmethod = "expr"
-opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-opt.fillchars = {
-  foldopen = "",
-  foldclose = "",
-  fold = " ",
-  foldsep = " ",
-  diff = "╱",
-  eob = " ",
-}
+opt.foldexpr = vim.treesitter.foldexpr
 
 local function append_fold_virtual_text(chunks, line_text, line_number, column_offset)
   if not column_offset then
@@ -123,7 +115,8 @@ local function append_fold_virtual_text(chunks, line_text, line_number, column_o
 
   table.insert(chunks, { chunk_text, current_highlight })
 end
-function _G.ray_foldtext()
+
+opt.foldtext = function()
   local folded_line_count = vim.v.foldend - vim.v.foldstart
   local start_line = vim.fn.getline(vim.v.foldstart):gsub("\t", string.rep(" ", vim.o.tabstop))
   local end_line = vim.fn.getline(vim.v.foldend)
@@ -137,7 +130,14 @@ function _G.ray_foldtext()
 
   return chunks
 end
-opt.foldtext = "v:lua.ray_foldtext()"
+opt.fillchars = {
+  foldopen = "",
+  foldclose = "",
+  fold = " ",
+  foldsep = " ",
+  diff = "╱",
+  eob = " ",
+}
 
 -- indentation
 opt.tabstop = 2
