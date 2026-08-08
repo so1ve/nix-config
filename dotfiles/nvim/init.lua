@@ -977,6 +977,7 @@ local function expand_rust_macro(client, bufnr)
         vim.bo[expansion_bufnr].bufhidden = "wipe"
         vim.bo[expansion_bufnr].filetype = "rust"
         vim.bo[expansion_bufnr].modifiable = false
+        map("n", "q", "<cmd>close<CR>", { buffer = expansion_bufnr, desc = "Close macro expansion" })
 
         vim.cmd("botright vsplit")
         vim.api.nvim_win_set_buf(0, expansion_bufnr)
