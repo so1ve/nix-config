@@ -27,6 +27,18 @@ const PROFILES = {
     ["package.json"],
   ],
   go: ["Go, Delve, Task and editor tooling", ["go.mod", "go.work"]],
+  haskell: [
+    "GHC, Cabal, Stack, HLS, Fourmolu and HLint",
+    [
+      "*.cabal",
+      "*.hs",
+      "*.lhs",
+      "cabal.project",
+      "hie.yaml",
+      "package.yaml",
+      "stack.yaml",
+    ],
+  ],
   koka: ["Koka compiler and language server", ["*.kk", "*.kki"]],
   lean: [
     "Lean 4 via Elan, Lake and lean.nvim",

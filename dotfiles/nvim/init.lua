@@ -675,8 +675,10 @@ load_plugins("later", "conform.nvim", function()
       lsp_format = "fallback",
     },
     formatters_by_ft = {
+      cabal = { "cabal_fmt" },
       css = deno_or_prettier,
       fish = { "fish_indent" },
+      haskell = { "fourmolu" },
       html = deno_or_prettier,
       javascript = deno_or_prettier,
       javascriptreact = deno_or_prettier,
@@ -1066,6 +1068,14 @@ local servers = {
   fish_lsp = {},
   gopls = {},
   html = {},
+  hls = {
+    settings = {
+      haskell = {
+        cabalFormattingProvider = "cabal-fmt",
+        formattingProvider = "fourmolu",
+      },
+    },
+  },
   koka = {},
   nixd = {},
   vue_ls = {},
@@ -2457,6 +2467,7 @@ require("tiny-treesitter").setup({
     "gosum",
     "gotmpl",
     "gowork",
+    "haskell",
     "html",
     "javascript",
     "json",
