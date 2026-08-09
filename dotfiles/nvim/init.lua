@@ -2473,6 +2473,7 @@ require("tiny-treesitter").setup({
     "json",
     "lua",
     "markdown",
+    "nix",
     "latex",
     "python",
     "rust",
