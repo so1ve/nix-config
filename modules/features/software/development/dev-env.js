@@ -27,6 +27,11 @@ const PROFILES = {
     ["package.json"],
   ],
   go: ["Go, Delve, Task and editor tooling", ["go.mod", "go.work"]],
+  koka: ["Koka compiler and language server", ["*.kk", "*.kki"]],
+  lean: [
+    "Lean 4 via Elan, Lake and lean.nvim",
+    ["lean-toolchain", "lakefile.lean", "lakefile.toml", "*.lean"],
+  ],
   rust: [
     "rust-overlay, native build dependencies and editor tooling",
     ["Cargo.toml", "rust-toolchain", "rust-toolchain.toml"],
