@@ -86,6 +86,7 @@
       "software/telegram-web"
 
       # Misc
+      "software/mission-center"
       "software/wemeet"
       "software/wps"
     ];
