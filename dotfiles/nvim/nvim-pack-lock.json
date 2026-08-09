@@ -45,6 +45,10 @@
       "rev": "6e05398cf6cad05b3fb46569db96b1ccfcbbd402",
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
+    "lean.nvim": {
+      "rev": "b2b6e0445c05f80f587af5cdb7ffad54bc513fe0",
+      "src": "https://github.com/Julian/lean.nvim"
+    },
     "mini.nvim": {
       "rev": "8cef23520832134c05e4524e49f0468623501053",
       "src": "https://github.com/nvim-mini/mini.nvim"

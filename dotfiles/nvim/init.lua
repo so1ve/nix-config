@@ -7,6 +7,7 @@ local command = vim.api.nvim_create_user_command
 
 g.mapleader = " "
 g.maplocalleader = " "
+g.lean_config = { mappings = false }
 
 vim.loader.enable()
 
@@ -201,6 +202,7 @@ vim.pack.add({
   gh("nvim-mini/mini.nvim"),
   gh("folke/snacks.nvim"),
   gh("mrjones2014/codesettings.nvim"),
+  gh("Julian/lean.nvim"),
   gh("saghen/filler-begone.nvim"),
   gh("so1ve/tiny-treesitter.nvim"),
 }, { confirm = false, load = true })
@@ -314,6 +316,16 @@ autocmd("FileType", {
   callback = function()
     vim.opt_local.formatoptions:remove("r")
     vim.opt_local.formatoptions:append("o")
+  end,
+})
+
+autocmd("FileType", {
+  pattern = "lean",
+  callback = function(event)
+    map("n", "<leader>li", "<cmd>LeanInfoviewToggle<CR>", {
+      buffer = event.buf,
+      desc = "Toggle Lean infoview",
+    })
   end,
 })
 
@@ -1054,6 +1066,7 @@ local servers = {
   fish_lsp = {},
   gopls = {},
   html = {},
+  koka = {},
   nixd = {},
   vue_ls = {},
   zls = {},
