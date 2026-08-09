@@ -34,6 +34,7 @@ in
         enable = true;
         inherit (cfg) directory;
         package = lib.mkDefault nodePackage;
+        npm.enable = true;
         corepack.enable = true;
 
         # vtsls is provided below; do not add typescript-language-server too.
