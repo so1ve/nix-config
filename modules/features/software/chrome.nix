@@ -33,6 +33,7 @@
         };
 
         config.environment.etc."opt/chrome/policies/managed/ray.json".text = builtins.toJSON {
+          DefaultBrowserSettingEnabled = false;
           WebAppInstallForceList = config.ray.chromeWebApps;
         };
       };
@@ -56,6 +57,10 @@
         focusOrLaunch = mkFocusOrLaunch pkgs;
         chromeLauncher = pkgs.writeShellApplication {
           name = "google-chrome-stable";
+          runtimeInputs = [
+            pkgs.jq
+            pkgs.niri
+          ];
           text = ''
             app_id=""
             profile="Default"
@@ -74,6 +79,19 @@
                 ${lib.getExe chrome} "$@"
             fi
 
+            window_id="$(
+              niri msg -j windows 2>/dev/null \
+                | jq -r '
+                    map(select(.app_id | test("^google-chrome(-stable)?$"; "i")))
+                    | max_by(.focus_timestamp.secs, .focus_timestamp.nanos)
+                    | .id // empty
+                  '
+            )" || true
+
+            if [[ -n "$window_id" ]]; then
+              niri msg action focus-window --id "$window_id" >/dev/null 2>&1 || true
+            fi
+
             exec ${lib.getExe chrome} "$@"
           '';
         };
@@ -84,17 +102,33 @@
             (lib.hiPrio chromeLauncher)
             chrome
           ];
-          sessionVariables.BROWSER = lib.getExe chrome;
+          sessionVariables.BROWSER = lib.getExe chromeLauncher;
         };
 
-        xdg.mimeApps = {
-          enable = true;
-          defaultApplications = lib.genAttrs [
-            "application/xhtml+xml"
-            "text/html"
-            "x-scheme-handler/http"
-            "x-scheme-handler/https"
-          ] (_: "google-chrome.desktop");
+        xdg = {
+          desktopEntries.open-in-google-chrome = {
+            name = "Google Chrome URL Handler";
+            exec = "${lib.getExe chromeLauncher} %U";
+            icon = "google-chrome";
+            mimeType = [
+              "application/xhtml+xml"
+              "text/html"
+              "x-scheme-handler/http"
+              "x-scheme-handler/https"
+            ];
+            noDisplay = true;
+            terminal = false;
+          };
+
+          mimeApps = {
+            enable = true;
+            defaultApplications = lib.genAttrs [
+              "application/xhtml+xml"
+              "text/html"
+              "x-scheme-handler/http"
+              "x-scheme-handler/https"
+            ] (_: "open-in-google-chrome.desktop");
+          };
         };
       };
   };
