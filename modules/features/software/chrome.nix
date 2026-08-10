@@ -65,69 +65,68 @@
           ];
           text = ''
             app_id=""
-            open_in_tabs=true
             profile="Default"
-
-            (( $# > 0 )) || open_in_tabs=false
 
             for argument in "$@"; do
               case "$argument" in
                 --app-id=*) app_id="''${argument#--app-id=}" ;;
                 --profile-directory=*) profile="''${argument#--profile-directory=}" ;;
-                http://* | https://* | file://*) ;;
-                *) open_in_tabs=false ;;
               esac
             done
+
+            chrome=("${lib.getExe chrome}" "$@")
 
             if [[ -n "$app_id" ]]; then
               profile="''${profile// /_}"
               exec ${lib.getExe focusOrLaunch} \
                 "chrome-$app_id-$profile" \
-                ${lib.getExe chrome} "$@"
+                "''${chrome[@]}"
             fi
 
-            if $open_in_tabs; then
-              window_id="$(
-                niri msg -j windows 2>/dev/null \
-                  | jq -r '
-                      map(select(.app_id | test("^google-chrome(-stable)?$"; "i")))
-                      | max_by(.focus_timestamp.secs, .focus_timestamp.nanos)
-                      | .id // empty
-                    '
-              )" || true
+            (( $# > 0 )) || exec "''${chrome[@]}"
+            for url in "$@"; do
+              case "$url" in
+                http://* | https://* | file://*) ;;
+                *) exec "''${chrome[@]}" ;;
+              esac
+            done
 
-              if [[ -n "$window_id" ]] \
-                && niri msg action focus-window --id "$window_id" >/dev/null 2>&1; then
-                clipboard_file="$(mktemp)"
-                clipboard_type="$(wl-paste --list-types 2>/dev/null | sed -n '1p')" || true
+            window_id="$(
+              niri msg -j windows 2>/dev/null \
+                | jq -r '
+                    map(select(.app_id | test("^google-chrome(-stable)?$"; "i")))
+                    | max_by([.focus_timestamp.secs, .focus_timestamp.nanos])
+                    | .id // empty
+                  '
+            )" || true
+            [[ -n "$window_id" ]] || exec "''${chrome[@]}"
+            niri msg action focus-window --id "$window_id" >/dev/null 2>&1 \
+              || exec "''${chrome[@]}"
 
-                restore_clipboard() {
-                  if [[ -n "$clipboard_type" ]]; then
-                    wl-copy --type "$clipboard_type" < "$clipboard_file" || true
-                  else
-                    wl-copy --clear || true
-                  fi
-                  rm -f -- "$clipboard_file"
-                }
-                trap restore_clipboard EXIT
+            clipboard_file="$(mktemp)"
+            clipboard_type="$(wl-paste --list-types 2>/dev/null | sed -n '1p')" || true
+            if [[ -n "$clipboard_type" ]] \
+              && ! wl-paste --type "$clipboard_type" > "$clipboard_file" 2>/dev/null; then
+              rm -f -- "$clipboard_file"
+              exec "''${chrome[@]}"
+            fi
 
-                if [[ -z "$clipboard_type" ]] \
-                  || wl-paste --type "$clipboard_type" > "$clipboard_file" 2>/dev/null; then
-                  for url in "$@"; do
-                    printf %s "$url" \
-                      | wl-copy --sensitive --type 'text/plain;charset=utf-8'
-                    wtype -M ctrl -k t -m ctrl -s 100 \
-                      -M ctrl -k v -m ctrl -s 20 -k Return -s 50
-                  done
-                  exit
-                fi
-
-                trap - EXIT
-                rm -f -- "$clipboard_file"
+            restore_clipboard() {
+              if [[ -n "$clipboard_type" ]]; then
+                wl-copy --type "$clipboard_type" < "$clipboard_file" || true
+              else
+                wl-copy --clear || true
               fi
-            fi
+              rm -f -- "$clipboard_file"
+            }
+            trap restore_clipboard EXIT
 
-            exec ${lib.getExe chrome} "$@"
+            for url in "$@"; do
+              printf %s "$url" \
+                | wl-copy --sensitive --type 'text/plain;charset=utf-8'
+              wtype -s 200 -M ctrl -k t -m ctrl \
+                -s 100 -M ctrl -k v -m ctrl -s 20 -k Return -s 50
+            done
           '';
         };
       in
