@@ -60,15 +60,22 @@
           runtimeInputs = [
             pkgs.jq
             pkgs.niri
+            pkgs.wl-clipboard
+            pkgs.wtype
           ];
           text = ''
             app_id=""
+            open_in_tabs=true
             profile="Default"
+
+            (( $# > 0 )) || open_in_tabs=false
 
             for argument in "$@"; do
               case "$argument" in
                 --app-id=*) app_id="''${argument#--app-id=}" ;;
                 --profile-directory=*) profile="''${argument#--profile-directory=}" ;;
+                http://* | https://* | file://*) ;;
+                *) open_in_tabs=false ;;
               esac
             done
 
@@ -79,17 +86,45 @@
                 ${lib.getExe chrome} "$@"
             fi
 
-            window_id="$(
-              niri msg -j windows 2>/dev/null \
-                | jq -r '
-                    map(select(.app_id | test("^google-chrome(-stable)?$"; "i")))
-                    | max_by(.focus_timestamp.secs, .focus_timestamp.nanos)
-                    | .id // empty
-                  '
-            )" || true
+            if $open_in_tabs; then
+              window_id="$(
+                niri msg -j windows 2>/dev/null \
+                  | jq -r '
+                      map(select(.app_id | test("^google-chrome(-stable)?$"; "i")))
+                      | max_by(.focus_timestamp.secs, .focus_timestamp.nanos)
+                      | .id // empty
+                    '
+              )" || true
 
-            if [[ -n "$window_id" ]]; then
-              niri msg action focus-window --id "$window_id" >/dev/null 2>&1 || true
+              if [[ -n "$window_id" ]] \
+                && niri msg action focus-window --id "$window_id" >/dev/null 2>&1; then
+                clipboard_file="$(mktemp)"
+                clipboard_type="$(wl-paste --list-types 2>/dev/null | sed -n '1p')" || true
+
+                restore_clipboard() {
+                  if [[ -n "$clipboard_type" ]]; then
+                    wl-copy --type "$clipboard_type" < "$clipboard_file" || true
+                  else
+                    wl-copy --clear || true
+                  fi
+                  rm -f -- "$clipboard_file"
+                }
+                trap restore_clipboard EXIT
+
+                if [[ -z "$clipboard_type" ]] \
+                  || wl-paste --type "$clipboard_type" > "$clipboard_file" 2>/dev/null; then
+                  for url in "$@"; do
+                    printf %s "$url" \
+                      | wl-copy --sensitive --type 'text/plain;charset=utf-8'
+                    wtype -M ctrl -k t -m ctrl -s 100 \
+                      -M ctrl -k v -m ctrl -s 20 -k Return -s 50
+                  done
+                  exit
+                fi
+
+                trap - EXIT
+                rm -f -- "$clipboard_file"
+              fi
             fi
 
             exec ${lib.getExe chrome} "$@"
