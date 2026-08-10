@@ -506,7 +506,8 @@
         "noctalia-greeter": "noctalia-greeter",
         "nur": "nur",
         "so1ve": "so1ve",
-        "waydroid-script": "waydroid-script"
+        "waydroid-script": "waydroid-script",
+        "xwayclip": "xwayclip"
       }
     },
     "so1ve": {
@@ -576,6 +577,26 @@
         "owner": "casualsnek",
         "repo": "waydroid_script",
         "rev": "d5289cfd8929e86e7f0dc89ecadcef8b66930eec",
+        "type": "github"
+      }
+    },
+    "xwayclip": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786377749,
+        "narHash": "sha256-FTMIJVU4TgzZch+u8pUCn1zD3YzVGWZa+Od1KpGwbPg=",
+        "owner": "so1ve",
+        "repo": "xwayclip",
+        "rev": "374e2461ff40ec0fef47fe1cba2a50befe9793a5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "xwayclip",
         "type": "github"
       }
     }
