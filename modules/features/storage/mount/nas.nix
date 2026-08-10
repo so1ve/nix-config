@@ -19,12 +19,16 @@ in
             "x-systemd.mount-timeout=10s"
             # Keep NFS available until every user process has exited.
             "x-systemd.before=user.slice"
-            # Expose this system mount as a named location in Nautilus/GVfs.
-            "x-gvfs-show"
-            "x-gvfs-name=NAS (local)"
-            "x-gvfs-icon=network-server"
           ];
         };
+      };
+
+    # Accessing the bookmark triggers the systemd automount without asking GVfs
+    # to run mount(8) as the desktop user.
+    home =
+      { ... }:
+      {
+        xdg.configFile."gtk-3.0/bookmarks".text = "file://${mountPoint} NAS (local)\n";
       };
   };
 }
