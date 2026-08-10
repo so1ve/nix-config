@@ -52,7 +52,10 @@
           "WaylandWindowDecorations"
         ];
         chrome = pkgs.google-chrome.override {
-          commandLineArgs = "--enable-features=${lib.concatStringsSep "," chromeFeatures}";
+          commandLineArgs = lib.concatStringsSep " " [
+            "--enable-features=${lib.concatStringsSep "," chromeFeatures}"
+            "--enable-blink-features=MiddleClickAutoscroll"
+          ];
         };
         focusOrLaunch = mkFocusOrLaunch pkgs;
         chromeLauncher = pkgs.writeShellApplication {
