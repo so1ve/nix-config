@@ -31,8 +31,8 @@ write-flake:
     nix run .#write-flake --accept-flake-config
 
 # Update all flake inputs.
-update:
-    nix flake update --accept-flake-config
+update *input:
+    nix flake update --accept-flake-config {{ input }}
 
 # Keep at least 3 generations and recent gcroots, then collect all unreachable store paths.
 gc period="7d" keep="3":
