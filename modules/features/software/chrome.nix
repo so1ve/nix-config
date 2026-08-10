@@ -46,8 +46,8 @@
       }:
       let
         chromeFeatures = [
+          "ForceEnableWebGpuInterop"
           "VerticalTabs"
-          "Vulkan"
           "WaylandWindowDecorations"
         ];
         chrome = pkgs.google-chrome.override {
