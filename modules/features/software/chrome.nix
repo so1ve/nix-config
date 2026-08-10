@@ -33,6 +33,7 @@
         };
 
         config.environment.etc."opt/chrome/policies/managed/ray.json".text = builtins.toJSON {
+          CommandLineFlagSecurityWarningsEnabled = false;
           DefaultBrowserSettingEnabled = false;
           WebAppInstallForceList = config.ray.chromeWebApps;
         };
