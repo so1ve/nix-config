@@ -587,11 +587,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786377749,
-        "narHash": "sha256-FTMIJVU4TgzZch+u8pUCn1zD3YzVGWZa+Od1KpGwbPg=",
+        "lastModified": 1786387292,
+        "narHash": "sha256-dhjqd2EU3MWDDs73/tUYPF4/ieG/adfkQbtZvSJz4dM=",
         "owner": "so1ve",
         "repo": "xwayclip",
-        "rev": "374e2461ff40ec0fef47fe1cba2a50befe9793a5",
+        "rev": "d6c7a2a46a5273f11db006d4c0aa606735d2158e",
         "type": "github"
       },
       "original": {
