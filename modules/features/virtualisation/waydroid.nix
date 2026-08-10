@@ -37,10 +37,7 @@
         };
       in
       {
-        virtualisation.waydroid = {
-          enable = true;
-          package = pkgs.waydroid-nftables;
-        };
+        virtualisation.waydroid.enable = true;
 
         fileSystems."${homeDirectory}/Waydroid" = {
           device = "${homeDirectory}/.local/share/waydroid/data/media/0";
