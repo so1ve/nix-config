@@ -77,6 +77,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      xwayclip = {
+        url = "github:so1ve/xwayclip";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
     };
   };
 

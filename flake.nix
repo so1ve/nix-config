@@ -73,5 +73,9 @@
       url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    xwayclip = {
+      url = "github:so1ve/xwayclip";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 }

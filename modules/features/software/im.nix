@@ -11,6 +11,18 @@
         ];
       };
 
+    # fucking QQ fix
+    "software/xwayclip" = {
+      requires = [ "desktop/niri" ];
+      home =
+        { inputs, ... }:
+        {
+          imports = [ inputs.xwayclip.homeManagerModules.default ];
+
+          services.xwayclip.enable = true;
+        };
+    };
+
     "software/telegram-web" = {
       requires = [ "software/chrome" ];
       nixos = {
