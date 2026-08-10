@@ -50,8 +50,7 @@
           "nautilus/scripts/PeaZip/转换压缩包" = mkNautilusScript "convert" "-add2convert";
           "nautilus/scripts/PeaZip/解压缩" = mkNautilusScript "extract-archive" "-ext2main";
           "nautilus/scripts/PeaZip/解压到此处" = mkNautilusScript "extract-here" "-ext2here";
-          "nautilus/scripts/PeaZip/解压到新文件夹" =
-            mkNautilusScript "extract-to-new-folder" "-ext2folder";
+          "nautilus/scripts/PeaZip/解压到新文件夹" = mkNautilusScript "extract-to-new-folder" "-ext2folder";
           "nautilus/scripts/PeaZip/打开压缩包" = mkNautilusScript "open-archive" "-ext2openasarchive";
           "nautilus/scripts/PeaZip/测试压缩包" = mkNautilusScript "test" "-ext2test";
         };
