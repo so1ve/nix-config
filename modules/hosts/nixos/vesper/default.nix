@@ -63,6 +63,7 @@
       "software/yazi"
       "software/chrome"
       "software/mihomo"
+      "software/tailscale"
       "software/ab-download-manager"
       "software/qbittorrent"
       "software/kde-connect"
