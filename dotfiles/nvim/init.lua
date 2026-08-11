@@ -36,9 +36,6 @@ g.loaded_tarPlugin = 1
 g.loaded_tutor_mode_plugin = 1
 g.loaded_zipPlugin = 1
 
--- to make keywordprg a no-op because multiple shift+k will eventually call the default behavior of keywordprg which is to open `:help` and breaks window layout
-command("RayKeywordPrg", function() end, { nargs = "*" })
-
 -- ui
 opt.termguicolors = true
 opt.number = true
@@ -58,8 +55,8 @@ opt.mousemodel = "extend"
 opt.clipboard = "unnamedplus"
 opt.virtualedit = "block"
 opt.confirm = true
-opt.keywordprg = ":RayKeywordPrg"
 
+-- shell
 opt.shell = "fish"
 opt.shellcmdflag = "-c"
 opt.shellquote = ""
