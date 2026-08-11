@@ -25,7 +25,7 @@ in
     inputs = {
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-      nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
+      nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
 
       nixos-wsl = {
         url = "github:nix-community/NixOS-WSL/main";
