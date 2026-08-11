@@ -216,6 +216,7 @@ vim.pack.add({
   gh("Wansmer/treesj"),
   gh("NeogitOrg/neogit"),
   gh("esmuellert/codediff.nvim"),
+  gh("niekdomi/conflict.nvim"),
   gh("MagicDuck/grug-far.nvim"),
   gh("DrKJeff16/wezterm-types"),
   gh("Saecki/crates.nvim"),
@@ -927,6 +928,48 @@ end)
 map("n", "<leader>gg", function()
   require("neogit").open()
 end, { desc = "Git status" })
+
+load_plugins("later", "conflict.nvim", function()
+  local conflict = require("conflict")
+
+  conflict.setup({
+    default_mappings = {
+      current = false,
+      incoming = false,
+      both = false,
+      base = false,
+      none = false,
+      next = false,
+      prev = false,
+    },
+  })
+
+  local git_map = function(keys, rhs, desc)
+    map("n", "<leader>gc" .. keys, rhs, { desc = desc })
+  end
+
+  git_map("n", function()
+    conflict.navigate("next")
+  end, "Next conflict")
+  git_map("p", function()
+    conflict.navigate("prev")
+  end, "Previous conflict")
+  git_map("r", "<cmd>Conflict refresh<cr>", "Refresh conflicts")
+  git_map("c", function()
+    conflict.choose("current")
+  end, "Accept current")
+  git_map("i", function()
+    conflict.choose("incoming")
+  end, "Accept incoming")
+  git_map("B", function()
+    conflict.choose("both")
+  end, "Accept both")
+  git_map("b", function()
+    conflict.choose("base")
+  end, "Accept base")
+  git_map("l", conflict.list, "Conflict files")
+  git_map("Q", conflict.qflist, "Conflicts quickfix")
+end)
 
 -- #############################
 -- # Search and Replace        #

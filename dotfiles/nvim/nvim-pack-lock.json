@@ -21,6 +21,10 @@
       "rev": "be7b18f714f4579870b709115f3c4b3584688b4a",
       "src": "https://github.com/mrjones2014/codesettings.nvim"
     },
+    "conflict.nvim": {
+      "rev": "fdc879c34c528aab90e1b90c5d408d141f31fef8",
+      "src": "https://github.com/niekdomi/conflict.nvim"
+    },
     "conform.nvim": {
       "rev": "619363c30309d29ffa631e67c8183f2a72caa373",
       "src": "https://github.com/stevearc/conform.nvim"
