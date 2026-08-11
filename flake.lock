@@ -514,11 +514,11 @@
         "nixpkgs": "nixpkgs_6"
       },
       "locked": {
-        "lastModified": 1786457126,
-        "narHash": "sha256-iWvHuodf3iYF38jnOizqr0KCCdeRRzaAOJARYoaLXk8=",
+        "lastModified": 1786459216,
+        "narHash": "sha256-BilzxeLPK4Yg8DdMkMKLrRCH3G1qYiwl/hyGeTXT2Kw=",
         "owner": "so1ve",
         "repo": "nur-packages",
-        "rev": "9224e42696e70340d834d6371038ff71d9e79981",
+        "rev": "a1067afcd4c26838032b369ac8d4a72644cfd7af",
         "type": "github"
       },
       "original": {
