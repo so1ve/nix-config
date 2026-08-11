@@ -35,6 +35,22 @@
               set -gx LANGUAGE en_US
               set -g fish_greeting
 
+              function __fish_set_tmux_pane_state --argument-names state
+                if set -q TMUX TMUX_PANE
+                  command tmux set-option -pt "$TMUX_PANE" @pane-is-fish $state 2>/dev/null
+                end
+              end
+
+              function __fish_tmux_preexec --on-event fish_preexec
+                __fish_set_tmux_pane_state 0
+              end
+
+              function __fish_tmux_postexec --on-event fish_postexec
+                __fish_set_tmux_pane_state 1
+              end
+
+              __fish_set_tmux_pane_state 1
+
               function __fish_complete_or_navigate_tmux --argument-names direction input_function
                 if commandline --paging-mode
                   commandline -f $input_function
