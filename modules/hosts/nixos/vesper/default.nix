@@ -14,7 +14,7 @@
       "system/nix"
       "system/core"
       "system/workstation"
-      "system/kernel/zen"
+      "system/kernel/cachyos-lto-zen4"
       "system/performance"
       "boot/systemd-boot"
       "hardware/battery"
