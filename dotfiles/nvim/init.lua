@@ -24,7 +24,6 @@ g.loaded_perl_provider = 0
 
 g.loaded_2html_plugin = 1
 g.loaded_gzip = 1
-g.loaded_man = 1
 g.loaded_matchit = 1
 g.loaded_matchparen = 1
 g.loaded_netrw = 1

@@ -13,8 +13,9 @@
         {
           home.sessionVariables = {
             EDITOR = "nvim";
-            VISUAL = "nvim";
+            MANPAGER = "nvim +Man!";
             SUDO_EDITOR = "nvim";
+            VISUAL = "nvim";
           };
 
           programs = {
