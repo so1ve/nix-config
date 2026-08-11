@@ -1,5 +1,22 @@
 {
   ray.features."software/development" = {
+    nixos =
+      { pkgs, ... }:
+      {
+        documentation = {
+          dev.enable = true;
+          man = {
+            enable = true;
+            cache.enable = true;
+          };
+        };
+
+        environment.systemPackages = with pkgs; [
+          man-pages
+          man-pages-posix
+        ];
+      };
+
     home =
       {
         config,
