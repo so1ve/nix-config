@@ -16,8 +16,6 @@ let
   nodePackage = if projectNodePackage == null then pkgs.node-bin.latest else projectNodePackage;
 in
 {
-  imports = [ ./config.nix ];
-
   options.ray.devenv.frontend.directory = lib.mkOption {
     type = lib.types.str;
     default = ".";
