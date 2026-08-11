@@ -8,11 +8,6 @@ window-rule {
     default-window-height { fixed 920; }
 }
 
-// Allows notification actions and window activation from Noctalia.
-debug {
-    honor-xdg-activation-with-invalid-serial
-}
-
 switch-events {
     lid-close {
         // Keep the session awake on external power; still lock it when the lid closes.

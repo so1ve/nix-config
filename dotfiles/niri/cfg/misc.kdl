@@ -3,3 +3,11 @@ prefer-no-csd
 hotkey-overlay {
     skip-at-startup
 }
+
+debug {
+    // Allow tray icons and notifications to activate their target windows.
+    honor-xdg-activation-with-invalid-serial
+
+    // Work around incorrect focus tracking in Chromium/Electron applications.
+    deactivate-unfocused-windows
+}
