@@ -79,6 +79,7 @@
       "software/mpv"
       "software/alger-music-player"
       "software/obs"
+      "software/yanhekt-autoslides"
 
       # IM
       "software/cinny"
