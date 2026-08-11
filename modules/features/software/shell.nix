@@ -35,15 +35,20 @@
               set -gx LANGUAGE en_US
               set -g fish_greeting
 
-              fish_vi_key_bindings
-              bind -M default H beginning-of-line
-              bind -M default L end-of-line
+              function __fish_complete_or_navigate_tmux --argument-names direction input_function
+                if commandline --paging-mode
+                  commandline -f $input_function
+                else if set -q TMUX
+                  command tmux select-pane -$direction
+                else
+                  commandline -f $input_function
+                end
+              end
 
-              # Fish normally cancels an open completion pager on Escape and
-              # moves the cursor left when entering Normal mode. Keep the
-              # pager and cursor position so both Escape -> Tab and
-              # Tab -> Escape -> j/k remain useful.
-              bind -M insert -m default escape repaint-mode
+              bind ctrl-h '__fish_complete_or_navigate_tmux L backward-char'
+              bind ctrl-j '__fish_complete_or_navigate_tmux D down-or-search'
+              bind ctrl-k '__fish_complete_or_navigate_tmux U up-or-search'
+              bind ctrl-l '__fish_complete_or_navigate_tmux R forward-char'
             '';
           };
 
