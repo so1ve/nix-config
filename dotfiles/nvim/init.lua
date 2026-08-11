@@ -854,120 +854,6 @@ load_plugins("later", "tiny-comment.nvim", function()
 end)
 
 -- #############################
--- # Git                       #
--- #############################
-
-load_plugins("now", { "codediff.nvim", "neogit" }, function()
-  require("codediff").setup({
-    diff = {
-      compute_moves = true,
-    },
-    explorer = {
-      initial_focus = "explorer",
-      visible_groups = {
-        staged = true,
-        unstaged = true,
-        conflicts = true,
-      },
-    },
-    keymaps = {
-      view = {
-        next_file = "<Tab>",
-        prev_file = "<S-Tab>",
-      },
-      explorer = {
-        refresh = "<c-r>",
-        stage_all = "S",
-        unstage_all = "U",
-        restore = "x",
-      },
-      conflict = {
-        next_conflict = "<leader>gcn",
-        prev_conflict = "<leader>gcp",
-        accept_incoming = "<leader>gci",
-        accept_current = "<leader>gcc",
-        accept_both = "<leader>gcb",
-        discard = "<leader>gcB",
-        accept_all_incoming = "<leader>gcI",
-        accept_all_current = "<leader>gcC",
-        accept_all_both = "<leader>gcA",
-        discard_all = "<leader>gcX",
-        diffget_incoming = "2do",
-        diffget_current = "3do",
-      },
-    },
-  })
-  require("neogit").setup({
-    treesitter_diff_highlight = true,
-    disable_insert_on_commit = true,
-    process_spinner = true,
-    graph_style = "kitty",
-    signs = {
-      hunk = { "", "" },
-      item = { "", "" },
-      section = { "", "" },
-    },
-    integrations = {
-      codediff = true,
-      diffview = false,
-      snacks = false,
-      mini_pick = false,
-    },
-    diff_viewer = "codediff",
-    commit_editor = {
-      staged_diff_split_kind = "vsplit",
-      spell_check = false,
-    },
-  })
-end)
-
-map("n", "<leader>gg", function()
-  require("neogit").open()
-end, { desc = "Git status" })
-
-load_plugins("later", "conflict.nvim", function()
-  local conflict = require("conflict")
-
-  conflict.setup({
-    default_mappings = {
-      current = false,
-      incoming = false,
-      both = false,
-      base = false,
-      none = false,
-      next = false,
-      prev = false,
-    },
-  })
-
-  local git_map = function(keys, rhs, desc)
-    map("n", "<leader>gc" .. keys, rhs, { desc = desc })
-  end
-
-  git_map("n", function()
-    conflict.navigate("next")
-  end, "Next conflict")
-  git_map("p", function()
-    conflict.navigate("prev")
-  end, "Previous conflict")
-  git_map("r", "<cmd>Conflict refresh<cr>", "Refresh conflicts")
-  git_map("c", function()
-    conflict.choose("current")
-  end, "Accept current")
-  git_map("i", function()
-    conflict.choose("incoming")
-  end, "Accept incoming")
-  git_map("B", function()
-    conflict.choose("both")
-  end, "Accept both")
-  git_map("b", function()
-    conflict.choose("base")
-  end, "Accept base")
-  git_map("l", conflict.list, "Conflict files")
-  git_map("Q", conflict.qflist, "Conflicts quickfix")
-end)
-
--- #############################
 -- # Search and Replace        #
 -- #############################
 
@@ -2489,6 +2375,120 @@ end, { desc = "Search current buffer" })
 map("n", "<leader>nh", function()
   Snacks.picker.notifications()
 end, { desc = "Notification history" })
+
+-- #############################
+-- # Git                       #
+-- #############################
+
+load_plugins("event:UIEnter", { "codediff.nvim", "neogit" }, function()
+  require("codediff").setup({
+    diff = {
+      compute_moves = true,
+    },
+    explorer = {
+      initial_focus = "explorer",
+      visible_groups = {
+        staged = true,
+        unstaged = true,
+        conflicts = true,
+      },
+    },
+    keymaps = {
+      view = {
+        next_file = "<Tab>",
+        prev_file = "<S-Tab>",
+      },
+      explorer = {
+        refresh = "<c-r>",
+        stage_all = "S",
+        unstage_all = "U",
+        restore = "x",
+      },
+      conflict = {
+        next_conflict = "<leader>gcn",
+        prev_conflict = "<leader>gcp",
+        accept_incoming = "<leader>gci",
+        accept_current = "<leader>gcc",
+        accept_both = "<leader>gcb",
+        discard = "<leader>gcB",
+        accept_all_incoming = "<leader>gcI",
+        accept_all_current = "<leader>gcC",
+        accept_all_both = "<leader>gcA",
+        discard_all = "<leader>gcX",
+        diffget_incoming = "2do",
+        diffget_current = "3do",
+      },
+    },
+  })
+  require("neogit").setup({
+    treesitter_diff_highlight = true,
+    disable_insert_on_commit = true,
+    process_spinner = true,
+    graph_style = "kitty",
+    signs = {
+      hunk = { "", "" },
+      item = { "", "" },
+      section = { "", "" },
+    },
+    integrations = {
+      codediff = true,
+      diffview = false,
+      snacks = false,
+      mini_pick = false,
+    },
+    diff_viewer = "codediff",
+    commit_editor = {
+      staged_diff_split_kind = "vsplit",
+      spell_check = false,
+    },
+  })
+end)
+
+map("n", "<leader>gg", function()
+  require("neogit").open()
+end, { desc = "Git status" })
+
+load_plugins("later", "conflict.nvim", function()
+  local conflict = require("conflict")
+
+  conflict.setup({
+    default_mappings = {
+      current = false,
+      incoming = false,
+      both = false,
+      base = false,
+      none = false,
+      next = false,
+      prev = false,
+    },
+  })
+
+  local git_map = function(keys, rhs, desc)
+    map("n", "<leader>gc" .. keys, rhs, { desc = desc })
+  end
+
+  git_map("n", function()
+    conflict.navigate("next")
+  end, "Next conflict")
+  git_map("p", function()
+    conflict.navigate("prev")
+  end, "Previous conflict")
+  git_map("r", "<cmd>Conflict refresh<cr>", "Refresh conflicts")
+  git_map("c", function()
+    conflict.choose("current")
+  end, "Accept current")
+  git_map("i", function()
+    conflict.choose("incoming")
+  end, "Accept incoming")
+  git_map("B", function()
+    conflict.choose("both")
+  end, "Accept both")
+  git_map("b", function()
+    conflict.choose("base")
+  end, "Accept base")
+  git_map("l", conflict.list, "Conflict files")
+  git_map("Q", conflict.qflist, "Conflicts quickfix")
+end)
 
 -- #############################
 -- # Treesitter                #
