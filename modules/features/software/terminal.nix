@@ -16,6 +16,10 @@
           keybindings = {
             "ctrl+shift+h" = "";
             "ctrl+shift+l" = "";
+            "ctrl+shift+left" = "";
+            "ctrl+shift+down" = "";
+            "ctrl+shift+up" = "";
+            "ctrl+shift+right" = "";
             "ctrl+shift+p" = "show_scrollback";
           };
           settings = {
