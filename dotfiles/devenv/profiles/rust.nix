@@ -27,7 +27,6 @@ in
 
       packages = with pkgs; [
         pkg-config
-        tombi
       ];
     }
 
