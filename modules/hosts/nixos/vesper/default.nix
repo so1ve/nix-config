@@ -67,6 +67,7 @@
       "software/ab-download-manager"
       "software/qbittorrent"
       "software/kde-connect"
+      "software/pairdrop"
 
       # Gaming
       "software/gaming"
