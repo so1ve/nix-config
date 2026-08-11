@@ -46,8 +46,8 @@
               end
 
               bind ctrl-h '__fish_complete_or_navigate_tmux L backward-char'
-              bind ctrl-j '__fish_complete_or_navigate_tmux D down-or-search'
-              bind ctrl-k '__fish_complete_or_navigate_tmux U up-or-search'
+              bind ctrl-j '__fish_complete_or_navigate_tmux D down-line'
+              bind ctrl-k '__fish_complete_or_navigate_tmux U up-line'
               bind ctrl-l '__fish_complete_or_navigate_tmux R forward-char'
             '';
           };
