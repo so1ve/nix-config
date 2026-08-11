@@ -1,7 +1,7 @@
 {
   ray.features."input/fcitx-rime" = {
     nixos =
-      { inputs, pkgs, ... }:
+      { pkgs, ... }:
       let
         rimeWithWanxiang = pkgs.fcitx5-rime.override {
           rimeDataPkgs = [ pkgs.rime-wanxiang ];
@@ -15,7 +15,7 @@
           fcitx5 = {
             addons = [
               rimeWithWanxiang
-              inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.fcitx5-mellow-themes
+              pkgs.fcitx5-mellow-themes
             ];
             waylandFrontend = true;
 
