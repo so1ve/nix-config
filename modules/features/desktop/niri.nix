@@ -1,7 +1,7 @@
 {
   ray.features."desktop/niri" = {
     nixos =
-      { pkgs, ... }:
+      { inputs, pkgs, ... }:
       {
         environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
@@ -14,7 +14,11 @@
           udisks2.enable = true;
         };
 
-        environment.systemPackages = [ pkgs.xwayland-satellite ];
+        environment.systemPackages = [
+          # FIXME: Switch back to pkgs.xwayland-satellite after the upstream PR is merged:
+          # https://github.com/Supreeeme/xwayland-satellite/pull/477
+          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite
+        ];
       };
 
     home =
