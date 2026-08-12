@@ -42,6 +42,11 @@ in
 
       nix-alien.url = "github:thiagokokada/nix-alien";
 
+      codex-desktop-linux = {
+        url = "github:ilysenko/codex-desktop-linux";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       disko = {
         url = "github:nix-community/disko/latest";
         inputs.nixpkgs.follows = "nixpkgs";
