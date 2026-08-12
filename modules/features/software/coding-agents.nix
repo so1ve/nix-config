@@ -16,7 +16,6 @@
       let
         linuxFeatures = [
           "appshots"
-          "frameless-titlebar"
           "mcp-helper-reaper"
           "node-repl-reaper"
           "ui-tweaks"
