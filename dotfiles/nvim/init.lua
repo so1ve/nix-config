@@ -974,6 +974,35 @@ local tsserver_language_settings = {
   },
 }
 
+-- TODO: Refactor this
+local function uses_direct_typescript_7(project_root)
+  local package_json = vim.fs.joinpath(project_root, "node_modules", "typescript", "package.json")
+  local ok, lines = pcall(vim.fn.readfile, package_json)
+
+  if not ok then
+    return false
+  end
+
+  local decoded, package = pcall(vim.json.decode, table.concat(lines, "\n"))
+  if not decoded or package.name ~= "typescript" then
+    return false
+  end
+
+  return tonumber(package.version:match("^(%d+)")) >= 7
+end
+
+local function typescript_root_dir(server_name, direct)
+  local root_dir = vim.lsp.config[server_name].root_dir
+
+  return function(bufnr, on_dir)
+    root_dir(bufnr, function(project_root)
+      if uses_direct_typescript_7(project_root) == direct then
+        on_dir(project_root)
+      end
+    end)
+  end
+end
+
 local servers = {
   ["*"] = {
     capabilities = {
@@ -1186,42 +1215,50 @@ local servers = {
       client.server_capabilities.hoverProvider = false
     end,
   },
-  vtsls = {
-    filetypes = {
-      "javascript",
-      "javascriptreact",
-      "javascript.jsx",
-      "typescript",
-      "typescriptreact",
-      "typescript.tsx",
-      "vue",
-    },
-    settings = {
-      complete_function_calls = true,
-      vtsls = {
-        autoUseWorkspaceTsdk = true,
-        tsserver = {
-          globalPlugins = {
-            {
-              name = "@vue/typescript-plugin",
-              location = vim.env.NVIM_VUE_TYPESCRIPT_PLUGIN_PATH,
-              languages = { "vue" },
-              configNamespace = "typescript",
-              enableForWorkspaceTypeScriptVersions = true,
+  tsc = function()
+    return {
+      root_dir = typescript_root_dir("tsc", true),
+    }
+  end,
+  vtsls = function()
+    return {
+      filetypes = {
+        "javascript",
+        "javascriptreact",
+        "javascript.jsx",
+        "typescript",
+        "typescriptreact",
+        "typescript.tsx",
+        "vue",
+      },
+      root_dir = typescript_root_dir("vtsls", false),
+      settings = {
+        complete_function_calls = true,
+        vtsls = {
+          autoUseWorkspaceTsdk = true,
+          tsserver = {
+            globalPlugins = {
+              {
+                name = "@vue/typescript-plugin",
+                location = vim.env.NVIM_VUE_TYPESCRIPT_PLUGIN_PATH,
+                languages = { "vue" },
+                configNamespace = "typescript",
+                enableForWorkspaceTypeScriptVersions = true,
+              },
+            },
+          },
+          experimental = {
+            maxInlayHintLength = 30,
+            completion = {
+              enableServerSideFuzzyMatch = true,
             },
           },
         },
-        experimental = {
-          maxInlayHintLength = 30,
-          completion = {
-            enableServerSideFuzzyMatch = true,
-          },
-        },
+        typescript = tsserver_language_settings,
+        javascript = tsserver_language_settings,
       },
-      typescript = tsserver_language_settings,
-      javascript = tsserver_language_settings,
-    },
-  },
+    }
+  end,
   tinymist = {
     settings = {
       formatterMode = "typstyle",
