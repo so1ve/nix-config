@@ -59,6 +59,18 @@
       };
     };
 
+    "software/oopz" = {
+      requires = [ "software/chrome" ];
+      nixos = {
+        ray.chromeWebApps = [
+          {
+            url = "https://web.oopz.cn/";
+            custom_name = "Oopz";
+          }
+        ];
+      };
+    };
+
     "software/rust-zulip" = {
       requires = [ "software/chrome" ];
       nixos = {
