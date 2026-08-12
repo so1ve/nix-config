@@ -1,7 +1,12 @@
 {
   ray.features."software/tooling" = {
     home =
-      { pkgs, ... }:
+      {
+        config,
+        mkDotfilesSymlink,
+        pkgs,
+        ...
+      }:
       {
         home.packages = with pkgs; [
           btop
@@ -16,6 +21,11 @@
           wget
           wl-clipboard
         ];
+
+        xdg.configFile."fastfetch/config.jsonc".source = mkDotfilesSymlink {
+          inherit config;
+          name = "fastfetch/config.jsonc";
+        };
       };
   };
 }
