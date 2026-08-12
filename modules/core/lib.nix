@@ -43,7 +43,7 @@ let
     kind: features: map (feature: feature.${kind}) (filter (feature: feature.${kind} != null) features);
 
   mkDotfilesSymlink = import "${inputs.self}/lib/mk-dotfiles-symlink.nix";
-  mkFocusOrLaunch = import "${inputs.self}/lib/mk-focus-or-launch.nix";
+  mkFocusOrLaunch = import "${inputs.self}/lib/mk-focus-or-launch.nix" { inherit inputs; };
   mkAppImage = import "${inputs.self}/lib/mk-appimage.nix" { inherit lib; };
 
   specialArgsFor = host: {
