@@ -9,8 +9,8 @@ window-rule {
 
 window-rule {
     match app-id=r#"^QQ$"#
-    // Policy-installed Chrome WebAppIds: Cinny, Discord, Rust Zulip, Telegram.
-    match app-id=r#"^chrome-(bcngdmpegpihnheapppgoniglphkpfhm|pliiebkcmokkgndfalahlmimanmbjlab|doaomjibpoemjdfcplalmkmdhgaadood|nigookeodlehlnjcpdfifmophdcbjoma)-Default$"#
+    // Policy-installed Chrome WebAppIds: Cinny, Discord, Oopz, Rust Zulip, Telegram.
+    match app-id=r#"^chrome-(bcngdmpegpihnheapppgoniglphkpfhm|pliiebkcmokkgndfalahlmimanmbjlab|hgbpnngkjfhcnkdakkemekcknmjdhfkc|doaomjibpoemjdfcplalmkmdhgaadood|nigookeodlehlnjcpdfifmophdcbjoma)-Default$"#
 
     open-on-workspace "main"
     open-focused true
