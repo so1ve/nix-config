@@ -33,13 +33,6 @@
           }
         );
 
-        # FIXME: remove this after https://github.com/ilysenko/codex-desktop-linux/pull/1324 gets merged
-        waylandElectronArgs = pkgs.writeText "codex-desktop-wayland-electron-args" ''
-          --ozone-platform=wayland
-          --enable-wayland-ime=true
-          --wayland-text-input-version=3
-        '';
-
         upstreamDesktop =
           inputs.codex-desktop-linux.packages.${pkgs.stdenv.hostPlatform.system}.codex-desktop.override
             {
@@ -62,11 +55,6 @@
                   line
               ) lines
             );
-
-          postInstall = lib.optionalString ((old.postInstall or null) != null) old.postInstall + ''
-            install -Dm644 ${waylandElectronArgs} \
-              "$out/opt/codex-desktop/.codex-linux/electron-args.d/wayland-electron-args"
-          '';
         });
       in
       {
