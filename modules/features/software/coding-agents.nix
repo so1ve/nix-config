@@ -6,6 +6,72 @@
         home.packages = [ pkgs.codex ];
       };
 
+    "software/codex-desktop".home =
+      {
+        inputs,
+        lib,
+        pkgs,
+        ...
+      }:
+      let
+        linuxFeatures = [
+          "appshots"
+          "frameless-titlebar"
+          "mcp-helper-reaper"
+          "node-repl-reaper"
+          "ui-tweaks"
+        ];
+
+        linuxFeaturesConfig = pkgs.writeText "codex-linux-features.json" (
+          builtins.toJSON {
+            enabled = linuxFeatures;
+            settings."ui-tweaks".tweaks = {
+              home.suggestedPrompts.enabled = false;
+              modelPicker.showModelsByDefault.enabled = true;
+              reasoning.keepEffortLabelsEnglish.enabled = true;
+              sidebar.projectName.enabled = false;
+            };
+          }
+        );
+
+        upstreamDesktop =
+          inputs.codex-desktop-linux.packages.${pkgs.stdenv.hostPlatform.system}.codex-desktop.override
+            {
+              linuxFeatureIds = linuxFeatures;
+            };
+
+        desktop = upstreamDesktop.overrideAttrs (old: {
+          installPhase =
+            let
+              lines = lib.splitString "\n" old.installPhase;
+              featureConfigLines = lib.filter (lib.hasInfix "export CODEX_LINUX_FEATURES_CONFIG=") lines;
+            in
+            assert builtins.length featureConfigLines == 1;
+            lib.concatStringsSep "\n" (
+              map (
+                line:
+                if lib.hasInfix "export CODEX_LINUX_FEATURES_CONFIG=" line then
+                  ''export CODEX_LINUX_FEATURES_CONFIG="${linuxFeaturesConfig}"''
+                else
+                  line
+              ) lines
+            );
+        });
+      in
+      {
+        imports = [ inputs.codex-desktop-linux.homeManagerModules.default ];
+
+        programs.codexDesktopLinux = {
+          enable = true;
+          package = desktop;
+        };
+
+        home.packages = [
+          # AppShots needs a Wayland-capable screenshot backend.
+          pkgs.grim
+        ];
+      };
+
     "software/pi".home =
       {
         config,
