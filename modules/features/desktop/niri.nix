@@ -7,7 +7,7 @@
 
         # FIXME: Switch back to pkgs.niri after the upstream PR is merged:
         # https://github.com/niri-wm/niri/pull/3305 or https://github.com/niri-wm/niri/pull/4147
-        niri = {
+        programs.niri = {
           enable = true;
           package = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.niri;
         };
