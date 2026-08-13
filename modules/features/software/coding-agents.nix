@@ -3,10 +3,8 @@
     "software/codex".home =
       { pkgs, ... }:
       {
-        programs.codex = {
-          enable = true;
-          package = pkgs.codex;
-          context = ''
+        home.packages = [ pkgs.codex ];
+        home.file.".codex/AGENTS.md".text = ''
             <global_operating_constraints>
             # Global operating constraints
 
@@ -79,9 +77,60 @@
               or when the shell is materially required by the task.
             </tool_selection>
             </global_operating_constraints>
-          '';
-        };
+        '';
       };
+
+    "software/codex/deepseek" = {
+      requires = [
+        "software/codex"
+        "software/shell"
+        "security/agenix"
+      ];
+
+      home =
+        {
+          config,
+          inputs,
+          pkgs,
+          ...
+        }:
+        let
+          toml = pkgs.formats.toml { };
+        in
+        {
+          age.secrets.deepseek-api-key = {
+            file = "${inputs.self}/secrets/deepseek-api-key.age";
+            path = "${config.xdg.configHome}/deepseek/api-key";
+          };
+
+          programs.fish.shellAbbrs.dodex = "codex -p deepseek";
+
+          home.file = {
+            ".codex/deepseek.config.toml".source = toml.generate "codex-deepseek-config.toml" {
+              model = "deepseek-v4-pro";
+              model_provider = "deepseek";
+              model_reasoning_effort = "high";
+              model_catalog_json = "${config.home.homeDirectory}/.codex/models.json";
+
+              model_providers.deepseek = {
+                name = "DeepSeek";
+                base_url = "https://api.deepseek.com/";
+                wire_api = "responses";
+                supports_websockets = false;
+                auth = {
+                  command = "${pkgs.coreutils}/bin/cat";
+                  args = [ config.age.secrets.deepseek-api-key.path ];
+                };
+              };
+            };
+
+            # Snapshot from DeepSeek's official Codex setup script (v1.1.0,
+            # fetched 2026-08-13). It describes V4 Flash and V4 Pro metadata;
+            # the profile above selects V4 Pro (DeepSeek-V4-Pro-0813).
+            ".codex/models.json".source = ../../../dotfiles/codex/models.json;
+          };
+        };
+    };
 
     "software/codex-desktop".home =
       {
