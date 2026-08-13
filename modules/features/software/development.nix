@@ -58,19 +58,6 @@
           # recursion guard while zoxide is still changing directories.
           set -e __zoxide_loop
           ${pkgs.devenv}/bin/devenv hook fish | source
-
-          # When a hook-spawned shell leaves project A directly for project B,
-          # the parent follows it to B after its activation check has already
-          # run. Re-check immediately instead of waiting for the next prompt.
-          functions -c _devenv_hook __devenv_hook_once
-          functions -e _devenv_hook
-          function _devenv_hook --on-event fish_prompt
-            set -l previous_pwd $PWD
-            __devenv_hook_once
-            if test "$PWD" != "$previous_pwd"
-              __devenv_hook_once
-            end
-          end
         '';
 
         xdg.configFile."devenv/ray".source = mkDotfilesSymlink {
