@@ -137,6 +137,7 @@
               "npm:@upstash/context7-pi"
               "npm:pi-codex-goal"
               "npm:pi-draft-history"
+              "npm:pi-parallel-sessions"
               "npm:pi-markdown-preview"
               "npm:pi-mcp-adapter"
               "npm:pi-nano-context"
