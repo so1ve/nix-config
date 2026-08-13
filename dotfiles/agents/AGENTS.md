@@ -47,15 +47,16 @@ implement, clean up, or finish work does not override them.
 <local_builds>
 ## Local builds
 
-- NEVER build or compile a program locally unless the user explicitly approves
-  that specific build in the current conversation context.
+- NEVER build or compile a program locally unless it's required to check your
+  changes or the user explicitly approves that specific build in the current
+  conversation context.
 - An implementation request is not build approval. By default, stop before the
   build, give the user the exact command, and ask them to run it and share the
   result.
 - This includes build-capable checks and tests. In particular, do not run
-  `nix build`, a `nix flake check` that realizes derivations, `cargo build`,
-  `cargo check`, `cargo test`, `rustc`, or equivalent build commands without
-  that explicit approval.
+  `nix build` that realizes derivations, `cargo build`, `rustc`, or equivalent
+  build commands too frequently; run `check` and `test` commands only after you
+  finished editing.
 - Before running an unfamiliar validation command, determine whether it may
   compile software or realize build derivations. If it may, treat it as a build.
 </local_builds>
@@ -68,7 +69,7 @@ implement, clean up, or finish work does not override them.
   capabilities over shell equivalents.
 - Use the shell only when no available built-in tool can perform the operation
   or when the shell is materially required by the task.
-- If ffgrep/fffind tools are available, prefer them over `grep` and `find` for searching and listing
-  files.
+- If ffgrep/fffind tools are available, prefer them over `grep` and `find` for
+  searching and listing files.
 </tool_selection>
 </global_operating_constraints>
