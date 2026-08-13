@@ -51,7 +51,19 @@
     {
       "type": "disk",
       "key": "\u001b[90m│\u001b[32m 󰋊  Disk",
-      "keyColor": "green"
+      "keyColor": "green",
+      "folders": "/",
+      "format": "{size-used} / {size-total} ({size-percentage}) · {filesystem}"
+    },
+    {
+      "type": "battery",
+      "key": "\u001b[90m│\u001b[31m 󰁹  Battery",
+      "keyColor": "red"
+    },
+    {
+      "type": "poweradapter",
+      "key": "\u001b[90m│\u001b[31m 󰚥  Adapter",
+      "keyColor": "red"
     },
     {
       "type": "custom",
@@ -75,13 +87,13 @@
     {
       "type": "bios",
       "key": "\u001b[90m│\u001b[33m 󰖡  BIOS",
-      "keyColor": "yellow"
+      "keyColor": "yellow",
+      "format": "{release}"
     },
     {
       "type": "packages",
       "key": "\u001b[90m│\u001b[33m 󰏗  Packages",
-      "keyColor": "yellow",
-      "format": "{all}"
+      "keyColor": "yellow"
     },
     {
       "type": "shell",
@@ -108,9 +120,21 @@
       "keyColor": "blue"
     },
     {
-      "type": "terminal",
+      "type": "command",
       "key": "\u001b[90m│\u001b[34m 󰆍  Terminal",
-      "keyColor": "blue"
+      "keyColor": "blue",
+      "text": "if [ -n \"$KITTY_WINDOW_ID\" ]; then kitty --version | awk '{print $1, $2}'; elif [ \"$TERM_PROGRAM\" = \"WezTerm\" ]; then printf 'WezTerm'; else printf '%s' \"${TERM_PROGRAM:-$TERM}\"; fi"
+    },
+    {
+      "type": "display",
+      "key": "\u001b[90m│\u001b[36m 󰍹  Display",
+      "keyColor": "cyan",
+      "compactType": "original-with-refresh-rate"
+    },
+    {
+      "type": "brightness",
+      "key": "\u001b[90m│\u001b[36m 󰃟  Brightness",
+      "keyColor": "cyan"
     },
     {
       "type": "custom",
@@ -153,46 +177,7 @@
     "break",
     {
       "type": "custom",
-      "format": "\u001b[90m┌────────────────────── Display ───────────────────────┐"
-    },
-    {
-      "type": "display",
-      "key": "\u001b[90m│\u001b[36m 󰍹  Display",
-      "keyColor": "cyan",
-      "compactType": "original-with-refresh-rate"
-    },
-    {
-      "type": "brightness",
-      "key": "\u001b[90m│\u001b[36m 󰃟  Brightness",
-      "keyColor": "cyan"
-    },
-    {
-      "type": "custom",
-      "format": "\u001b[90m└──────────────────────────────────────────────────────┘"
-    },
-    "break",
-    {
-      "type": "custom",
-      "format": "\u001b[90m┌─────────────────────── Power ────────────────────────┐"
-    },
-    {
-      "type": "battery",
-      "key": "\u001b[90m│\u001b[31m 󰁹  Battery",
-      "keyColor": "red"
-    },
-    {
-      "type": "poweradapter",
-      "key": "\u001b[90m│\u001b[31m 󰚥  Adapter",
-      "keyColor": "red"
-    },
-    {
-      "type": "custom",
-      "format": "\u001b[90m└──────────────────────────────────────────────────────┘"
-    },
-    "break",
-    {
-      "type": "custom",
-      "format": "\u001b[90m┌───────────────── Uptime / Age / DT ──────────────────┐"
+      "format": "\u001b[90m┌─────────────────────── System ───────────────────────┐"
     },
     {
       "type": "command",
