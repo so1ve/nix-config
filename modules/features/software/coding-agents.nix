@@ -106,7 +106,6 @@
           extraPackages = with pkgs; [
             git
             nodejs
-            pnpm
           ];
           keybindings = {
             "app.exit" = [
@@ -125,10 +124,6 @@
               maxRetries = 3;
             };
             theme = "dark";
-            npmCommand = [
-              "pnpm"
-              "--config.node-linker=hoisted"
-            ];
             packages = [
               "npm:@czottmann/pi-automode"
               "npm:@ff-labs/pi-fff"
