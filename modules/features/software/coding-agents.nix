@@ -114,6 +114,8 @@
             ];
             # Disable pi's builtin keybinding to avoid conflict with pi-parallel-sessions
             "app.session.rename" = [ ];
+            "tui.editor.historyNext" = [ "ctrl+n" ];
+            "tui.editor.historyPrevious" = [ "ctrl+p" ];
           };
           settings = {
             defaultModel = "gpt-5.6-sol";
