@@ -1,5 +1,7 @@
 {
   ray.features."security/agenix" = {
+    requires = [ "software/shell" ];
+
     nixos =
       {
         inputs,
@@ -27,6 +29,8 @@
         home.packages = [
           inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
+
+        programs.fish.shellAbbrs.ae = "agenix -i ~/.config/agenix/identity -e";
       };
   };
 }

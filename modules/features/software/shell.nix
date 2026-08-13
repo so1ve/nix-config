@@ -26,7 +26,6 @@
           fish = {
             enable = true;
             shellAbbrs = {
-              ae = "agenix -i ~/.config/agenix/identity -e";
               nd = "nix develop -c fish";
               sr = "steam-run";
             };
