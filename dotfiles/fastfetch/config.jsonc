@@ -12,7 +12,7 @@
   "display": {
     "separator": "  ",
     "key": {
-      "width": 16
+      "width": 17
     }
   },
   "modules": [
@@ -23,29 +23,34 @@
     },
     {
       "type": "host",
-      "key": "│ 󰌢  PC",
+      "key": "\u001b[90m│\u001b[32m 󰌢  PC",
       "keyColor": "green"
     },
     {
       "type": "cpu",
-      "key": "│ 󰻠  CPU",
+      "key": "\u001b[90m│\u001b[32m 󰻠  CPU",
       "keyColor": "green",
       "format": "{name}"
     },
     {
       "type": "gpu",
-      "key": "│ 󰍹  GPU",
+      "key": "\u001b[90m│\u001b[32m 󰍹  GPU",
       "keyColor": "green",
       "format": "{name}"
     },
     {
       "type": "memory",
-      "key": "│ 󰑭  Memory",
+      "key": "\u001b[90m│\u001b[32m 󰑭  Memory",
+      "keyColor": "green"
+    },
+    {
+      "type": "swap",
+      "key": "\u001b[90m│\u001b[32m 󰓡  Swap",
       "keyColor": "green"
     },
     {
       "type": "disk",
-      "key": "│ 󰋊  Disk",
+      "key": "\u001b[90m│\u001b[32m 󰋊  Disk",
       "keyColor": "green"
     },
     {
@@ -59,28 +64,28 @@
     },
     {
       "type": "os",
-      "key": "│ 󰣇  OS",
+      "key": "\u001b[90m│\u001b[33m 󰣇  OS",
       "keyColor": "yellow"
     },
     {
       "type": "kernel",
-      "key": "│ 󰌽  Kernel",
+      "key": "\u001b[90m│\u001b[33m 󰌽  Kernel",
       "keyColor": "yellow"
     },
     {
       "type": "bios",
-      "key": "│ 󰖡  BIOS",
+      "key": "\u001b[90m│\u001b[33m 󰖡  BIOS",
       "keyColor": "yellow"
     },
     {
       "type": "packages",
-      "key": "│ 󰏗  Packages",
+      "key": "\u001b[90m│\u001b[33m 󰏗  Packages",
       "keyColor": "yellow",
       "format": "{all}"
     },
     {
       "type": "shell",
-      "key": "│ 󰞷  Shell",
+      "key": "\u001b[90m│\u001b[33m 󰞷  Shell",
       "keyColor": "yellow"
     },
     {
@@ -94,18 +99,91 @@
     },
     {
       "type": "lm",
-      "key": "│ 󰍁  Login",
+      "key": "\u001b[90m│\u001b[34m 󰍁  Login",
       "keyColor": "blue"
     },
     {
       "type": "wm",
-      "key": "│ 󱂬  WM",
+      "key": "\u001b[90m│\u001b[34m 󱂬  WM",
       "keyColor": "blue"
     },
     {
       "type": "terminal",
-      "key": "│ 󰆍  Terminal",
+      "key": "\u001b[90m│\u001b[34m 󰆍  Terminal",
       "keyColor": "blue"
+    },
+    {
+      "type": "custom",
+      "format": "\u001b[90m└──────────────────────────────────────────────────────┘"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "\u001b[90m┌──────────────────── Environment ─────────────────────┐"
+    },
+    {
+      "type": "theme",
+      "key": "\u001b[90m│\u001b[34m 󰉦  Theme",
+      "keyColor": "blue"
+    },
+    {
+      "type": "icons",
+      "key": "\u001b[90m│\u001b[34m 󰀻  Icons",
+      "keyColor": "blue"
+    },
+    {
+      "type": "font",
+      "key": "\u001b[90m│\u001b[34m 󰛖  Font",
+      "keyColor": "blue"
+    },
+    {
+      "type": "terminalfont",
+      "key": "\u001b[90m│\u001b[34m 󰛖  Term Font",
+      "keyColor": "blue"
+    },
+    {
+      "type": "cursor",
+      "key": "\u001b[90m│\u001b[34m 󰇀  Cursor",
+      "keyColor": "blue"
+    },
+    {
+      "type": "custom",
+      "format": "\u001b[90m└──────────────────────────────────────────────────────┘"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "\u001b[90m┌────────────────────── Display ───────────────────────┐"
+    },
+    {
+      "type": "display",
+      "key": "\u001b[90m│\u001b[36m 󰍹  Display",
+      "keyColor": "cyan",
+      "compactType": "original-with-refresh-rate"
+    },
+    {
+      "type": "brightness",
+      "key": "\u001b[90m│\u001b[36m 󰃟  Brightness",
+      "keyColor": "cyan"
+    },
+    {
+      "type": "custom",
+      "format": "\u001b[90m└──────────────────────────────────────────────────────┘"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "\u001b[90m┌─────────────────────── Power ────────────────────────┐"
+    },
+    {
+      "type": "battery",
+      "key": "\u001b[90m│\u001b[31m 󰁹  Battery",
+      "keyColor": "red"
+    },
+    {
+      "type": "poweradapter",
+      "key": "\u001b[90m│\u001b[31m 󰚥  Adapter",
+      "keyColor": "red"
     },
     {
       "type": "custom",
@@ -118,18 +196,18 @@
     },
     {
       "type": "command",
-      "key": "│ 󰃭  Age",
+      "key": "\u001b[90m│\u001b[35m 󰃭  Age",
       "keyColor": "magenta",
       "text": "birth_install=$(stat -c %W /); current=$(date +%s); time_progression=$((current - birth_install)); days_difference=$((time_progression / 86400)); echo $days_difference days"
     },
     {
       "type": "uptime",
-      "key": "│ 󰔛  Uptime",
+      "key": "\u001b[90m│\u001b[35m 󰔛  Uptime",
       "keyColor": "magenta"
     },
     {
       "type": "datetime",
-      "key": "│ 󰥔  Date",
+      "key": "\u001b[90m│\u001b[35m 󰥔  Date",
       "keyColor": "magenta"
     },
     {
