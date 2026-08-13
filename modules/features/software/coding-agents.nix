@@ -91,12 +91,9 @@
         {
           config,
           inputs,
-          pkgs,
+          mkDotfilesSymlink,
           ...
         }:
-        let
-          toml = pkgs.formats.toml { };
-        in
         {
           age.secrets.deepseek-api-key = {
             file = "${inputs.self}/secrets/deepseek-api-key.age";
@@ -106,27 +103,13 @@
           programs.fish.shellAbbrs.dodex = "codex -p deepseek";
 
           home.file = {
-            ".codex/deepseek.config.toml".source = toml.generate "codex-deepseek-config.toml" {
-              model = "deepseek-v4-pro";
-              model_provider = "deepseek";
-              model_reasoning_effort = "high";
-              model_catalog_json = "${config.home.homeDirectory}/.codex/models.json";
-
-              model_providers.deepseek = {
-                name = "DeepSeek";
-                base_url = "https://api.deepseek.com/";
-                wire_api = "responses";
-                supports_websockets = false;
-                auth = {
-                  command = "${pkgs.coreutils}/bin/cat";
-                  args = [ config.age.secrets.deepseek-api-key.path ];
-                };
-              };
+            ".codex/deepseek.config.toml".source = mkDotfilesSymlink {
+              inherit config;
+              name = "codex/deepseek.config.toml";
             };
 
             # Snapshot from DeepSeek's official Codex setup script (v1.1.0,
-            # fetched 2026-08-13). It describes V4 Flash and V4 Pro metadata;
-            # the profile above selects V4 Pro (DeepSeek-V4-Pro-0813).
+            # fetched 2026-08-13). It describes V4 Flash and V4 Pro metadata.
             ".codex/models.json".source = ../../../dotfiles/codex/models.json;
           };
         };
