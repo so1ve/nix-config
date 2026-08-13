@@ -68,7 +68,7 @@ implement, clean up, or finish work does not override them.
   capabilities over shell equivalents.
 - Use the shell only when no available built-in tool can perform the operation
   or when the shell is materially required by the task.
-- If fffgrep/fffiles tools are available, prefer them over `grep` and `find` for searching and listing
+- If ffgrep/fffind tools are available, prefer them over `grep` and `find` for searching and listing
   files.
 </tool_selection>
 </global_operating_constraints>
