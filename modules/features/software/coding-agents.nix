@@ -118,7 +118,7 @@
           settings = {
             defaultModel = "gpt-5.6-sol";
             defaultProvider = "openai-codex";
-            defaultThinkingLevel = "xhigh";
+            defaultThinkingLevel = "max";
             retry = {
               enabled = true;
               maxRetries = 3;
