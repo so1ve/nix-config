@@ -108,10 +108,14 @@
             nodejs
             pnpm
           ];
-          keybindings."app.exit" = [
-            "ctrl+c"
-            "ctrl+d"
-          ];
+          keybindings = {
+            "app.exit" = [
+              "ctrl+c"
+              "ctrl+d"
+            ];
+            # Disable pi's builtin keybinding to avoid conflict with pi-parallel-sessions
+            "app.session.rename" = [ ];
+          };
           settings = {
             defaultModel = "gpt-5.6-sol";
             defaultProvider = "openai-codex";
