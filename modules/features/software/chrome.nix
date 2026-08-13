@@ -56,6 +56,10 @@
           commandLineArgs = lib.concatStringsSep " " [
             "--enable-features=${lib.concatStringsSep "," chromeFeatures}"
             "--enable-blink-features=MiddleClickAutoscroll"
+            # Keep PWA link handling off: target=_blank/out-of-scope links from
+            # PWA windows then open as browser tabs, reusing the existing
+            # regular browser window instead of spawning a new window.
+            "--disable-features=PwaNavigationCapturing"
           ];
         };
         focusOrLaunch = mkFocusOrLaunch pkgs;
@@ -106,6 +110,10 @@
             [[ -n "$window_id" ]] || exec "''${chrome[@]}"
             niri msg action focus-window --id "$window_id" >/dev/null 2>&1 \
               || exec "''${chrome[@]}"
+
+            # Let niri finish focusing (possibly switching workspaces) before
+            # injecting keystrokes.
+            sleep 0.15
 
             clipboard_file="$(mktemp)"
             clipboard_type="$(wl-paste --list-types 2>/dev/null | sed -n '1p')" || true
