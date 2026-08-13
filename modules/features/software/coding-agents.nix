@@ -108,6 +108,10 @@
             nodejs
             pnpm
           ];
+          keybindings."app.exit" = [
+            "ctrl+c"
+            "ctrl+d"
+          ];
           settings = {
             defaultModel = "gpt-5.6-sol";
             defaultProvider = "openai-codex";
