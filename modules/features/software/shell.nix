@@ -39,7 +39,6 @@
               end
 
               function __fish_tmux_preexec --on-event fish_preexec; __fish_set_tmux_pane_state 0; end
-              function __fish_tmux_postexec --on-event fish_postexec; __fish_set_tmux_pane_state 1; end
               function __fish_tmux_prompt --on-event fish_prompt; __fish_set_tmux_pane_state 1; end
               __fish_set_tmux_pane_state 0
 

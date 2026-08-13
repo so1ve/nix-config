@@ -59,9 +59,17 @@
           set -e __zoxide_loop
           ${pkgs.devenv}/bin/devenv hook fish | source
 
-          # The hook can block inside `devenv shell` until its nested fish
-          # exits. Restore the outer fish's pane state after it returns.
-          function __fish_tmux_post_devenv_prompt --on-event fish_prompt
+          # The hook spawns `devenv shell` in the foreground and blocks the
+          # outer fish until its nested fish exits. The spawn is triggered by
+          # a fish_prompt event, so no fish_preexec fires and @pane-is-fish
+          # stays 1 while `devenv shell` evaluates; tmux keeps passing
+          # C-h/C-j/C-k/C-l through to the pane, where the spawn swallows
+          # them. Mark the pane busy around the spawn and restore it when the
+          # hook returns, so tmux navigates directly instead.
+          functions -c _devenv_hook_activate __devenv_hook_activate
+          function _devenv_hook_activate --argument-names project_dir
+            functions -q __fish_set_tmux_pane_state; and __fish_set_tmux_pane_state 0
+            __devenv_hook_activate $project_dir
             functions -q __fish_set_tmux_pane_state; and __fish_set_tmux_pane_state 1
           end
         '';
