@@ -59,18 +59,17 @@
           set -e __zoxide_loop
           ${pkgs.devenv}/bin/devenv hook fish | source
 
-          # The hook spawns `devenv shell` in the foreground and blocks the
-          # outer fish until its nested fish exits. The spawn is triggered by
-          # a fish_prompt event, so no fish_preexec fires and @pane-is-fish
-          # stays 1 while `devenv shell` evaluates; tmux keeps passing
-          # C-h/C-j/C-k/C-l through to the pane, where the spawn swallows
-          # them. Mark the pane busy around the spawn and restore it when the
-          # hook returns, so tmux navigates directly instead.
-          functions -c _devenv_hook_activate __devenv_hook_activate
-          function _devenv_hook_activate --argument-names project_dir
-            functions -q __fish_set_tmux_pane_state; and __fish_set_tmux_pane_state 0
-            __devenv_hook_activate $project_dir
-            functions -q __fish_set_tmux_pane_state; and __fish_set_tmux_pane_state 1
+          # When a hook-spawned shell leaves project A directly for project B,
+          # the parent follows it to B after its activation check has already
+          # run. Re-check immediately instead of waiting for the next prompt.
+          functions -c _devenv_hook __devenv_hook_once
+          functions -e _devenv_hook
+          function _devenv_hook --on-event fish_prompt
+            set -l previous_pwd $PWD
+            __devenv_hook_once
+            if test "$PWD" != "$previous_pwd"
+              __devenv_hook_once
+            end
           end
         '';
 

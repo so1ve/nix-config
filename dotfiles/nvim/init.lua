@@ -520,8 +520,6 @@ load_plugins("now", "blink.cmp", function()
       ["<C-u>"] = { "scroll_documentation_up", "scroll_signature_up", "fallback" },
       ["<C-n>"] = { "select_next", "show" },
       ["<C-p>"] = { "select_prev", "show" },
-      ["<C-j>"] = { "select_next", "show" },
-      ["<C-k>"] = { "select_prev", "show" },
       ["<Up>"] = { "select_prev", "fallback" },
       ["<Down>"] = { "select_next", "fallback" },
       ["<C-e>"] = { "hide", "fallback" },
@@ -529,8 +527,8 @@ load_plugins("now", "blink.cmp", function()
     cmdline = {
       keymap = {
         ["<Tab>"] = { "show", "accept" },
-        ["<C-j>"] = { "select_next", "show" },
-        ["<C-k>"] = { "select_prev", "show" },
+        ["<C-n>"] = { "select_next", "show" },
+        ["<C-p>"] = { "select_prev", "show" },
       },
       completion = {
         menu = {
