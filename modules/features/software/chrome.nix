@@ -56,10 +56,6 @@
           commandLineArgs = lib.concatStringsSep " " [
             "--enable-features=${lib.concatStringsSep "," chromeFeatures}"
             "--enable-blink-features=MiddleClickAutoscroll"
-            # Keep PWA link handling off: target=_blank/out-of-scope links from
-            # PWA windows then open as browser tabs, reusing the existing
-            # regular browser window instead of spawning a new window.
-            "--disable-features=PwaNavigationCapturing"
           ];
         };
         focusOrLaunch = mkFocusOrLaunch pkgs;
