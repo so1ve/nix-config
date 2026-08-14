@@ -163,7 +163,7 @@ ${extraInputs.join("\n")}`,
 ${MARKER}
 
 eval "$(devenv direnvrc)"
-use devenv
+use devenv --quiet
 `;
   if (
     !fs.existsSync(envrc) ||
