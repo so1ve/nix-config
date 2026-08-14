@@ -54,6 +54,11 @@
 
         programs.direnv-instant.enable = true;
 
+        xdg.configFile."direnv/direnv.toml".text = ''
+          [global]
+          hide_env_diff = true
+        '';
+
         xdg.configFile."devenv/ray".source = mkDotfilesSymlink {
           inherit config;
           name = "devenv";
