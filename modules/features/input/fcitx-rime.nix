@@ -61,6 +61,11 @@
             "Hotkey/AltTriggerKeys"."0" = "";
           };
 
+          configFile."fcitx5/conf/keyboard.conf".text = lib.generators.toINI { } {
+            # Disable Ctrl+Alt+H to avoid collision with tmux
+            "Hint Trigger" = { };
+          };
+
           configFile."fcitx5/conf/classicui.conf".text = ''
             Theme=mellow-wechat
             DarkTheme=mellow-wechat-dark
