@@ -20,6 +20,7 @@
     home =
       {
         config,
+        inputs,
         lib,
         mkDotfilesSymlink,
         pkgs,
@@ -32,33 +33,26 @@
             [
               "__MODULE_ROOT__"
               "__GIT__"
-              "__DEVENV__"
+              "__DIRENV__"
             ]
             [
               moduleRoot
               (lib.getExe pkgs.git)
-              (lib.getExe pkgs.devenv)
+              (lib.getExe pkgs.direnv)
             ]
             (builtins.readFile ./development/dev-env.js);
         devEnv = pkgs.writers.writeJSBin "dev-env" { } script;
       in
       {
+        imports = [ inputs.direnv-instant.homeModules.direnv-instant ];
+
         home.packages = [
           devEnv
           pkgs.devenv
           pkgs.ni
         ];
 
-        programs.bash.initExtra = lib.mkAfter ''
-          eval "$(${pkgs.devenv}/bin/devenv hook bash)"
-        '';
-
-        programs.fish.interactiveShellInit = lib.mkAfter ''
-          # A shell spawned by the PWD hook can inherit zoxide's temporary
-          # recursion guard while zoxide is still changing directories.
-          set -e __zoxide_loop
-          ${pkgs.devenv}/bin/devenv hook fish | source
-        '';
+        programs.direnv-instant.enable = true;
 
         xdg.configFile."devenv/ray".source = mkDotfilesSymlink {
           inherit config;
