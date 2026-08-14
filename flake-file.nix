@@ -35,6 +35,11 @@ in
       flake-file.url = "github:denful/flake-file";
       import-tree.url = "github:denful/import-tree";
 
+      direnv-instant = {
+        url = "github:Mic92/direnv-instant";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       nix-index-database = {
         url = "github:nix-community/nix-index-database";
         inputs.nixpkgs.follows = "nixpkgs";
