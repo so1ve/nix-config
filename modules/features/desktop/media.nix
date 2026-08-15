@@ -1,5 +1,5 @@
 {
-  ray.features."desktop/audio" = {
+  ray.features."desktop/media" = {
     nixos = {
       services = {
         pulseaudio.enable = false;

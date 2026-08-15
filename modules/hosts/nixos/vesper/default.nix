@@ -30,7 +30,7 @@
       "home/base"
       "software/shell"
       "users/ray"
-      "desktop/audio"
+      "desktop/media"
       "desktop/niri"
       "desktop/noctalia"
       "desktop/noctalia-greeter"
