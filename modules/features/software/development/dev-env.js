@@ -80,8 +80,8 @@ const GENERATED_EXCLUDES = [
   "/devenv.nix",
   "/devenv.yaml",
   "/devenv.lock",
-  "/.envrc",
 ];
+const ENVRC_EXCLUDES = ["/.envrc"];
 
 function detectProfiles(root) {
   return Object.entries(PROFILES)
@@ -95,6 +95,29 @@ function detectProfiles(root) {
     .map(([name]) => name);
 }
 
+function gitRoot() {
+  return execFileSync(GIT, ["rev-parse", "--show-toplevel"], {
+    encoding: "utf8",
+  }).trim();
+}
+
+function updateGitExcludes(root, generatedExcludes, tracked) {
+  const exclude = execFileSync(
+    GIT,
+    ["rev-parse", "--path-format=absolute", "--git-path", "info/exclude"],
+    { cwd: root, encoding: "utf8" },
+  ).trim();
+  const currentExcludes = fs.existsSync(exclude)
+    ? fs.readFileSync(exclude, "utf8").split("\n").filter(Boolean)
+    : [];
+  let excludes = [...new Set([...currentExcludes, ...LOCAL_EXCLUDES])];
+  excludes = tracked
+    ? excludes.filter((line) => !generatedExcludes.includes(line))
+    : [...new Set([...excludes, ...generatedExcludes])];
+  fs.mkdirSync(path.dirname(exclude), { recursive: true });
+  fs.writeFileSync(exclude, `${excludes.join("\n")}\n`);
+}
+
 function init(requestedProfiles, tracked) {
   const unknown = requestedProfiles.find(
     (profile) => !Object.hasOwn(PROFILES, profile),
@@ -104,9 +127,7 @@ function init(requestedProfiles, tracked) {
     process.exit(1);
   }
 
-  const root = execFileSync(GIT, ["rev-parse", "--show-toplevel"], {
-    encoding: "utf8",
-  }).trim();
+  const root = gitRoot();
   const detectedProfiles = requestedProfiles.length
     ? requestedProfiles
     : detectProfiles(root);
@@ -159,43 +180,44 @@ ${extraInputs.join("\n")}`,
   );
 
   const envrc = path.join(root, ".envrc");
-  const envrcContents = `#!/usr/bin/env bash
-${MARKER}
+  if (!fs.existsSync(envrc)) {
+    writeEnvrc(root);
+  }
+  updateGitExcludes(
+    root,
+    [...GENERATED_EXCLUDES, ...ENVRC_EXCLUDES],
+    tracked,
+  );
+  allowDirenv(root);
+  console.log(`Configured ${root} with profiles: ${profiles.join(" ")}`);
+}
+
+function writeEnvrc(root) {
+  const envrc = path.join(root, ".envrc");
+  fs.writeFileSync(
+    envrc,
+    `#!/usr/bin/env bash
 
 eval "$(devenv direnvrc)"
 use devenv --quiet
-`;
-  if (
-    !fs.existsSync(envrc) ||
-    fs.readFileSync(envrc, "utf8").includes(MARKER)
-  ) {
-    fs.writeFileSync(envrc, envrcContents);
-  } else {
-    console.warn(
-      `Preserving existing ${envrc}; ensure it evaluates \"$(devenv direnvrc)\" and calls \"use devenv\".`,
-    );
-  }
+`,
+  );
+  return envrc;
+}
 
-  const exclude = execFileSync(
-    GIT,
-    ["rev-parse", "--path-format=absolute", "--git-path", "info/exclude"],
-    { encoding: "utf8" },
-  ).trim();
-  const currentExcludes = fs.existsSync(exclude)
-    ? fs.readFileSync(exclude, "utf8").split("\n").filter(Boolean)
-    : [];
-  let excludes = [...new Set([...currentExcludes, ...LOCAL_EXCLUDES])];
-  excludes = tracked
-    ? excludes.filter((line) => !GENERATED_EXCLUDES.includes(line))
-    : [...new Set([...excludes, ...GENERATED_EXCLUDES])];
-  fs.mkdirSync(path.dirname(exclude), { recursive: true });
-  fs.writeFileSync(exclude, `${excludes.join("\n")}\n`);
-
+function allowDirenv(root) {
   execFileSync(DIRENV, ["allow", "."], {
     cwd: root,
     stdio: "inherit",
   });
-  console.log(`Configured ${root} with profiles: ${profiles.join(" ")}`);
+}
+
+function generateEnvrc(tracked) {
+  const root = gitRoot();
+  const envrc = writeEnvrc(root);
+  updateGitExcludes(root, ENVRC_EXCLUDES, tracked);
+  allowDirenv(root);
+  console.log(`Generated and allowed ${envrc}`);
 }
 
 function list() {
@@ -215,11 +237,6 @@ const {
   allowPositionals: true,
 });
 
-const commands = {
-  list: list,
-  init: () => init(profiles, tracked),
-};
-
 switch (command) {
   case "list":
     list();
@@ -227,13 +244,17 @@ switch (command) {
   case "init":
     init(profiles, tracked);
     break;
+  case "envrc":
+    generateEnvrc(tracked);
+    break;
   default:
     console.error(
       `Usage: dev-env <command> [options] [profiles...]
 
 Commands:
-    list  List available profiles
-    init  Initialize the development environment`,
+    list   List available profiles
+    init   Initialize the development environment
+    envrc  Generate and allow .envrc`,
     );
     process.exit(1);
 }
