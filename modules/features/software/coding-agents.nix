@@ -153,5 +153,44 @@
           };
         };
       };
+
+    "software/dsh" = {
+      requires = [ "security/agenix" ];
+
+      home =
+        {
+          config,
+          inputs,
+          pkgs,
+          ...
+        }:
+        let
+          deepseekApiKey = config.age.secrets.deepseek-api-key.path;
+          deepseekHarness =
+            inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.deepseek-harness;
+          dsh = pkgs.writeShellApplication {
+            name = "dsh";
+            text = ''
+              DEEPSEEK_API_KEY="$(< "${deepseekApiKey}")"
+              export DEEPSEEK_API_KEY
+              exec ${deepseekHarness}/bin/dsh "$@"
+            '';
+          };
+        in
+        {
+          imports = [ inputs.so1ve.homeModules.deepseek-harness ];
+
+          age.secrets.deepseek-api-key.file = "${inputs.self}/secrets/deepseek-api-key.age";
+
+          programs.deepseek-harness = {
+            enable = true;
+            package = dsh;
+            agentsFile = ''
+              Before starting any task, read and follow the instructions in
+              ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
+            '';
+          };
+        };
+    };
   };
 }

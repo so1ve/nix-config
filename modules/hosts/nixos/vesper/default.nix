@@ -46,6 +46,7 @@
       "software/codex"
       "software/codex-desktop"
       "software/pi"
+      "software/dsh"
       "software/development"
       "software/git"
       "software/git/github"
