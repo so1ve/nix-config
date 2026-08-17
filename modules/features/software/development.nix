@@ -52,6 +52,10 @@
           pkgs.ni
         ];
 
+        programs.fish.interactiveShellInit = ''
+          ${lib.getExe' pkgs.ni "nr"} --completion-fish | source
+        '';
+
         programs.direnv-instant.enable = true;
 
         xdg.configFile."direnv/direnv.toml".text = ''
