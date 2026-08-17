@@ -34,6 +34,14 @@ implement, clean up, or finish work does not override them.
 - Read-only Git and forge inspection is allowed when it is relevant.
 </external_actions>
 
+<formatting_issues>
+## Formatting Issues
+
+- NEVER run `cargo fmt --check`, or `prettier . --check`, or `eslint .` and manually
+  fixing styling issues. Just run `cargo fmt`, `prettier . --write` and `eslint . --fix`
+  after check commands reported issues.
+</formatting_issues>
+
 <nixos_rebuilds>
 ## NixOS rebuilds
 
