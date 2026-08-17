@@ -29,7 +29,7 @@ window-rule {
 
     open-on-workspace "browser"
     open-focused true
-    open-maximized true
+    open-maximized-to-edges true
 }
 
 window-rule {
