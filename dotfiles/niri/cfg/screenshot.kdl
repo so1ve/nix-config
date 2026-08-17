@@ -1,4 +1,7 @@
 binds {
+    F9 {
+        spawn "latchshot"
+    }
     Print {
         spawn "latchshot"
     }
