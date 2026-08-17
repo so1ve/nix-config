@@ -29,13 +29,17 @@
     home =
       {
         config,
+        inputs,
         mkDotfilesSymlink,
         mkFocusOrLaunch,
         pkgs,
         ...
       }:
       {
-        home.packages = [ (mkFocusOrLaunch pkgs) ];
+        home.packages = [
+          (mkFocusOrLaunch pkgs)
+          inputs.latchshot.packages.${pkgs.stdenv.hostPlatform.system}.default
+        ];
 
         xdg.configFile."niri".source = mkDotfilesSymlink {
           inherit config;

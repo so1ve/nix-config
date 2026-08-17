@@ -61,6 +61,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     import-tree.url = "github:denful/import-tree";
+    latchshot = {
+      url = "github:so1ve/latchshot";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     nix-alien.url = "github:thiagokokada/nix-alien";
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";

@@ -1,16 +1,5 @@
-// copy to the clipboard without saving
-screenshot-path null
-
 binds {
     Print {
-        screenshot
-    }
-
-    Ctrl+Print {
-        screenshot-screen
-    }
-
-    Alt+Print {
-        screenshot-window
+        spawn "latchshot"
     }
 }

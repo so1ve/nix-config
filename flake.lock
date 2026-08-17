@@ -302,6 +302,26 @@
         "type": "github"
       }
     },
+    "latchshot": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786944199,
+        "narHash": "sha256-YER/oy6FzdJCjVSVzeYFfMWO2n0r3N1Wxuvc+uh508s=",
+        "owner": "so1ve",
+        "repo": "latchshot",
+        "rev": "10268ec8f55c32d31f66bfbadd0ba5092a8566ef",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "latchshot",
+        "type": "github"
+      }
+    },
     "neovim-nightly-overlay": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -619,6 +639,7 @@
         "flake-file": "flake-file",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
+        "latchshot": "latchshot",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nix-alien": "nix-alien",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
