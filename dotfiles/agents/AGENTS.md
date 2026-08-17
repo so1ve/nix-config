@@ -53,10 +53,9 @@ implement, clean up, or finish work does not override them.
 - An implementation request is not build approval. By default, stop before the
   build, give the user the exact command, and ask them to run it and share the
   result.
-- This includes build-capable checks and tests. In particular, do not run
-  `nix build` that realizes derivations, `cargo build`, `rustc`, or equivalent
-  build commands too frequently; run `check` and `test` commands only after you
-  finished editing.
+- Running necessary commands, like `check`, `build` after implementation is ALLOWED,
+  but never run them too frequently. Neccesary builds, like `just write-flake`, are
+  always required.
 - Before running an unfamiliar validation command, determine whether it may
   compile software or realize build derivations. If it may, treat it as a build.
 </local_builds>
