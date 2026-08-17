@@ -17,6 +17,12 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^QQ$"# title=r#"聊天记录$"#
+
+    open-floating true
+}
+
+window-rule {
     match app-id=r#"^kitty$"#
     match app-id=r#"^dev\.zed\.Zed$"#
 
