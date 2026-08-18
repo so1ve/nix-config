@@ -2354,7 +2354,7 @@ require("snacks").setup({
 })
 
 map("n", "<leader>ff", function()
-  Snacks.picker.files()
+  Snacks.picker.smart()
 end, { desc = "Find files" })
 map("n", "<leader>fg", function()
   Snacks.picker.grep()
