@@ -80,3 +80,30 @@ implement, clean up, or finish work does not override them.
   searching and listing files.
 </tool_selection>
 </global_operating_constraints>
+
+<code_design_principles>
+# Code design principles
+
+- Treat components as one implementation when repository evidence establishes that
+  they are maintained together under a shared protocol. Do not add compatibility
+  defenses solely in case a sibling component violates that contract.
+- Enforce each constraint once, at the boundary best positioned to enforce it. Avoid
+  duplicate validation across internal layers.
+- Preserve checks for real boundaries, including untrusted input, secrets,
+  authentication, external I/O, permissions, persistent state, memory safety, and
+  irreversible operations.
+- Treat violations of internally guaranteed contracts as invariant failures. Use the
+  language's idiomatic fail-fast or assertion mechanism instead of inventing a
+  recoverable business-error path.
+- Prefer direct, sequential implementations. Avoid speculative fallbacks, unreachable
+  branches, unused abstractions, placeholder APIs, and compatibility logic without a
+  current consumer.
+- Make mutation visible in APIs. Use hidden or interior mutation only when shared
+  mutation is genuinely required.
+- Add error context only when it identifies a concrete external operation or target
+  and materially improves diagnosis. Otherwise propagate clear errors directly.
+- Keep tests focused on observable behavior, contracts, security, persistence, and
+  realistic failure modes. Do not retain production abstractions solely for tests.
+- Remove clearly redundant logic when doing so preserves behavior and real boundary
+  protections, but keep changes within the user's requested scope.
+</code_design_principles>

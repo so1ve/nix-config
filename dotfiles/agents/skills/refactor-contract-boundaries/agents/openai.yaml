@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refactor Contract Boundaries"
+  short_description: "Remove redundant defensive logic safely"
+  default_prompt: "Use $refactor-contract-boundaries to review and simplify this codebase while preserving real trust-boundary checks."

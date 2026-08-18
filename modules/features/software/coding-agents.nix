@@ -8,10 +8,18 @@
         ...
       }:
       {
-        home.packages = [ pkgs.codex ];
-        home.file.".codex/AGENTS.md".source = mkDotfilesSymlink {
-          inherit config;
-          name = "agents/AGENTS.md";
+        home = {
+          packages = [ pkgs.codex ];
+          file = {
+            ".agents/skills/refactor-contract-boundaries".source = mkDotfilesSymlink {
+              inherit config;
+              name = "agents/skills/refactor-contract-boundaries";
+            };
+            ".codex/AGENTS.md".source = mkDotfilesSymlink {
+              inherit config;
+              name = "agents/AGENTS.md";
+            };
+          };
         };
       };
 
