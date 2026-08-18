@@ -2529,8 +2529,13 @@ end)
 load_plugins("later", "blame.nvim", function()
   require("blame").setup({
     blame_options = { "-w" },
+    mappings = {
+      commit_info = "K",
+    },
   })
 end)
+
+map("n", "<leader>gb", "<cmd>BlameToggle<cr>")
 
 -- #############################
 -- # Treesitter                #
