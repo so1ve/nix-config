@@ -8,7 +8,7 @@
         programs.ab-download-manager = {
           enable = true;
           package = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.ab-download-manager;
-          uiScale = 1.75;
+          uiScale = 2;
         };
       };
   };
