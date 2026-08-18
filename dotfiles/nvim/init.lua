@@ -213,6 +213,7 @@ vim.pack.add({
   gh("NeogitOrg/neogit"),
   gh("esmuellert/codediff.nvim"),
   gh("niekdomi/conflict.nvim"),
+  gh("FabijanZulj/blame.nvim"),
   gh("MagicDuck/grug-far.nvim"),
   gh("DrKJeff16/wezterm-types"),
   gh("Saecki/crates.nvim"),
@@ -2523,6 +2524,12 @@ load_plugins("later", "conflict.nvim", function()
   end, "Accept base")
   git_map("l", conflict.list, "Conflict files")
   git_map("Q", conflict.qflist, "Conflicts quickfix")
+end)
+
+load_plugins("later", "blame.nvim", function()
+  require("blame").setup({
+    blame_options = { "-w" },
+  })
 end)
 
 -- #############################
