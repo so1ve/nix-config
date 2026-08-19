@@ -80,7 +80,8 @@ Inspect production code, tests, manifests, and call sites for:
 - retry, warning, fallback, compatibility, and degradation logic;
 - internal channel closure, task cancellation, thread exit, and join handling;
 - duplicate protocol, schema, discriminator, and status validation;
-- repeated or no-op state writes;
+- repeated or no-op state writes, caches, tokens, flags, broad dispatch tables, event
+  subscriptions, and invalidation paths;
 - unused fields, methods, variants, derives, dependencies, feature flags, wrappers,
   traits, and interfaces;
 - production abstractions that exist only for redundant tests.
@@ -94,16 +95,32 @@ context. Do not limit the review to one macro, helper, or error type.
 - Treat a failure of an internally guaranteed state as an invariant violation. Use
   the language's idiomatic fail-fast or assertion mechanism instead of inventing a
   recoverable business error.
-- Inline simple conversions, calculations, and local logic used only once.
-- Remove single-implementation interfaces or traits when there is no real substitution
-  requirement or stable external boundary.
+- Prefer a bounded local redesign when the current structure causes special cases to
+  accumulate. Do not preserve a poor shape merely to minimize the diff.
+- Keep modules deep: expose the smallest interface callers actually need and hide a
+  cohesive implementation behind it. Do not expose internal state, knobs, parameters,
+  or intermediate steps for testing or wiring convenience.
+- Delete shallow abstractions that neither reduce caller complexity nor represent a
+  real boundary or substitution point, including one-line wrappers, pass-through
+  helpers, redundant state objects, and single-implementation interfaces. Inline
+  single-use local logic when that makes the containing flow clearer.
+- Use the fewest moving parts that preserve behavior. Every cache, token, flag,
+  compatibility branch, and broad dispatch table must serve a current requirement.
 - Remove unused fields, methods, variants, derives, dependencies, wrappers, and state
   writes together with obsolete tests.
+- For cached or event-driven state, subscribe to the actual source of change and keep
+  invalidation or refresh logic next to the state it maintains. Do not use broad,
+  unrelated events as proxy invalidation signals.
 - Make mutation visible in the API. Do not hide ordinary exclusive mutation behind
   shared or interior mutability.
 - Propagate already clear errors directly. Add context only when it names a concrete
   external operation or target and materially improves diagnosis.
-- Do not distort production APIs to support tests. Keep test-only helpers in test code.
+- Do not distort production APIs or implementation structure to support tests. Do not
+  change production visibility, add test-only production entry points, or extract a
+  single-use step from a cohesive one-pass implementation solely so a unit test can
+  call it directly. Test through the existing production API. Extract a helper only
+  when it is a sound production abstraction independent of testing; keep genuinely
+  test-only helpers in test code.
 - Keep tests for observable behavior, protocol semantics, security properties,
   persistence, and realistic failure modes. Remove tests of deleted defensive
   branches, meaningless wrappers, and language or standard-library behavior.
@@ -124,6 +141,8 @@ Explicitly inspect:
 - `RefCell`, `Cell`, `Mutex`, `RwLock`, and other interior mutability;
 - traits and wrapper types with one implementation or consumer;
 - unused fields, variants, methods, derives, Cargo features, and dependencies;
+- item visibility, especially `pub(crate)`, `pub(super)`, and `pub(in ...)`, and the
+  concrete production call sites that require it;
 - production APIs or abstractions retained only for tests.
 
 Apply these Rust rules:
@@ -142,8 +161,14 @@ Apply these Rust rules:
   to retain an `&self` signature. Keep interior or synchronized mutability only when
   shared mutation is genuinely required.
 - Remove fine-grained traits with one implementation and no real substitution need.
-- Do not reshape production APIs solely for tests. Put test-only helpers inside test
-  modules.
+- Keep implementation details private with no visibility modifier and use plain `pub`
+  for intentional public APIs. Use `pub(crate)`, `pub(super)`, or `pub(in ...)` only
+  when a concrete production consumer requires that exact internal boundary, never as
+  a habitual compromise or merely to expose an item to tests.
+- Do not reshape production APIs solely for tests. Do not extract a one-call helper
+  from a cohesive flow merely so a unit test can invoke it directly. Exercise the
+  behavior through the existing production API; keep genuinely test-only helpers
+  inside `#[cfg(test)]` modules.
 - Import a trait normally when no name conflict exists; do not use `as _`
   unnecessarily.
 - Before every explicit `return` or implicit tail-return expression, insert a blank
@@ -153,13 +178,16 @@ Apply these Rust rules:
 ## Verify and report
 
 1. Re-search changed symbols and removed patterns to catch stale consumers and tests.
-2. Run the repository's formatter, static analysis, and relevant tests, subject to
+2. Verify changed behavior through the actual production surface as callers use it.
+   Prefer realistic smoke or integration tests over direct tests of internal steps
+   when the latter would require reshaping the production API.
+3. Run the repository's formatter, static analysis, and relevant tests, subject to
    active execution and build constraints. Prefer established project commands. If a
    required command is not permitted, provide the exact command for the user instead
    of claiming it passed.
-3. Review the final diff for behavior changes, weakened boundaries, unrelated edits,
+4. Review the final diff for behavior changes, weakened boundaries, unrelated edits,
    and newly unused code.
-4. Report separately:
+5. Report separately:
    - unnecessary logic removed;
    - reviewed checks retained and the real boundary each protects;
    - formatting, static-analysis, and test results, including anything not run.
