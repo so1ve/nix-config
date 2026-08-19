@@ -305,11 +305,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1787159398,
-        "narHash": "sha256-cxmKHd01NcpnsDwVC8xHtBOn1NkC1wH4gaFnW9/EdCM=",
+        "lastModified": 1787163735,
+        "narHash": "sha256-EQJWJk3pgA7YbwrC7suNKNdxQMRi6ZkiJVTjFz7Zi+4=",
         "owner": "so1ve",
         "repo": "latchshot",
-        "rev": "d92be159a9ff6fca003f3b55b737ce5b41961b10",
+        "rev": "8f94b7aba061e210b2c0a9fd7f4d8b7206fd2d61",
         "type": "github"
       },
       "original": {
