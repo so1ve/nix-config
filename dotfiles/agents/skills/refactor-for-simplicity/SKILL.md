@@ -1,6 +1,6 @@
 ---
 name: refactor-for-simplicity
-description: Review and refactor codebases across languages toward simpler, deeper modules with smaller production interfaces, cohesive implementations, direct control flow, and fewer moving parts. Use for broad simplification, overengineering cleanup, API-shape improvements, removal of shallow abstractions or test-driven API distortion, and audits of redundant defensive logic, speculative fallbacks, low-value error translations, unused state, or compatibility code. Preserve intended behavior and protections required by concrete external, security, persistence, concurrency, memory-safety, or irreversible-operation constraints. Do not use for ordinary narrowly scoped fixes unless explicitly invoked. Apply the mandatory Rust-specific review whenever Rust sources or Cargo manifests are in scope.
+description: Review and refactor codebases across languages toward simpler, deeper modules with smaller production interfaces, cohesive implementations, direct control flow, and fewer moving parts. Use for broad simplification, overengineering cleanup, API-shape improvements, clean breaking API redesigns in actively evolving or not-yet-usable projects, removal of shallow abstractions or test-driven API distortion, and audits of redundant defensive logic, speculative fallbacks, low-value error translations, unused state, or compatibility code. Preserve intended behavior and protections required by concrete external, security, persistence, concurrency, memory-safety, or irreversible-operation constraints. Do not use for ordinary narrowly scoped fixes unless explicitly invoked. Apply the mandatory Rust-specific review whenever Rust sources or Cargo manifests are in scope.
 ---
 
 # Refactor for Simplicity
@@ -25,10 +25,13 @@ Before editing:
    and API definitions.
 2. Trace production entry points, callers, and data and control flow to identify the
    module's actual responsibilities and required sequencing.
-3. Distinguish jointly maintained internal contracts from untrusted ingress, public
+3. Determine the project's lifecycle and compatibility commitments, including whether
+   it is actively evolving, usable or released, and consumed outside jointly
+   maintained code.
+4. Distinguish jointly maintained internal contracts from untrusted ingress, public
    APIs, separately versioned components, persistent formats, operating-system
    protocols, and third-party services.
-4. Trace producers and consumers before deleting validation or an apparently unused
+5. Trace producers and consumers before deleting validation or an apparently unused
    API. Account for serialization, reflection, generated code, plugin registration,
    and documented public consumers when the project uses them.
 
@@ -47,7 +50,8 @@ Retain logic required by concrete external or safety constraints:
   external data;
 - file permissions, destructive overwrites, and irreversible operations;
 - realistic filesystem, network, process, device, and platform-protocol failures;
-- public or separately versioned compatibility surfaces;
+- public APIs with an established compatibility commitment and separately versioned
+  compatibility surfaces;
 - memory safety, concurrency safety, persistent state, transactions, migrations, and
   data integrity;
 - retries with a defined transient failure model, idempotency policy, and useful
@@ -98,6 +102,12 @@ context. Do not limit the review to one macro, helper, or error type.
   recoverable business error.
 - Prefer a bounded local redesign when the current structure causes special cases to
   accumulate. Do not preserve a poor shape merely to minimize the diff.
+- When repository evidence shows active development without a stable compatibility
+  commitment, or the project is not yet usable, prefer clean breaking API changes
+  when they improve the design. Update all jointly maintained callers, tests,
+  documentation, and configuration atomically instead of adding adapters, deprecation
+  shims, or legacy paths. Preserve separately versioned protocols, persistent formats,
+  and deployed integrations unless their migration is in scope.
 - Keep modules deep: expose the smallest interface callers actually need and hide a
   cohesive implementation behind it. Do not expose internal state, knobs, parameters,
   or intermediate steps for testing or wiring convenience.
