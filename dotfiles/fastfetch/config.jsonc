@@ -120,10 +120,9 @@
       "keyColor": "blue"
     },
     {
-      "type": "command",
+      "type": "terminal",
       "key": "\u001b[90m│\u001b[34m 󰆍  Terminal",
-      "keyColor": "blue",
-      "text": "if [ -n \"$KITTY_WINDOW_ID\" ]; then kitty --version | awk '{print $1, $2}'; elif [ \"$TERM_PROGRAM\" = \"WezTerm\" ]; then printf 'WezTerm'; else printf '%s' \"${TERM_PROGRAM:-$TERM}\"; fi"
+      "keyColor": "blue"
     },
     {
       "type": "display",
