@@ -35,10 +35,7 @@ in
       flake-file.url = "github:denful/flake-file";
       import-tree.url = "github:denful/import-tree";
 
-      latchshot = {
-        url = "github:so1ve/latchshot";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      latchshot.url = "github:so1ve/latchshot";
 
       direnv-instant = {
         url = "github:Mic92/direnv-instant";
@@ -52,10 +49,7 @@ in
 
       nix-alien.url = "github:thiagokokada/nix-alien";
 
-      codex-desktop-linux = {
-        url = "github:ilysenko/codex-desktop-linux";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
       disko = {
         url = "github:nix-community/disko/latest";
@@ -92,10 +86,7 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-      xwayclip = {
-        url = "github:so1ve/xwayclip";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      xwayclip.url = "github:so1ve/xwayclip";
 
     };
   };

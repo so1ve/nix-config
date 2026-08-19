@@ -43,10 +43,7 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
-    codex-desktop-linux = {
-      url = "github:ilysenko/codex-desktop-linux";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -61,10 +58,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     import-tree.url = "github:denful/import-tree";
-    latchshot = {
-      url = "github:so1ve/latchshot";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    latchshot.url = "github:so1ve/latchshot";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     nix-alien.url = "github:thiagokokada/nix-alien";
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
@@ -87,9 +81,6 @@
       url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    xwayclip = {
-      url = "github:so1ve/xwayclip";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    xwayclip.url = "github:so1ve/xwayclip";
   };
 }
