@@ -95,15 +95,36 @@ implement, clean up, or finish work does not override them.
 - Treat violations of internally guaranteed contracts as invariant failures. Use the
   language's idiomatic fail-fast or assertion mechanism instead of inventing a
   recoverable business-error path.
-- Prefer direct, sequential implementations. Avoid speculative fallbacks, unreachable
-  branches, unused abstractions, placeholder APIs, and compatibility logic without a
-  current consumer.
+- Prefer the correct shape over incremental patches. When special cases accumulate,
+  redesign the bounded local module into a simpler cohesive structure instead of
+  layering more conditions on top.
+- Preserve established style and observable behavior while refactoring. Keep changes
+  within the requested scope; do not mix a refactor with unrelated bug fixes,
+  formatting churn, or speculative features.
+- Keep modules deep: expose the smallest interface callers actually need and hide a
+  cohesive implementation behind it. Do not expose internal state, knobs, parameters,
+  or intermediate steps for testing or wiring convenience.
+- Prefer direct, sequential implementations with the fewest moving parts. Delete
+  shallow abstractions that neither reduce caller complexity nor represent a real
+  boundary or substitution point. Every cache, token, flag, wrapper, compatibility
+  branch, and broad dispatch table must serve a current requirement; remove
+  speculative fallbacks, unreachable branches, and placeholder APIs.
 - Make mutation visible in APIs. Use hidden or interior mutation only when shared
   mutation is genuinely required.
 - Add error context only when it identifies a concrete external operation or target
   and materially improves diagnosis. Otherwise propagate clear errors directly.
 - Keep tests focused on observable behavior, contracts, security, persistence, and
-  realistic failure modes. Do not retain production abstractions solely for tests.
-- Remove clearly redundant logic when doing so preserves behavior and real boundary
-  protections, but keep changes within the user's requested scope.
+  realistic failure modes. Do not change production visibility, add test-only
+  production entry points, or extract a single-use step from a cohesive one-pass
+  implementation solely so a unit test can call it directly. Test through the
+  existing production API; extract a helper only when it is a sound production
+  abstraction independent of testing.
+- In Rust, keep implementation details private with no visibility modifier and use
+  plain `pub` for intentional public APIs. Use `pub(crate)`, `pub(super)`, or other
+  restricted visibility only when a concrete production consumer requires that exact
+  internal boundary, never as a habitual compromise or merely to expose an item to
+  tests.
+- Verify changes through the actual production surface as callers use it, not only by
+  inspecting source or testing internal steps. Prefer realistic smoke or integration
+  tests when direct unit tests would require reshaping the production API.
 </code_design_principles>
