@@ -40,7 +40,7 @@
 
         linuxFeaturesConfig = pkgs.writeText "codex-linux-features.json" (
           builtins.toJSON {
-            enabled = linuxFeatures;
+            enabled = upstreamDesktop.passthru.effectiveLinuxFeatureIds;
             settings."ui-tweaks".tweaks = {
               home.suggestedPrompts.enabled = false;
               modelPicker.showModelsByDefault.enabled = true;
