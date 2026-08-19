@@ -87,11 +87,18 @@ implement, clean up, or finish work does not override them.
 - Treat components as one implementation when repository evidence establishes that
   they are maintained together under a shared protocol. Do not add compatibility
   defenses solely in case a sibling component violates that contract.
+- Treat API compatibility as a requirement only when repository evidence shows a
+  stable compatibility commitment or separately maintained consumers. During active
+  development without that commitment, or while the project is not yet usable, make
+  clean breaking API changes when they improve the design. Update all jointly
+  maintained callers, tests, documentation, and configuration in the same change
+  instead of adding shims or legacy paths. Preserve separately versioned protocols,
+  persistent formats, and deployed integrations unless their migration is in scope.
 - Enforce each constraint once, at the boundary best positioned to enforce it. Avoid
   duplicate validation across internal layers.
-- Preserve checks for real boundaries, including untrusted input, secrets,
-  authentication, external I/O, permissions, persistent state, memory safety, and
-  irreversible operations.
+- Preserve checks required by concrete external or safety constraints, including
+  untrusted input, secrets, authentication, external I/O, permissions, persistent
+  state, memory safety, and irreversible operations.
 - Treat violations of internally guaranteed contracts as invariant failures. Use the
   language's idiomatic fail-fast or assertion mechanism instead of inventing a
   recoverable business-error path.
@@ -105,8 +112,8 @@ implement, clean up, or finish work does not override them.
   cohesive implementation behind it. Do not expose internal state, knobs, parameters,
   or intermediate steps for testing or wiring convenience.
 - Prefer direct, sequential implementations with the fewest moving parts. Delete
-  shallow abstractions that neither reduce caller complexity nor represent a real
-  boundary or substitution point. Every cache, token, flag, wrapper, compatibility
+  shallow abstractions that neither reduce caller complexity nor represent a stable
+  interface or substitution point. Every cache, token, flag, wrapper, compatibility
   branch, and broad dispatch table must serve a current requirement; remove
   speculative fallbacks, unreachable branches, and placeholder APIs.
 - Make mutation visible in APIs. Use hidden or interior mutation only when shared
