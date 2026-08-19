@@ -17,6 +17,7 @@
       "system/kernel/cachyos-lto-zen4"
       "system/performance"
       "boot/systemd-boot"
+      "hardware/atk-f1-ultimate"
       "hardware/battery"
       "hardware/graphics"
       "hardware/smartd"
