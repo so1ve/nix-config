@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refactor for Simplicity"
+  short_description: "Refactor toward deeper modules and simpler APIs"
+  default_prompt: "Use $refactor-for-simplicity to simplify this codebase into cohesive, deep modules with smaller APIs, direct control flow, and fewer moving parts."
