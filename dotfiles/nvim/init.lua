@@ -1015,6 +1015,7 @@ local servers = {
   },
   bashls = {},
   cssls = {},
+  dartls = {},
   denols = {},
   docker_compose_language_service = {},
   dockerls = {},
