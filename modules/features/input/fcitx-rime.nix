@@ -1,11 +1,28 @@
+let
+  mkRimeWithWanxiang =
+    pkgs:
+    let
+      wanxiangPatched = pkgs.rime-wanxiang.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          for schema in wanxiang.schema.yaml wanxiang_english.schema.yaml; do
+            substituteInPlace "$schema" \
+              --replace-fail \
+              '    - {when: always, accept: Shift+space, select: .next}  #下一个方案' \
+              ""
+          done
+        '';
+      });
+    in
+    pkgs.fcitx5-rime.override {
+      rimeDataPkgs = [ wanxiangPatched ];
+    };
+in
 {
   ray.features."input/fcitx-rime" = {
     nixos =
       { pkgs, ... }:
       let
-        rimeWithWanxiang = pkgs.fcitx5-rime.override {
-          rimeDataPkgs = [ pkgs.rime-wanxiang ];
-        };
+        rimeWithWanxiang = mkRimeWithWanxiang pkgs;
       in
       {
         i18n.inputMethod = {
@@ -45,9 +62,7 @@
         ...
       }:
       let
-        rimeWithWanxiang = pkgs.fcitx5-rime.override {
-          rimeDataPkgs = [ pkgs.rime-wanxiang ];
-        };
+        rimeWithWanxiang = mkRimeWithWanxiang pkgs;
         rimeLmdg = pkgs.nur.repos.jetcookies.rime-lmdg;
       in
       {
