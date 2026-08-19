@@ -1,30 +1,31 @@
 ---
-name: refactor-contract-boundaries
-description: Review and refactor codebases across languages by trusting jointly maintained internal contracts, removing redundant defensive checks, speculative fallbacks, low-value error translations, unused abstractions, and dead state while preserving security, external I/O, persistence, permissions, memory-safety, and irreversible-operation boundaries. Use for broad simplification, defensive-code audits, contract-boundary refactors, or cleanup of overengineered code; do not use for ordinary narrowly scoped fixes unless explicitly invoked. Apply the mandatory Rust-specific review whenever Rust sources or Cargo manifests are in scope.
+name: refactor-for-simplicity
+description: Review and refactor codebases across languages toward simpler, deeper modules with smaller production interfaces, cohesive implementations, direct control flow, and fewer moving parts. Use for broad simplification, overengineering cleanup, API-shape improvements, removal of shallow abstractions or test-driven API distortion, and audits of redundant defensive logic, speculative fallbacks, low-value error translations, unused state, or compatibility code. Preserve intended behavior and protections required by concrete external, security, persistence, concurrency, memory-safety, or irreversible-operation constraints. Do not use for ordinary narrowly scoped fixes unless explicitly invoked. Apply the mandatory Rust-specific review whenever Rust sources or Cargo manifests are in scope.
 ---
 
-# Refactor Contract Boundaries
+# Refactor for Simplicity
 
 ## Goal
 
-Simplify the requested code without weakening real boundaries or changing intended
-behavior. Treat jointly maintained components as one implementation when repository
-evidence establishes shared ownership and a shared contract. Do not assume that
-co-location alone proves an internal contract.
+Refactor the requested code toward the simplest cohesive design that preserves
+intended behavior. Favor deep modules, small production interfaces, direct control
+flow, and few moving parts. Delete code that is clearly unnecessary instead of
+replacing it with another abstraction. Keep changes within the requested scope and
+preserve unrelated user changes.
 
-Delete code that is clearly unnecessary instead of replacing it with another
-abstraction. Keep changes within the requested scope and preserve unrelated user
-changes.
+Security, persistence, external I/O, compatibility, and other necessary protections
+constrain the refactor; they do not justify speculative complexity inside trusted
+paths.
 
-## Establish the contract map
+## Understand the design and constraints
 
 Before editing:
 
 1. Read active repository instructions and relevant architecture, protocol, schema,
    and API definitions.
-2. Identify which clients, servers, protocol types, and internal modules are
-   maintained and released together.
-3. Identify actual external surfaces, including untrusted ingress, public library
+2. Trace production entry points, callers, and data and control flow to identify the
+   module's actual responsibilities and required sequencing.
+3. Distinguish jointly maintained internal contracts from untrusted ingress, public
    APIs, separately versioned components, persistent formats, operating-system
    protocols, and third-party services.
 4. Trace producers and consumers before deleting validation or an apparently unused
@@ -37,9 +38,9 @@ that protocol. Keep decoding of external data, but do not add post-decode field
 discriminators, duplicate status checks, or fallback branches solely in case a sibling
 component violates the shared contract.
 
-## Classify every safeguard
+## Separate requirements from speculation
 
-Retain logic that protects a real boundary:
+Retain logic required by concrete external or safety constraints:
 
 - secrets, keys, credentials, authentication, and authorization;
 - decoding, authentication, integrity, and versioning of untrusted ciphertext or
@@ -52,7 +53,7 @@ Retain logic that protects a real boundary:
 - retries with a defined transient failure model, idempotency policy, and useful
   limit or backoff.
 
-Remove logic that only protects against an imaginary boundary:
+Remove logic that has no current requirement:
 
 - deliberately nonsensical inputs with no realistic producer;
 - internally generated data unexpectedly violating enforced invariants;
@@ -101,7 +102,7 @@ context. Do not limit the review to one macro, helper, or error type.
   cohesive implementation behind it. Do not expose internal state, knobs, parameters,
   or intermediate steps for testing or wiring convenience.
 - Delete shallow abstractions that neither reduce caller complexity nor represent a
-  real boundary or substitution point, including one-line wrappers, pass-through
+  stable interface or substitution point, including one-line wrappers, pass-through
   helpers, redundant state objects, and single-implementation interfaces. Inline
   single-use local logic when that makes the containing flow clearer.
 - Use the fewest moving parts that preserve behavior. Every cache, token, flag,
@@ -189,7 +190,7 @@ Apply these Rust rules:
    and newly unused code.
 5. Report separately:
    - unnecessary logic removed;
-   - reviewed checks retained and the real boundary each protects;
+   - reviewed protections retained and the concrete requirement each satisfies;
    - formatting, static-analysis, and test results, including anything not run.
 
 Do not commit, push, publish, or communicate externally unless the user explicitly

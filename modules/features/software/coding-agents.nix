@@ -11,9 +11,9 @@
         home = {
           packages = [ pkgs.codex ];
           file = {
-            ".agents/skills/refactor-contract-boundaries".source = mkDotfilesSymlink {
+            ".agents/skills/refactor-for-simplicity".source = mkDotfilesSymlink {
               inherit config;
-              name = "agents/skills/refactor-contract-boundaries";
+              name = "agents/skills/refactor-for-simplicity";
             };
             ".codex/AGENTS.md".source = mkDotfilesSymlink {
               inherit config;
