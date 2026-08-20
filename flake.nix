@@ -43,6 +43,10 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
+    chrome-url-router = {
+      url = "github:so1ve/chrome-url-router";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
