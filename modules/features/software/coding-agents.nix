@@ -1,4 +1,25 @@
 {
+  inputs,
+  lib,
+  ...
+}:
+let
+  cloudflareSkillFiles =
+    target:
+    lib.mapAttrs'
+      (
+        name: _:
+        lib.nameValuePair "${target}/${name}" {
+          source = "${inputs.cloudflare-skills}/skills/${name}";
+        }
+      )
+      (
+        lib.filterAttrs (_: type: type == "directory") (
+          builtins.readDir "${inputs.cloudflare-skills}/skills"
+        )
+      );
+in
+{
   ray.features = {
     "software/codex".home =
       {
@@ -10,7 +31,7 @@
       {
         home = {
           packages = [ pkgs.codex ];
-          file = {
+          file = cloudflareSkillFiles ".codex/skills" // {
             ".agents/skills/refactor-for-simplicity".source = mkDotfilesSymlink {
               inherit config;
               name = "agents/skills/refactor-for-simplicity";
@@ -96,6 +117,8 @@
         ...
       }:
       {
+        home.file = cloudflareSkillFiles ".pi/agent/skills";
+
         # pi-workspace-history creates internal Git commits. Do not sign these
         # snapshots with the user's normal signing key.
         programs.git.includes = [

@@ -45,6 +45,22 @@
         "type": "github"
       }
     },
+    "cloudflare-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786124673,
+        "narHash": "sha256-r8HeH9XWV9qhbMq3fPASNfT5Y1mrfsgBI5STiUi/LVA=",
+        "owner": "cloudflare",
+        "repo": "skills",
+        "rev": "f96bff754e428838818017f75817f0f9428acd48",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cloudflare",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
     "codex-desktop-linux": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -698,6 +714,7 @@
       "inputs": {
         "agenix": "agenix",
         "chrome-url-router": "chrome-url-router",
+        "cloudflare-skills": "cloudflare-skills",
         "codex-desktop-linux": "codex-desktop-linux",
         "direnv-instant": "direnv-instant",
         "disko": "disko",

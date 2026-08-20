@@ -60,6 +60,11 @@ in
 
       codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
+      cloudflare-skills = {
+        url = "github:cloudflare/skills";
+        flake = false;
+      };
+
       disko = {
         url = "github:nix-community/disko/latest";
         inputs.nixpkgs.follows = "nixpkgs";
