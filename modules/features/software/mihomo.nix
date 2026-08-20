@@ -22,9 +22,10 @@
 
         services.mihomo = {
           enable = true;
+          tunMode = true;
+          processesInfo = true;
           configFile = config.age.secrets.mihomo-config.path;
           webui = pkgs.zashboard;
-          tunMode = true;
         };
 
         # Avoid making the first proxy startup depend on downloading its GeoIP
