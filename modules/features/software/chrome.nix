@@ -41,6 +41,7 @@
 
     home =
       {
+        inputs,
         lib,
         mkFocusOrLaunch,
         pkgs,
@@ -58,15 +59,13 @@
             "--enable-blink-features=MiddleClickAutoscroll"
           ];
         };
+        urlRouter = inputs.chrome-url-router.lib.mkGoogleChromeRouter {
+          inherit pkgs;
+          browser = chrome;
+        };
         focusOrLaunch = mkFocusOrLaunch pkgs;
         chromeLauncher = pkgs.writeShellApplication {
           name = "google-chrome-stable";
-          runtimeInputs = [
-            pkgs.jq
-            pkgs.niri
-            pkgs.wl-clipboard
-            pkgs.wtype
-          ];
           text = ''
             app_id=""
             profile="Default"
@@ -78,63 +77,14 @@
               esac
             done
 
-            chrome=("${lib.getExe chrome}" "$@")
-
             if [[ -n "$app_id" ]]; then
               profile="''${profile// /_}"
               exec ${lib.getExe focusOrLaunch} \
                 "chrome-$app_id-$profile" \
-                "''${chrome[@]}"
+                ${lib.getExe chrome} "$@"
             fi
 
-            (( $# > 0 )) || exec "''${chrome[@]}"
-            for url in "$@"; do
-              case "$url" in
-                http://* | https://* | file://*) ;;
-                *) exec "''${chrome[@]}" ;;
-              esac
-            done
-
-            window_id="$(
-              niri msg -j windows 2>/dev/null \
-                | jq -r '
-                    map(select(.app_id | test("^google-chrome(-stable)?$"; "i")))
-                    | max_by([.focus_timestamp.secs, .focus_timestamp.nanos])
-                    | .id // empty
-                  '
-            )" || true
-            [[ -n "$window_id" ]] || exec "''${chrome[@]}"
-            niri msg action focus-window --id "$window_id" >/dev/null 2>&1 \
-              || exec "''${chrome[@]}"
-
-            # Let niri finish focusing (possibly switching workspaces) before
-            # injecting keystrokes.
-            sleep 0.15
-
-            clipboard_file="$(mktemp)"
-            clipboard_type="$(wl-paste --list-types 2>/dev/null | sed -n '1p')" || true
-            if [[ -n "$clipboard_type" ]] \
-              && ! wl-paste --type "$clipboard_type" > "$clipboard_file" 2>/dev/null; then
-              rm -f -- "$clipboard_file"
-              exec "''${chrome[@]}"
-            fi
-
-            restore_clipboard() {
-              if [[ -n "$clipboard_type" ]]; then
-                wl-copy --type "$clipboard_type" < "$clipboard_file" || true
-              else
-                wl-copy --clear || true
-              fi
-              rm -f -- "$clipboard_file"
-            }
-            trap restore_clipboard EXIT
-
-            for url in "$@"; do
-              printf %s "$url" \
-                | wl-copy --sensitive --type 'text/plain;charset=utf-8'
-              wtype -s 200 -M ctrl -k t -m ctrl \
-                -s 100 -M ctrl -k v -m ctrl -s 20 -k Return -s 50
-            done
+            exec ${lib.getExe urlRouter.launcher} "$@"
           '';
         };
       in
@@ -148,6 +98,9 @@
         };
 
         xdg = {
+          configFile."google-chrome/NativeMessagingHosts/${urlRouter.nativeHostName}.json".source =
+            urlRouter.nativeMessagingHostManifest;
+
           desktopEntries.open-in-google-chrome = {
             name = "Google Chrome URL Handler";
             exec = "${lib.getExe chromeLauncher} %U";

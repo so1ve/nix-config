@@ -25,6 +25,26 @@
         "type": "github"
       }
     },
+    "chrome-url-router": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787232219,
+        "narHash": "sha256-A+6BQlwrvC3qDVL/pFktiuowJ4GjwW63DijWTvRsXeY=",
+        "owner": "so1ve",
+        "repo": "chrome-url-router",
+        "rev": "04b908783063f844aa15d6d80f40c9d9eda737f8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "chrome-url-router",
+        "type": "github"
+      }
+    },
     "codex-desktop-linux": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -677,6 +697,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "chrome-url-router": "chrome-url-router",
         "codex-desktop-linux": "codex-desktop-linux",
         "direnv-instant": "direnv-instant",
         "disko": "disko",
