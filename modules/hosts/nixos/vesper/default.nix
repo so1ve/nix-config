@@ -64,6 +64,7 @@
       "software/nautilus"
       "software/peazip"
       "software/yazi"
+      "software/thunderbird"
       "software/chrome"
       "software/mihomo"
       "software/tailscale"
