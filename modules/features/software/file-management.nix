@@ -25,6 +25,13 @@
         ...
       }:
       let
+        peazip = pkgs.peazip.overrideAttrs (old: {
+          postInstall = (old.postInstall or "") + ''
+            mkdir -p $out/lib/peazip/res/bin/7z
+            ln -s ${lib.getExe pkgs._7zz} $out/lib/peazip/res/bin/7z/7z
+          '';
+        });
+
         mkNautilusScript = name: operation: {
           source = pkgs.writeShellScript "peazip-nautilus-${name}" ''
             selected_paths=()
@@ -35,15 +42,15 @@
             done < <(printf '%s' "''${NAUTILUS_SCRIPT_SELECTED_FILE_PATHS:-}")
 
             if (( ''${#selected_paths[@]} > 0 )); then
-              exec ${lib.getExe pkgs.peazip} ${operation} "''${selected_paths[@]}"
+              exec ${lib.getExe peazip} ${operation} "''${selected_paths[@]}"
             fi
 
-            exec ${lib.getExe pkgs.peazip} ${operation} "$@"
+            exec ${lib.getExe peazip} ${operation} "$@"
           '';
         };
       in
       {
-        home.packages = [ pkgs.peazip ];
+        home.packages = [ peazip ];
 
         xdg.dataFile = {
           "nautilus/scripts/PeaZip/添加到压缩包" = mkNautilusScript "add-to-archive" "-add2archive";
