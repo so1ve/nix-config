@@ -809,11 +809,11 @@
         "nixpkgs": "nixpkgs_9"
       },
       "locked": {
-        "lastModified": 1787159123,
-        "narHash": "sha256-rl+QqjWS0IHbHX4brvXjCeh3Jm4UsIeni/c0ZvqX8hY=",
+        "lastModified": 1787170859,
+        "narHash": "sha256-6NWCkn4S5i5SWk5obt5u01ptK+uLtjfDv5KW2QPdNaY=",
         "owner": "so1ve",
         "repo": "xwayclip",
-        "rev": "daef5d2fcee29d68c6518d0ca160734845805279",
+        "rev": "d7e074097cd86a691ed983281a998da38a4e5cdb",
         "type": "github"
       },
       "original": {
