@@ -34,6 +34,7 @@
       "desktop/media"
       "desktop/niri"
       "desktop/noctalia"
+      "desktop/hyprland"
       "desktop/noctalia-greeter"
       "input/fcitx-rime"
       "ui/core"
