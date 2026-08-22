@@ -12,10 +12,6 @@ let
   nixosConfigurations = lib.mapAttrs (
     _: host: config.ray.lib.mkNixosHost host
   ) config.ray.hosts.nixos;
-
-  homeConfigurations = lib.mapAttrs' (
-    _: host: lib.nameValuePair "${host.username}@${host.hostname}" (config.ray.lib.mkHomeHost host)
-  ) config.ray.hosts.nixos;
 in
 {
   imports = [ (inputs.import-tree ./modules) ];
@@ -106,13 +102,10 @@ in
   };
 
   outputs = _: {
-    inherit homeConfigurations nixosConfigurations;
+    inherit nixosConfigurations;
 
     checks.${system} =
       lib.mapAttrs (_: nixos: nixos.config.system.build.toplevel) nixosConfigurations
-      // lib.mapAttrs' (
-        name: home: lib.nameValuePair "home-${name}" home.activationPackage
-      ) homeConfigurations
       // {
         check-flake-file = config.flake-file.check-flake-file pkgs;
       };

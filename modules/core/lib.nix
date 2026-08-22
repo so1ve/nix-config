@@ -6,7 +6,10 @@
 }:
 
 let
-  inherit (lib) filter;
+  inherit (lib)
+    filter
+    optional
+    ;
 
   availableFeatures = builtins.attrNames config.ray.features;
 
@@ -60,35 +63,35 @@ let
       ;
   };
 
+  homeManagerModule = host: homeModules: {
+    home-manager = {
+      useGlobalPkgs = true;
+      useUserPackages = true;
+      extraSpecialArgs = specialArgsFor host;
+      users.${host.username}.imports = homeModules;
+      backupFileExtension = "home-manager.backup";
+    };
+  };
+
   mkNixosHost =
     host:
     let
       features = selectFeatures host;
+      nixosModules = modulesFor "nixos" features;
+      homeModules = modulesFor "home" features;
     in
     inputs.nixpkgs.lib.nixosSystem {
       inherit (host) system;
       specialArgs = specialArgsFor host;
-      modules = modulesFor "nixos" features ++ host.modules;
-    };
-
-  mkHomeHost =
-    host:
-    let
-      features = selectFeatures host;
-      pkgs = import inputs.nixpkgs {
-        inherit (host) system;
-        config.allowUnfree = true;
-        overlays = [ inputs.nur.overlays.default ];
-      };
-    in
-    inputs.home-manager.lib.homeManagerConfiguration {
-      inherit pkgs;
-      extraSpecialArgs = specialArgsFor host;
-      modules = modulesFor "home" features;
+      modules =
+        nixosModules
+        ++ host.modules
+        ++ optional (homeModules != [ ]) inputs.home-manager.nixosModules.home-manager
+        ++ optional (homeModules != [ ]) (homeManagerModule host homeModules);
     };
 in
 {
   config.ray.lib = {
-    inherit mkHomeHost mkNixosHost;
+    inherit mkNixosHost;
   };
 }

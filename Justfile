@@ -1,5 +1,4 @@
 host := "vesper"
-user := "ray"
 
 default:
     @just --list
@@ -19,16 +18,9 @@ build:
 boot:
     nh os boot . -H {{ host }} --accept-flake-config
 
-# Activate both the NixOS and Home Manager configurations.
-switch: switch-os switch-home
-
-# Activate only the NixOS configuration.
-switch-os:
+# Activate the configuration immediately.
+switch:
     nh os switch . -H {{ host }} --accept-flake-config
-
-# Activate only the user's Home Manager configuration.
-switch-home:
-    nh home switch . -c {{ user }}@{{ host }} -b home-manager.backup --accept-flake-config
 
 # Format all Nix files with the formatter exported by the flake.
 fmt:
