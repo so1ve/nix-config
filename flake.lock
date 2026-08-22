@@ -341,11 +341,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1787226241,
-        "narHash": "sha256-/1kvZvYubH43MhOVCGfj0HOYYSKVqTJiTjYILQ33zxY=",
+        "lastModified": 1787349030,
+        "narHash": "sha256-XikAylK3EZfBCyNmoSg29/uDezZWAywP9t6eGe4iOw4=",
         "owner": "so1ve",
         "repo": "latchshot",
-        "rev": "7bd6c32eac1721e598432acb307ba68b52daf402",
+        "rev": "ff5e13e9578f80f26c3e04c0d90f9b15c5604e50",
         "type": "github"
       },
       "original": {
