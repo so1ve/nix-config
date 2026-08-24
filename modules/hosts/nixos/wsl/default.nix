@@ -20,6 +20,7 @@
       # Development
       "software/tmux"
       "software/neovim"
+      "software/agent-skills"
       "software/codex"
       "software/pi"
       "software/development"

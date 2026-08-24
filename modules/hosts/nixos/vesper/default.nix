@@ -45,6 +45,7 @@
       "software/tmux"
       "software/neovim"
       "software/zed"
+      "software/agent-skills"
       "software/codex"
       "software/codex-desktop"
       "software/pi"

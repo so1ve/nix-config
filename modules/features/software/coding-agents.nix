@@ -1,26 +1,29 @@
-{
-  inputs,
-  lib,
-  ...
-}:
-let
-  cloudflareSkillFiles =
-    target:
-    lib.mapAttrs'
-      (
-        name: _:
-        lib.nameValuePair "${target}/${name}" {
-          source = "${inputs.cloudflare-skills}/skills/${name}";
-        }
-      )
-      (
-        lib.filterAttrs (_: type: type == "directory") (
-          builtins.readDir "${inputs.cloudflare-skills}/skills"
-        )
-      );
-in
+{ ... }:
 {
   ray.features = {
+    "software/agent-skills".home =
+      { inputs, ... }:
+      {
+        imports = [ inputs.agent-skills.homeManagerModules.default ];
+
+        programs.agent-skills = {
+          enable = true;
+          sources = {
+            cloudflare = {
+              input = "cloudflare-skills";
+              subdir = "skills";
+            };
+            local.path = ../../../dotfiles/agents/skills;
+          };
+          skills.enableAll = true;
+          targets.agents = {
+            enable = true;
+            dest = ".agents/skills";
+            structure = "link";
+          };
+        };
+      };
+
     "software/codex".home =
       {
         config,
@@ -32,15 +35,9 @@ in
       {
         home = {
           packages = [ inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.codex ];
-          file = cloudflareSkillFiles ".codex/skills" // {
-            ".agents/skills/refactor-for-simplicity".source = mkDotfilesSymlink {
-              inherit config;
-              name = "agents/skills/refactor-for-simplicity";
-            };
-            ".codex/AGENTS.md".source = mkDotfilesSymlink {
-              inherit config;
-              name = "agents/AGENTS.md";
-            };
+          file.".codex/AGENTS.md".source = mkDotfilesSymlink {
+            inherit config;
+            name = "agents/AGENTS.md";
           };
         };
       };
@@ -118,8 +115,6 @@ in
         ...
       }:
       {
-        home.file = cloudflareSkillFiles ".pi/agent/skills";
-
         # pi-workspace-history creates internal Git commits. Do not sign these
         # snapshots with the user's normal signing key.
         programs.git.includes = [
@@ -198,8 +193,7 @@ in
         }:
         let
           deepseekApiKey = config.age.secrets.deepseek-api-key.path;
-          deepseekHarness =
-            inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.deepseek-harness;
+          deepseekHarness = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.deepseek-harness;
           dsh = pkgs.writeShellApplication {
             name = "dsh";
             text = ''
