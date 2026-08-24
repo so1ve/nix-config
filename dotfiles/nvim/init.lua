@@ -1656,6 +1656,22 @@ safely("now", function()
   autocmd("User", {
     pattern = "MiniFilesBufferCreate",
     callback = function(args)
+      vim.bo[args.data.buf_id].buftype = "acwrite"
+
+      autocmd("BufWriteCmd", {
+        buffer = args.data.buf_id,
+        callback = function()
+          local confirm = vim.fn.confirm
+          vim.fn.confirm = function()
+            return 1
+          end
+
+          files.synchronize()
+
+          vim.fn.confirm = confirm
+        end,
+      })
+
       map("n", "<CR>", function()
         files.go_in({ close_on_file = true })
       end, { buffer = args.data.buf_id, desc = "Go in plus" })
@@ -1665,6 +1681,13 @@ safely("now", function()
         show_hidden = not show_hidden
         files.refresh(opts)
       end, { buffer = args.data.buf_id, desc = "Toggle hidden entries" })
+    end,
+  })
+
+  autocmd("User", {
+    pattern = "MiniFilesBufferUpdate",
+    callback = function(args)
+      vim.bo[args.data.buf_id].modified = false
     end,
   })
 
