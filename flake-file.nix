@@ -56,6 +56,11 @@ in
 
       codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
+      codex-cli-nix = {
+        url = "github:sadjow/codex-cli-nix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       cloudflare-skills = {
         url = "github:cloudflare/skills";
         flake = false;

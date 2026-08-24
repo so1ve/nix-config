@@ -24,13 +24,14 @@ in
     "software/codex".home =
       {
         config,
+        inputs,
         mkDotfilesSymlink,
         pkgs,
         ...
       }:
       {
         home = {
-          packages = [ pkgs.codex ];
+          packages = [ inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.codex ];
           file = cloudflareSkillFiles ".codex/skills" // {
             ".agents/skills/refactor-for-simplicity".source = mkDotfilesSymlink {
               inherit config;
