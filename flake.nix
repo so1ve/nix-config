@@ -43,6 +43,13 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
+    agent-skills = {
+      url = "github:Kyure-A/agent-skills-nix";
+      inputs = {
+        home-manager.follows = "home-manager";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
     chrome-url-router = {
       url = "github:so1ve/chrome-url-router";
       inputs.nixpkgs.follows = "nixpkgs";

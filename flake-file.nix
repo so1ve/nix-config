@@ -54,6 +54,12 @@ in
 
       nix-alien.url = "github:thiagokokada/nix-alien";
 
+      agent-skills = {
+        url = "github:Kyure-A/agent-skills-nix";
+        inputs.nixpkgs.follows = "nixpkgs";
+        inputs.home-manager.follows = "home-manager";
+      };
+
       codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
       codex-cli-nix = {
