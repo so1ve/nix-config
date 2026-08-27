@@ -2683,6 +2683,25 @@ end, { desc = "Quickfix" })
 
 local map_multistep = require("mini.keymap").map_multistep
 
+local last_edit
+
+autocmd("CmdAtom", {
+  callback = function(event)
+    if event.data.changed and event.data.lhs ~= "." then
+      last_edit = event.data
+    end
+  end,
+})
+
+-- Support using `.` to repeat macros
+map("n", ".", function()
+  vim.schedule(function()
+    if last_edit then
+      vim.api.nvim_feedkeys(last_edit.keys or last_edit.lhs, last_edit.keys and "n" or "m", false)
+    end
+  end)
+end, { desc = "Repeat last edit" })
+
 -- Remove builtin mappings that conflict with plugin/LSP behavior. When LSP is not
 -- ready for references, `gr` otherwise opens the builtin key hint menu instead of
 -- showing the expected "no references" feedback.
