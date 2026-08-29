@@ -63,6 +63,7 @@
       }:
       let
         mihomoConfig = "/run/agenix/mihomo-config";
+        zashboardAppId = "mjpchadnnjebmmlokgplpbdaipbpiofb";
 
         showZashboardSecret = pkgs.writeShellApplication {
           name = "zashboard-secret";
@@ -76,9 +77,23 @@
       {
         home.packages = [ showZashboardSecret ];
 
-        xdg.configFile."mihomo/config.yaml" = {
-          source = config.lib.file.mkOutOfStoreSymlink mihomoConfig;
-          force = true;
+        xdg = {
+          configFile."mihomo/config.yaml" = {
+            source = config.lib.file.mkOutOfStoreSymlink mihomoConfig;
+            force = true;
+          };
+
+          # Chrome may leave a policy-installed PWA's OS-integration shortcut
+          # hidden when its install URL is temporarily unavailable.  Keep the
+          # launcher entry declarative so it remains visible independently.
+          desktopEntries.zashboard = {
+            name = "Zashboard";
+            exec = "google-chrome-stable --profile-directory=Default --app-id=${zashboardAppId}";
+            icon = "${pkgs.zashboard}/pwa-512x512.png";
+            terminal = false;
+            categories = [ "Network" ];
+            settings.StartupWMClass = "crx_${zashboardAppId}";
+          };
         };
       };
   };
