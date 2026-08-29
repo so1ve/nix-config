@@ -67,6 +67,7 @@
       "software/peazip"
       "software/yazi"
       "software/thunderbird"
+      "software/bitgateway"
       "software/chrome"
       "software/mihomo"
       "software/tailscale"

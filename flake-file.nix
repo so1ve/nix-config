@@ -37,6 +37,11 @@ in
 
       latchshot.url = "github:so1ve/latchshot";
 
+      bitgateway = {
+        url = "github:so1ve/bitgateway";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       chrome-url-router = {
         url = "github:so1ve/chrome-url-router";
         inputs.nixpkgs.follows = "nixpkgs";

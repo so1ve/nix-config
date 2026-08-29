@@ -49,6 +49,26 @@
         "type": "github"
       }
     },
+    "bitgateway": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788008822,
+        "narHash": "sha256-SNj7fQ6+0R1ZgN3F2leRUf3YsaHw+LWHCu5goHSS9WE=",
+        "owner": "so1ve",
+        "repo": "bitgateway",
+        "rev": "fc85ae192aa35b9e5e4c83a537cf6fc89947f3b5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "bitgateway",
+        "type": "github"
+      }
+    },
     "blueprint": {
       "inputs": {
         "nixpkgs": [
@@ -799,6 +819,7 @@
       "inputs": {
         "agenix": "agenix",
         "agent-skills": "agent-skills",
+        "bitgateway": "bitgateway",
         "chrome-url-router": "chrome-url-router",
         "cloudflare-skills": "cloudflare-skills",
         "codex-cli-nix": "codex-cli-nix",
