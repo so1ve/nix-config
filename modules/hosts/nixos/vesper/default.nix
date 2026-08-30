@@ -22,7 +22,6 @@
       "hardware/graphics"
       "hardware/smartd"
       "storage/snapper"
-      "storage/mount/nas"
       "security/agenix"
       "security/fingerprint"
       "security/sudo"
