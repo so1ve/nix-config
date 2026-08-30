@@ -56,11 +56,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788008822,
-        "narHash": "sha256-SNj7fQ6+0R1ZgN3F2leRUf3YsaHw+LWHCu5goHSS9WE=",
+        "lastModified": 1788010831,
+        "narHash": "sha256-66zxX8ux2IXVLSRmuZ7QEeS0V8ukmneJPi0c1/+wdII=",
         "owner": "so1ve",
         "repo": "bitgateway",
-        "rev": "fc85ae192aa35b9e5e4c83a537cf6fc89947f3b5",
+        "rev": "9837e8e128897a4c096f49f79607fab77c0443dc",
         "type": "github"
       },
       "original": {
