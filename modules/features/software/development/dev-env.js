@@ -4,6 +4,7 @@ const path = require("node:path");
 const { parseArgs } = require("node:util");
 
 const MODULE_ROOT = "__MODULE_ROOT__";
+const PORTABLE_MODULE_ROOT = "github:so1ve/nix-config?dir=dotfiles/devenv";
 const GIT = "__GIT__";
 const DIRENV = "__DIRENV__";
 const DEFAULT_PROFILES = ["config"];
@@ -75,11 +76,7 @@ const LOCAL_EXCLUDES = [
   "/.devenv.flake.nix",
   "/.direnv/",
 ];
-const GENERATED_EXCLUDES = [
-  "/devenv.nix",
-  "/devenv.yaml",
-  "/devenv.lock",
-];
+const GENERATED_EXCLUDES = ["/devenv.nix", "/devenv.yaml", "/devenv.lock"];
 const ENVRC_EXCLUDES = ["/.envrc"];
 
 function detectProfiles(root) {
@@ -133,12 +130,16 @@ function init(requestedProfiles, tracked) {
   const profiles = [...new Set([...DEFAULT_PROFILES, ...detectedProfiles])];
 
   const imports = profiles
-    .map((profile) => `    ${MODULE_ROOT}/profiles/${profile}.nix`)
+    .map((profile) =>
+      tracked
+        ? `    (inputs.ray-devenv + "/profiles/${profile}.nix")`
+        : `    ${MODULE_ROOT}/profiles/${profile}.nix`,
+    )
     .join("\n");
   const devenvNix = path.join(root, "devenv.nix");
   fs.writeFileSync(
     devenvNix,
-    `{ lib, ... }:
+    `{ inputs, lib, ... }:
 
 {
   imports = [
@@ -173,18 +174,22 @@ ${imports}
     `inputs:
   nixpkgs:
     url: github:cachix/devenv-nixpkgs/rolling
-${extraInputs.join("\n")}`,
+${
+  tracked
+    ? `  ray-devenv:
+    url: ${PORTABLE_MODULE_ROOT}
+    flake: false
+`
+    : ""
+}${extraInputs.join("\n")}
+`,
   );
 
   const envrc = path.join(root, ".envrc");
   if (!fs.existsSync(envrc)) {
     writeEnvrc(root);
   }
-  updateGitExcludes(
-    root,
-    [...GENERATED_EXCLUDES, ...ENVRC_EXCLUDES],
-    tracked,
-  );
+  updateGitExcludes(root, [...GENERATED_EXCLUDES, ...ENVRC_EXCLUDES], tracked);
   allowDirenv(root);
   console.log(`Configured ${root} with profiles: ${profiles.join(" ")}`);
 }
@@ -251,7 +256,10 @@ switch (command) {
 Commands:
     list   List available profiles
     init   Initialize the development environment
-    envrc  Generate and allow .envrc`,
+    envrc  Generate and allow .envrc
+
+Options:
+    -t, --tracked  Use lockable shared profiles and keep generated files visible to Git`,
     );
     process.exit(1);
 }
