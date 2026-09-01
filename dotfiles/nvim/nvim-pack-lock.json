@@ -61,10 +61,6 @@
       "rev": "a311ed247d527db9592bb434356badc705363746",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
-    "multicursor.nvim": {
-      "rev": "704b99f10a72cc05d370cfeb294ff83412a8ab55",
-      "src": "https://github.com/jake-stewart/multicursor.nvim"
-    },
     "neogit": {
       "rev": "5adc81b26232954cd7a90f158aa7844c18fc3165",
       "src": "https://github.com/NeogitOrg/neogit"
