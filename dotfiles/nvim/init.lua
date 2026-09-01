@@ -1452,7 +1452,7 @@ safely("later", function()
       { mode = "n", keys = "<Leader>p", desc = "+Project" },
       { mode = "n", keys = "<Leader>q", desc = "+Quit / Buffer / Window" },
       { mode = "n", keys = "<Leader>r", desc = "+Refactor" },
-      { mode = "n", keys = "<Leader>s", desc = "+Search" },
+      { mode = "n", keys = "<Leader>s", desc = "+Search / Scratch" },
       { mode = "n", keys = "<Leader>t", desc = "+Terminal" },
       { mode = "n", keys = "<Leader>u", desc = "+UI" },
       { mode = "n", keys = "<Leader>x", desc = "+Trouble" },
@@ -2248,6 +2248,15 @@ require("snacks").setup({
         hidden = true,
         ignored = false,
       },
+      scratch = {
+        win = {
+          input = {
+            keys = {
+              ["<c-n>"] = { "list_down", mode = { "i", "n" } },
+            },
+          },
+        },
+      },
       lsp_symbols = {
         filter = {
           default = {
@@ -2289,9 +2298,16 @@ require("snacks").setup({
   notifier = {
     height = { min = 1, max = 0.4 },
   },
+  scratch = {},
   statuscolumn = {},
 })
 
+map("n", "<leader>so", function()
+  Snacks.scratch()
+end, { desc = "Toggle scratch buffer" })
+map("n", "<leader>S", function()
+  Snacks.scratch.select()
+end, { desc = "Select scratch buffer" })
 map("n", "<leader>ff", function()
   Snacks.picker.smart()
 end, { desc = "Find files" })
@@ -2473,7 +2489,7 @@ load_plugins("later", "blame.nvim", function()
   })
 end)
 
-map("n", "<leader>gb", "<cmd>BlameToggle<cr>")
+map("n", "<leader>gb", "<cmd>BlameToggle<cr>", { desc = "Toggle git blame" })
 
 -- #############################
 -- # Treesitter                #
