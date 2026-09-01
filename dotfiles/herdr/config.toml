@@ -1,7 +1,6 @@
 onboarding = false
 
 [ui]
-agent_panel_sort = "priority"
 hide_tab_bar_when_single_tab = true
 pane_scrollbars = false
 prompt_new_tab_name = false
@@ -9,9 +8,6 @@ show_agent_labels_on_pane_borders = true
 sidebar_collapsed_mode = "hidden"
 status_indicators = "symbols"
 window_title = "{tab}"
-
-[ui.sidebar.agents]
-rows = [["state_icon", "tab"], ["agent"]]
 
 [ui.toast]
 delivery = "terminal"
