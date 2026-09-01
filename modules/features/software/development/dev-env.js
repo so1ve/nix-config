@@ -97,6 +97,15 @@ function gitRoot() {
   }).trim();
 }
 
+function initGitRoot() {
+  try {
+    return gitRoot();
+  } catch {
+    execFileSync(GIT, ["init"], { stdio: "inherit" });
+    return gitRoot();
+  }
+}
+
 function updateGitExcludes(root, generatedExcludes, tracked) {
   const exclude = execFileSync(
     GIT,
@@ -123,7 +132,7 @@ function init(requestedProfiles, tracked) {
     process.exit(1);
   }
 
-  const root = gitRoot();
+  const root = initGitRoot();
   const detectedProfiles = requestedProfiles.length
     ? requestedProfiles
     : detectProfiles(root);
