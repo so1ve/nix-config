@@ -187,8 +187,7 @@ ${
   tracked
     ? `  ray-devenv:
     url: ${PORTABLE_MODULE_ROOT}
-    flake: false
-`
+    flake: false`
     : ""
 }${extraInputs.join("\n")}
 `,
