@@ -2362,6 +2362,7 @@ map("n", "<leader>fl", function()
     title = "Buffer Lines",
   })
 end, { desc = "Search current buffer" })
+map("n", "<leader>fq", "<cmd>silent vimgrep //gj % | copen<CR>", { desc = "Current search to quickfix" })
 map("n", "<leader>nh", function()
   Snacks.picker.notifications()
 end, { desc = "Notification history" })
