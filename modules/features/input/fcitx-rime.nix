@@ -77,7 +77,7 @@ in
           };
 
           configFile."fcitx5/conf/keyboard.conf".text = lib.generators.toINI { } {
-            # Disable Ctrl+Alt+H to avoid collision with tmux
+            # Disable Ctrl+Alt+H to avoid collision with Herdr.
             "Hint Trigger" = { };
           };
 

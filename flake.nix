@@ -76,6 +76,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-file.url = "github:denful/flake-file";
+    herdr-automatic-rename = {
+      url = "github:qu8n/herdr-automatic-rename";
+      flake = false;
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -98,6 +102,10 @@
     nur = {
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    smart-splits-nvim = {
+      url = "github:mrjones2014/smart-splits.nvim";
+      flake = false;
     };
     so1ve.url = "github:so1ve/nur-packages";
     waydroid-script = {

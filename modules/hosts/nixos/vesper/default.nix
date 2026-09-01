@@ -41,7 +41,7 @@
 
       # Development
       "software/kitty"
-      "software/tmux"
+      "software/herdr"
       "software/neovim"
       "software/zed"
       "software/agent-skills"

@@ -18,7 +18,7 @@
       "users/ray"
 
       # Development
-      "software/tmux"
+      "software/herdr"
       "software/neovim"
       "software/agent-skills"
       "software/codex"
