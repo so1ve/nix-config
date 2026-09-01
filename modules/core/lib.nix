@@ -53,6 +53,7 @@ let
       mkDotfilesSymlink
       mkFocusOrLaunch
       ;
+    enabledFeatures = host.features;
     user = config.ray.registry.users.${host.username};
     inherit (host)
       hostname

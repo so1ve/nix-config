@@ -32,44 +32,66 @@
       };
     };
 
-    "software/tmux" = {
+    "software/herdr" = {
       home =
         {
           config,
+          enabledFeatures,
+          inputs,
+          lib,
           mkDotfilesSymlink,
           pkgs,
           ...
         }:
+        let
+          herdr = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
+          herdrSkill = pkgs.runCommand "herdr-skill-${herdr.version}" { } ''
+            ${herdr}/bin/herdr --skill > "$out"
+          '';
+        in
         {
-          home.packages = [ pkgs.tmux ];
+          home.packages = [
+            herdr
+            pkgs.jq
+          ];
+
+          home.file.".agents/skills/herdr/SKILL.md".source = herdrSkill;
 
           programs.fish.interactiveShellInit = ''
-            set -l auto_attach_tmux false
-            if set -q KITTY_WINDOW_ID
-              set auto_attach_tmux true
-            else if set -q WSL_DISTRO_NAME; and test "$TERM_PROGRAM" = WezTerm
-              set auto_attach_tmux true
-            end
-
-            if $auto_attach_tmux; and not set -q TMUX
-              if not ${pkgs.tmux}/bin/tmux has-session -t main 2>/dev/null
-                if ${pkgs.tmux}/bin/tmux new-session -d -x "$COLUMNS" -y "$LINES" -s main -n workspace
-                  ${pkgs.tmux}/bin/tmux split-window -h -p 75 -t main:1.1
-                  ${pkgs.tmux}/bin/tmux split-window -v -p 25 -t main:1.2
-                  ${pkgs.tmux}/bin/tmux new-window -t main:2 -n shell
-                  ${pkgs.tmux}/bin/tmux select-window -t main:1
-                  ${pkgs.tmux}/bin/tmux select-pane -t main:1.1
-                end
-              end
-
-              ${pkgs.tmux}/bin/tmux attach-session -t main
+            if set -q HERDR_ENV
+              source ${inputs.herdr-automatic-rename}/shell/hook.fish
+            else if set -q KITTY_WINDOW_ID
+              ${herdr}/bin/herdr
+            else if set -q TERM_PROGRAM; and test "$TERM_PROGRAM" = WezTerm
+              ${herdr}/bin/herdr
             end
           '';
 
-          xdg.configFile."tmux/tmux.conf".source = mkDotfilesSymlink {
-            inherit config;
-            name = "tmux/tmux.conf";
+          xdg.configFile = {
+            "herdr/config.toml".source = mkDotfilesSymlink {
+              inherit config;
+              name = "herdr/config.toml";
+            };
+            "herdr-automatic-rename/config.sh".text = ''
+              AUTO_INDEX=0
+              AGENT_TITLES=0
+            '';
           };
+
+          home.activation.configureHerdr = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+            run ${herdr}/bin/herdr plugin link ${inputs.herdr-automatic-rename}
+            run ${herdr}/bin/herdr plugin link ${inputs.smart-splits-nvim}
+
+            ${lib.optionalString (lib.elem "software/codex" enabledFeatures) ''
+              run ${herdr}/bin/herdr integration install codex
+            ''}
+
+            ${lib.optionalString (lib.elem "software/pi" enabledFeatures) ''
+              run ${herdr}/bin/herdr integration install pi
+            ''}
+
+            run ${herdr}/bin/herdr server reload-config
+          '';
         };
     };
   };

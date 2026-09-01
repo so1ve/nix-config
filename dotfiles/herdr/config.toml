@@ -1,0 +1,56 @@
+onboarding = false
+
+[ui]
+agent_panel_sort = "priority"
+hide_tab_bar_when_single_tab = true
+pane_scrollbars = false
+prompt_new_tab_name = false
+show_agent_labels_on_pane_borders = true
+sidebar_collapsed_mode = "hidden"
+status_indicators = "symbols"
+window_title = "{tab}"
+
+[ui.sidebar.agents]
+rows = [["state_icon", "tab"], ["agent"]]
+
+[ui.toast]
+delivery = "terminal"
+delay_seconds = 2
+
+[session]
+resume_agents_on_restore = true
+
+[experimental]
+kitty_graphics = true
+
+[keys]
+previous_tab = ["prefix+p", "ctrl+alt+h"]
+next_tab = ["prefix+n", "ctrl+alt+l"]
+previous_workspace = "ctrl+alt+k"
+next_workspace = "ctrl+alt+j"
+move_tab_previous = "ctrl+shift+h"
+move_tab_next = "ctrl+shift+l"
+
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "smart-splits.nvim.left"
+description = "Navigate left"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "smart-splits.nvim.down"
+description = "Navigate down"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "smart-splits.nvim.up"
+description = "Navigate up"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "smart-splits.nvim.right"
+description = "Navigate right"

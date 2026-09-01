@@ -406,6 +406,22 @@
         "type": "github"
       }
     },
+    "herdr-automatic-rename": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788203699,
+        "narHash": "sha256-CZcGOFuLtsyVP55rfhh41kpowCcNbxj5XYWJZIcm8u0=",
+        "owner": "qu8n",
+        "repo": "herdr-automatic-rename",
+        "rev": "bd0dfc4bf8053df13ebb527f213a0e74d1420e2c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "qu8n",
+        "repo": "herdr-automatic-rename",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -827,6 +843,7 @@
         "direnv-instant": "direnv-instant",
         "disko": "disko",
         "flake-file": "flake-file",
+        "herdr-automatic-rename": "herdr-automatic-rename",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "latchshot": "latchshot",
@@ -838,9 +855,26 @@
         "nixpkgs": "nixpkgs_6",
         "noctalia-greeter": "noctalia-greeter",
         "nur": "nur",
+        "smart-splits-nvim": "smart-splits-nvim",
         "so1ve": "so1ve",
         "waydroid-script": "waydroid-script",
         "xwayclip": "xwayclip"
+      }
+    },
+    "smart-splits-nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787962429,
+        "narHash": "sha256-bll6wUkGrk3xJfNXR1Hvpb9s0B7vAQQoesBJZgYmfgg=",
+        "owner": "mrjones2014",
+        "repo": "smart-splits.nvim",
+        "rev": "0ab2e4928dc867dfea3ff1da186e69f289d8a532",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mrjones2014",
+        "repo": "smart-splits.nvim",
+        "type": "github"
       }
     },
     "so1ve": {
@@ -849,11 +883,11 @@
         "nixpkgs": "nixpkgs_8"
       },
       "locked": {
-        "lastModified": 1787705283,
-        "narHash": "sha256-oGcj3ZDk2xhgIHT+bJDewIEU36nAD4hIWCtX7MxYNGo=",
+        "lastModified": 1788291318,
+        "narHash": "sha256-v8X1Lu662t3TB2X0HeQq7Q5nt3s45YaPWWS3jTI4tP8=",
         "owner": "so1ve",
         "repo": "nur-packages",
-        "rev": "064d97b9abe416f29dbc27a2d8c1d9a17194216d",
+        "rev": "4f577e82ea1e597fb98e815ab03a21d927b2e2c1",
         "type": "github"
       },
       "original": {

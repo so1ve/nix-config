@@ -89,6 +89,16 @@ in
 
       so1ve.url = "github:so1ve/nur-packages";
 
+      herdr-automatic-rename = {
+        url = "github:qu8n/herdr-automatic-rename";
+        flake = false;
+      };
+
+      smart-splits-nvim = {
+        url = "github:mrjones2014/smart-splits.nvim";
+        flake = false;
+      };
+
       home-manager = {
         url = "github:nix-community/home-manager";
         inputs.nixpkgs.follows = "nixpkgs";
