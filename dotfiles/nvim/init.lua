@@ -222,7 +222,6 @@ vim.pack.add({
   gh("neovim/nvim-lspconfig"),
   gh("b0o/schemastore.nvim"),
   gh("nvim-treesitter/nvim-treesitter-textobjects"),
-  gh("jake-stewart/multicursor.nvim"),
   gh("ThePrimeagen/refactoring.nvim"),
   gh("lewis6991/async.nvim"),
   gh("nvim-treesitter/nvim-treesitter-context"),
@@ -1449,10 +1448,6 @@ safely("later", function()
       { mode = "n", keys = "<Leader>gcb", desc = "Accept base", postkeys = "<Leader>gc" },
       { mode = "n", keys = "<Leader>gcl", desc = "Files" },
       { mode = "n", keys = "<Leader>gcQ", desc = "Quickfix" },
-      { mode = "n", keys = "<Leader>m", desc = "+Multicursor" },
-      { mode = { "n", "x" }, keys = "<Leader>m<C-j>", desc = "Add cursor down", postkeys = "<Leader>m" },
-      { mode = { "n", "x" }, keys = "<Leader>m<C-k>", desc = "Add cursor up", postkeys = "<Leader>m" },
-      { mode = { "n", "x" }, keys = "<Leader>ma", desc = "Add all matches" },
       { mode = "n", keys = "<Leader>n", desc = "+Notifications" },
       { mode = "n", keys = "<Leader>p", desc = "+Project" },
       { mode = "n", keys = "<Leader>q", desc = "+Quit / Buffer / Window" },
@@ -1483,6 +1478,10 @@ safely("later", function()
       },
     },
   })
+
+  -- mini.clue versions before https://github.com/nvim-mini/mini.nvim/issues/2546
+  -- override the builtin multicursor mapping with the old macro-repeat behavior.
+  pcall(vim.keymap.del, "n", "Q")
 end)
 
 safely("later", function()
@@ -1587,10 +1586,10 @@ safely("later", function()
       apply = "gh",
       reset = "gH",
       textobject = "gh",
-      goto_first = "[C",
+      goto_first = "[H",
       goto_prev = "[c",
       goto_next = "]c",
-      goto_last = "]C",
+      goto_last = "]H",
     },
   })
 
@@ -2146,91 +2145,6 @@ safely("now", function()
 end)
 
 -- #############################
--- # Multicursor               #
--- #############################
-
--- TODO: https://x.com/justinmk/status/2075633035504910551
-load_plugins("later", "multicursor.nvim", function()
-  local mc = require("multicursor-nvim")
-
-  mc.setup()
-
-  local append_at_line_end = function()
-    mc.action(function(ctx)
-      ctx:forEachCursor(function(cursor)
-        cursor:feedkeys("$")
-      end)
-    end)
-    mc.feedkeys("a")
-  end
-
-  local add_cursor_down = function()
-    mc.lineAddCursor(1)
-  end
-
-  local add_cursor_up = function()
-    mc.lineAddCursor(-1)
-  end
-
-  local match_all = function()
-    local mode = vim.fn.mode()
-    local cursor = vim.fn.getpos(".")
-    local anchor = vim.fn.getpos("v")
-
-    mc.matchAllAddCursors()
-
-    if mode == "n" then
-      mc.feedkeys("e")
-      return
-    end
-
-    local cursor_before_anchor = cursor[2] < anchor[2] or (cursor[2] == anchor[2] and cursor[3] < anchor[3])
-    local start = cursor_before_anchor and cursor or anchor
-    local row = cursor[2] - start[2]
-    local col = cursor[3] - (row == 0 and start[3] or 1)
-
-    mc.action(function(ctx)
-      ctx:forEachCursor(function(curr)
-        curr:setPos({
-          curr:line() + row,
-          row == 0 and curr:col() + col or col + 1,
-        })
-      end)
-    end)
-  end
-
-  map({ "n", "x" }, "<leader>m<C-j>", add_cursor_down, { desc = "Add cursor down" })
-  map({ "n", "x" }, "<leader>m<C-k>", add_cursor_up, { desc = "Add cursor up" })
-  map({ "n", "x" }, "<leader>ma", match_all, { desc = "Add cursor to all matches" })
-
-  map("n", "<C-leftmouse>", mc.handleMouse, { desc = "Add cursor with mouse" })
-  map("n", "<C-leftdrag>", mc.handleMouseDrag, { desc = "Drag cursor with mouse" })
-  map("n", "<C-leftrelease>", mc.handleMouseRelease, { desc = "Release cursor with mouse" })
-  map("n", "<Esc>", function()
-    if mc.hasCursors() then
-      mc.clearCursors()
-    else
-      vim.cmd("nohlsearch")
-    end
-  end, { desc = "Clear search highlight or multicursors" })
-
-  mc.addKeymapLayer(function(layer_map)
-    layer_map("n", "A", append_at_line_end)
-    layer_map("n", "<C-j>", add_cursor_down)
-    layer_map("n", "<C-k>", add_cursor_up)
-    layer_map("x", "I", mc.insertVisual)
-    layer_map("x", "A", mc.appendVisual)
-    layer_map("n", "<Esc>", function()
-      if not mc.cursorsEnabled() then
-        mc.enableCursors()
-      else
-        mc.clearCursors()
-      end
-    end)
-  end)
-end)
-
--- #############################
 -- # Panels                    #
 -- #############################
 
@@ -2683,6 +2597,8 @@ end, { desc = "Quickfix" })
 
 local map_multistep = require("mini.keymap").map_multistep
 
+local multicursor_namespace = vim.api.nvim_create_namespace("nvim.multicursor")
+
 local last_edit
 
 autocmd("CmdAtom", {
@@ -2695,6 +2611,14 @@ autocmd("CmdAtom", {
 
 -- Support using `.` to repeat macros
 map("n", ".", function()
+  -- Let builtin dot-repeat own the multicursor cascade; replaying this mapping
+  -- at every cursor would enqueue the saved edit multiple times.
+  -- ref: https://github.com/neovim/neovim/blob/9a29622/runtime/doc/repeat.txt#L100-L128
+  if #vim.api.nvim_buf_get_extmarks(0, multicursor_namespace, 0, -1, { limit = 1 }) > 0 then
+    vim.api.nvim_feedkeys(".", "n", false)
+    return
+  end
+
   vim.schedule(function()
     if last_edit then
       vim.api.nvim_feedkeys(last_edit.keys or last_edit.lhs, last_edit.keys and "n" or "m", false)
@@ -2717,12 +2641,13 @@ for mode, keys in pairs({
 end
 
 -- Search
-map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+map("n", "<Esc>", function()
+  vim.cmd.nohlsearch()
+  vim.api.nvim_buf_clear_namespace(0, multicursor_namespace, 0, -1)
+end, { desc = "Clear search highlight or multicursors" })
 
 -- Editing
 map({ "n", "x" }, "x", '"_x', { desc = "Delete without yanking" })
-map("n", "q", "<Nop>", { noremap = true, silent = true })
-map("n", "Q", "q", { noremap = true, silent = true })
 map({ "i", "c" }, "jj", "<Esc>", { desc = "Exit insert or command-line mode" })
 map("i", "<C-z>", "<C-o>u", { desc = "Undo" })
 map("i", "<C-y>", "<C-o><C-r>", { desc = "Redo" })
