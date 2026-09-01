@@ -2152,6 +2152,13 @@ local function is_loclist(_, win)
   return vim.fn.getwininfo(win)[1].loclist == 1
 end
 
+local function is_trouble_mode(mode)
+  return function(_, win)
+    local trouble = vim.w[win].trouble
+    return trouble and trouble.mode == mode
+  end
+end
+
 load_plugins("later", "panels.nvim", function()
   require("panels").setup({
     panels = {
@@ -2164,6 +2171,19 @@ load_plugins("later", "panels.nvim", function()
         title = "Problems",
         position = "bottom",
         ft = "trouble",
+        filter = is_trouble_mode("diagnostics"),
+      },
+      ["trouble.qflist"] = {
+        title = "Quickfix",
+        position = "bottom",
+        ft = "trouble",
+        filter = is_trouble_mode("qflist"),
+      },
+      ["trouble.loclist"] = {
+        title = "Loclist",
+        position = "bottom",
+        ft = "trouble",
+        filter = is_trouble_mode("loclist"),
       },
       help = {
         title = "Help",
@@ -2362,7 +2382,9 @@ map("n", "<leader>fl", function()
     title = "Buffer Lines",
   })
 end, { desc = "Search current buffer" })
-map("n", "<leader>fq", "<cmd>silent vimgrep //gj % | copen<CR>", { desc = "Current search to quickfix" })
+map("n", "<leader>fq", "<cmd>silent vimgrep //gj % | Trouble qflist open focus=true<CR>", {
+  desc = "Current search to Trouble",
+})
 map("n", "<leader>nh", function()
   Snacks.picker.notifications()
 end, { desc = "Notification history" })
@@ -2602,10 +2624,10 @@ map("n", "<leader>xD", function()
   require("panels").open("trouble.problems", "Trouble diagnostics toggle")
 end, { desc = "Workspace diagnostics" })
 map("n", "<leader>xl", function()
-  require("panels").open("trouble.problems", "Trouble loclist toggle")
+  require("panels").open("trouble.loclist", "Trouble loclist toggle")
 end, { desc = "Loclist" })
 map("n", "<leader>xq", function()
-  require("panels").open("trouble.problems", "Trouble qflist toggle")
+  require("panels").open("trouble.qflist", "Trouble qflist toggle")
 end, { desc = "Quickfix" })
 
 -- #############################
