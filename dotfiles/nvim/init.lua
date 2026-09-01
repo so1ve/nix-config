@@ -2599,21 +2599,23 @@ local map_multistep = require("mini.keymap").map_multistep
 
 local multicursor_namespace = vim.api.nvim_create_namespace("nvim.multicursor")
 
-local last_edit
+-- Support using `.` to repeat macros.
+-- ref: https://github.com/neovim/neovim/blob/9a29622/runtime/doc/repeat.txt#L100-L128
+local last_edit ---@type vim.event.cmdatom.data?
 
 autocmd("CmdAtom", {
   callback = function(event)
-    if event.data.changed and event.data.lhs ~= "." then
+    local is_redo_or_undo = event.data.changed and (event.data.undoseq or 0) <= (vim.b[event.buf].maxseq or 0)
+    vim.b[event.buf].maxseq = math.max(vim.b[event.buf].maxseq or 0, event.data.undoseq or 0)
+    if event.data.changed and not is_redo_or_undo and event.data.lhs ~= "." then
       last_edit = event.data
     end
   end,
 })
 
--- Support using `.` to repeat macros
 map("n", ".", function()
   -- Let builtin dot-repeat own the multicursor cascade; replaying this mapping
   -- at every cursor would enqueue the saved edit multiple times.
-  -- ref: https://github.com/neovim/neovim/blob/9a29622/runtime/doc/repeat.txt#L100-L128
   if #vim.api.nvim_buf_get_extmarks(0, multicursor_namespace, 0, -1, { limit = 1 }) > 0 then
     vim.api.nvim_feedkeys(".", "n", false)
     return
