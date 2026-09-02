@@ -1,7 +1,7 @@
 state_dir=/var/lib/waydroid
 config_file="$state_dir/waydroid.cfg"
-houdini_file="$state_dir/overlay/system/lib64/libhoudini.so"
 libndk_file="$state_dir/overlay/system/lib64/libndk_translation.so"
+houdini_file="$state_dir/overlay/system/lib64/libhoudini.so"
 sudo=/run/wrappers/bin/sudo
 
 waydroid_bin=$(command -v waydroid)
@@ -36,21 +36,21 @@ else
   fi
 fi
 
-needs_houdini=0
-if [[ ! -f "$houdini_file" ]] \
-  || ! property_is ro.dalvik.vm.native.bridge libhoudini.so
+needs_libndk=0
+if [[ ! -f "$libndk_file" ]] \
+  || ! property_is ro.dalvik.vm.native.bridge libndk_translation.so
 then
-  needs_houdini=1
+  needs_libndk=1
 fi
 
-has_libndk=0
-if [[ -f "$libndk_file" ]] \
-  || property_is ro.dalvik.vm.native.bridge libndk_translation.so
+has_houdini=0
+if [[ -f "$houdini_file" ]] \
+  || property_is ro.dalvik.vm.native.bridge libhoudini.so
 then
-  has_libndk=1
+  has_houdini=1
 fi
 
-if (( ! needs_houdini && ! has_libndk )) \
+if (( ! needs_libndk && ! has_houdini )) \
   && property_is persist.waydroid.uevent true \
   && property_is persist.waydroid.fake_touch ""
 then
@@ -73,15 +73,15 @@ trap restore_container EXIT
 "$waydroid_bin" session stop || true
 root "$systemctl_bin" stop waydroid-container.service
 
-if ((has_libndk)); then
-  echo "Removing libndk (it crashes Endfield under Waydroid)..."
-  root "$waydroid_script_bin" -a 13 uninstall libndk
-  needs_houdini=1
+if ((has_houdini)); then
+  echo "Removing expired Houdini ARM translation..."
+  root "$waydroid_script_bin" -a 13 uninstall libhoudini
+  needs_libndk=1
 fi
 
-if ((needs_houdini)); then
-  echo "Installing Houdini ARM translation..."
-  root "$waydroid_script_bin" -a 13 install libhoudini
+if ((needs_libndk)); then
+  echo "Installing libndk ARM translation..."
+  root "$waydroid_script_bin" -a 13 install libndk
 fi
 
 root "$crudini_bin" --set \

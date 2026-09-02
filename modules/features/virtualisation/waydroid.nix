@@ -58,7 +58,8 @@
           Waydroid. It idempotently configures the state used on this host:
 
           - LineageOS Vanilla (no GApps)
-          - Houdini ARM translation; libndk crashes Endfield
+          - libndk ARM translation; the pinned Houdini build has expired
+            and somehow libndk started working again
           - uevent input passthrough for the Xbox controller
           - fake_touch disabled, because it breaks controller axis events
 
