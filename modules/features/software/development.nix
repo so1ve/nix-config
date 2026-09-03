@@ -56,7 +56,10 @@
           ${lib.getExe' pkgs.ni "nr"} --completion-fish | source
         '';
 
-        programs.direnv-instant.enable = true;
+        programs.direnv-instant = {
+          enable = true;
+          settings.mux_delay = 30;
+        };
 
         xdg.configFile."direnv/direnv.toml".text = ''
           [global]
