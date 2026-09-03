@@ -18,7 +18,7 @@
       "src": "https://github.com/so1ve/code-action-menu.nvim"
     },
     "codediff.nvim": {
-      "rev": "0abad4aa022a34fab0deb90dd9379d5de1c9c329",
+      "rev": "e08a35a56a52c290398ebfaec33c34cfcf2d0f3c",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "codesettings.nvim": {
