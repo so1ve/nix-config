@@ -159,10 +159,19 @@ ${imports}
 `,
   );
 
-  const extraInputs = [];
+  const inputs = [
+    `  nixpkgs:
+    url: github:cachix/devenv-nixpkgs/rolling`,
+  ];
+
+  if (tracked) {
+    inputs.push(`  ray-devenv:
+    url: ${PORTABLE_MODULE_ROOT}
+    flake: false`);
+  }
 
   if (profiles.includes("rust")) {
-    extraInputs.push(`  rust-overlay:
+    inputs.push(`  rust-overlay:
     url: github:oxalica/rust-overlay
     inputs:
       nixpkgs:
@@ -170,7 +179,7 @@ ${imports}
   }
 
   if (profiles.includes("frontend")) {
-    extraInputs.push(`  js-toolchain-overlay:
+    inputs.push(`  js-toolchain-overlay:
     url: github:so1ve/js-toolchain-overlay
     inputs:
       nixpkgs:
@@ -180,17 +189,7 @@ ${imports}
   const devenvYaml = path.join(root, "devenv.yaml");
   fs.writeFileSync(
     devenvYaml,
-    `inputs:
-  nixpkgs:
-    url: github:cachix/devenv-nixpkgs/rolling
-${
-  tracked
-    ? `  ray-devenv:
-    url: ${PORTABLE_MODULE_ROOT}
-    flake: false`
-    : ""
-}${extraInputs.join("\n")}
-`,
+    `inputs:\n${inputs.join("\n")}\n`,
   );
 
   const envrc = path.join(root, ".envrc");
