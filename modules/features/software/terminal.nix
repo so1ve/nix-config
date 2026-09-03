@@ -91,7 +91,9 @@
               run ${herdr}/bin/herdr integration install pi
             ''}
 
-            run ${herdr}/bin/herdr server reload-config
+            if ${herdr}/bin/herdr status server >/dev/null 2>&1; then
+              run ${herdr}/bin/herdr server reload-config
+            fi
           '';
         };
     };
