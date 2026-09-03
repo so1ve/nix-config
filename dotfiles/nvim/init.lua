@@ -990,11 +990,18 @@ local function uses_direct_typescript_7(project_root)
 end
 
 local function typescript_root_dir(server_name, direct)
-  local root_dir = vim.lsp.config[server_name].root_dir
+  local find_typescript_root = vim.lsp.config.vtsls.root_dir
+  local server_root_dir = vim.lsp.config[server_name].root_dir
 
   return function(bufnr, on_dir)
-    root_dir(bufnr, function(project_root)
-      if uses_direct_typescript_7(project_root) == direct then
+    find_typescript_root(bufnr, function(project_root)
+      if uses_direct_typescript_7(project_root) ~= direct then
+        return
+      end
+
+      if direct then
+        server_root_dir(bufnr, on_dir)
+      else
         on_dir(project_root)
       end
     end)
