@@ -16,6 +16,7 @@
           just
           nvd
           ripgrep
+          tealdeer
           tokei
           unzip
           wget
