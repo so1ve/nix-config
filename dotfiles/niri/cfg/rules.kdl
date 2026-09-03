@@ -80,6 +80,14 @@ window-rule {
     open-floating true
 }
 
+window-rule {
+    match app-id=r#"^wpsoffice$"#
+
+    // xwayland-satellite mistakes WPS's restored maximized size for fullscreen.
+    open-fullscreen false
+    open-maximized-to-edges true
+}
+
 // Sizes
 window-rule {
     // Telegram
