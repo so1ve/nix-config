@@ -53,6 +53,7 @@
           home.packages = [
             herdr
             pkgs.jq
+            pkgs.python3 # for herdr's codex integration (requires python runtime)
           ];
 
           home.file.".agents/skills/herdr/SKILL.md".source = herdrSkill;
