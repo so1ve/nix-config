@@ -1572,7 +1572,7 @@ safely("later", function()
 
   require("mini.move").setup()
   require("mini.operators").setup({
-    exchange = { prefix = "gX" },
+    exchange = { prefix = "gx" },
     replace = { prefix = "gR" },
     sort = { prefix = "" },
   })
@@ -2693,6 +2693,8 @@ map("n", "<Esc>", function()
   vim.cmd.nohlsearch()
   vim.api.nvim_buf_clear_namespace(0, multicursor_namespace, 0, -1)
 end, { desc = "Clear search highlight or multicursors" })
+
+map({ "n", "x" }, "go", "gx", { desc = "Open filepath or URI under cursor", remap = true })
 
 -- Editing
 map({ "n", "x" }, "x", '"_x', { desc = "Delete without yanking" })
