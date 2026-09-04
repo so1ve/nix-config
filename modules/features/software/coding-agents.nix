@@ -34,7 +34,7 @@
       }:
       {
         home = {
-          packages = [ inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.codex ];
+          packages = [ inputs.codex-cli.packages.${pkgs.stdenv.hostPlatform.system}.codex ];
           file.".codex/AGENTS.md".source = mkDotfilesSymlink {
             inherit config;
             name = "agents/AGENTS.md";
@@ -70,7 +70,7 @@
         );
 
         upstreamDesktop =
-          inputs.codex-desktop-linux.packages.${pkgs.stdenv.hostPlatform.system}.codex-desktop.override
+          inputs.codex-desktop.packages.${pkgs.stdenv.hostPlatform.system}.codex-desktop.override
             {
               linuxFeatureIds = linuxFeatures;
             };
@@ -94,7 +94,7 @@
         });
       in
       {
-        imports = [ inputs.codex-desktop-linux.homeManagerModules.default ];
+        imports = [ inputs.codex-desktop.homeManagerModules.default ];
 
         programs.codexDesktopLinux = {
           enable = true;

@@ -62,11 +62,11 @@
       url = "github:cloudflare/skills";
       flake = false;
     };
-    codex-cli-nix = {
+    codex-cli = {
       url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
+    codex-desktop.url = "github:ilysenko/codex-desktop-linux";
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
       inputs.nixpkgs.follows = "nixpkgs";
