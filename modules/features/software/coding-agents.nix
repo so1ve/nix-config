@@ -62,7 +62,9 @@
             enabled = upstreamDesktop.passthru.effectiveLinuxFeatureIds;
             settings."ui-tweaks".tweaks = {
               home.suggestedPrompts.enabled = false;
-              modelPicker.showModelsByDefault.enabled = true;
+              # FIXME: This optional tweak is tightly coupled to the minified webview
+              # bundle and currently drifts on desktop 26.901.31953.
+              modelPicker.showModelsByDefault.enabled = false;
               reasoning.keepEffortLabelsEnglish.enabled = true;
               sidebar.projectName.enabled = false;
             };
