@@ -127,7 +127,7 @@
         "type": "github"
       }
     },
-    "codex-cli-nix": {
+    "codex-cli": {
       "inputs": {
         "flake-utils": "flake-utils",
         "nixpkgs": [
@@ -135,11 +135,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1787798436,
-        "narHash": "sha256-sgQx7yUo2I1c4McylOW1vRklIxDL3Kwzq35ilr7firc=",
+        "lastModified": 1788549057,
+        "narHash": "sha256-mpaX3KPYmIR+HAXpxrScfcLcJFTCNKqBSajbyKJBobU=",
         "owner": "sadjow",
         "repo": "codex-cli-nix",
-        "rev": "18eb1cac4e17c8cbc40f3a2a83940d8f38ddace5",
+        "rev": "5473399086c810de9b985ec165dcb229106ed48d",
         "type": "github"
       },
       "original": {
@@ -148,17 +148,17 @@
         "type": "github"
       }
     },
-    "codex-desktop-linux": {
+    "codex-desktop": {
       "inputs": {
         "flake-utils": "flake-utils_2",
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1787889036,
-        "narHash": "sha256-N+cQHWiCJvb/M4e+ITRUD3+EjnsGEIREoeW38lmgeWM=",
+        "lastModified": 1788516737,
+        "narHash": "sha256-dpm5KSNiwC9IG6SpNw0iuhpjtJv6C+8m0G+5tDKQQkc=",
         "owner": "ilysenko",
         "repo": "codex-desktop-linux",
-        "rev": "bd610e96e87bda672f384c79ce5bb87ea0d5a6ee",
+        "rev": "23c55eb49ca724e8b7a1e698c1f3df075be42631",
         "type": "github"
       },
       "original": {
@@ -838,8 +838,8 @@
         "bitgateway": "bitgateway",
         "chrome-url-router": "chrome-url-router",
         "cloudflare-skills": "cloudflare-skills",
-        "codex-cli-nix": "codex-cli-nix",
-        "codex-desktop-linux": "codex-desktop-linux",
+        "codex-cli": "codex-cli",
+        "codex-desktop": "codex-desktop",
         "direnv-instant": "direnv-instant",
         "disko": "disko",
         "flake-file": "flake-file",

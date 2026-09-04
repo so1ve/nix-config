@@ -65,9 +65,9 @@ in
         inputs.home-manager.follows = "home-manager";
       };
 
-      codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
+      codex-desktop.url = "github:ilysenko/codex-desktop-linux";
 
-      codex-cli-nix = {
+      codex-cli = {
         url = "github:sadjow/codex-cli-nix";
         inputs.nixpkgs.follows = "nixpkgs";
       };
