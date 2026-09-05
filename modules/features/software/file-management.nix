@@ -28,7 +28,7 @@
         peazip = pkgs.peazip.overrideAttrs (old: {
           postInstall = (old.postInstall or "") + ''
             mkdir -p $out/lib/peazip/res/bin/7z
-            ln -s ${lib.getExe pkgs._7zz} $out/lib/peazip/res/bin/7z/7z
+            ln -s ${lib.getExe pkgs._7zz-rar} $out/lib/peazip/res/bin/7z/7z
           '';
         });
 
