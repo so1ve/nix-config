@@ -1,8 +1,8 @@
 binds {
     F9 {
-        spawn "latchshot"
+        spawn "latchshot --prefer-crop"
     }
     Print {
-        spawn "latchshot"
+        spawn "latchshot --prefer-crop"
     }
 }
