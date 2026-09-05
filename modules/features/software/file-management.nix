@@ -22,15 +22,11 @@
       {
         lib,
         pkgs,
+        inputs,
         ...
       }:
       let
-        peazip = pkgs.peazip.overrideAttrs (old: {
-          postInstall = (old.postInstall or "") + ''
-            mkdir -p $out/lib/peazip/res/bin/7z
-            ln -s ${lib.getExe pkgs._7zz-rar} $out/lib/peazip/res/bin/7z/7z
-          '';
-        });
+        peazip = (import inputs.so1ve { inherit pkgs; }).peazip-rar;
 
         mkNautilusScript = name: operation: {
           source = pkgs.writeShellScript "peazip-nautilus-${name}" ''
