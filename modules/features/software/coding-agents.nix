@@ -42,6 +42,20 @@
         };
       };
 
+    "software/codex-desktop".nixos =
+      { config, username, ... }:
+      {
+        services.gnome.at-spi2-core.enable = true;
+
+        # Computer Use uses uinput for the pointer and ydotool for keyboard input.
+        hardware.uinput.enable = true;
+        programs.ydotool.enable = true;
+        users.users.${username}.extraGroups = [
+          "uinput"
+          config.programs.ydotool.group
+        ];
+      };
+
     "software/codex-desktop".home =
       {
         inputs,
@@ -52,6 +66,7 @@
       let
         linuxFeatures = [
           "appshots"
+          "computer-use-linux"
           "mcp-helper-reaper"
           "node-repl-reaper"
           "ui-tweaks"
