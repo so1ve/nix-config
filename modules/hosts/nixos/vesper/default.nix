@@ -88,6 +88,7 @@
       "software/swayimg"
       "software/mpv"
       "software/alger-music-player"
+      "software/blender"
       "software/obs"
       "software/yanhekt-autoslides"
 
