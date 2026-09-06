@@ -1619,14 +1619,17 @@ safely("later", function()
 end)
 
 safely("now", function()
-  local show_hidden = false
+  -- User preference set by gh; preserved when reopening the explorer
+  local user_show_hidden = false
+  -- Temporary override for revealing an ignored file
+  local auto_show_hidden = false
 
   local files = require("mini.files")
 
   local opts = {
     content = {
       filter = function(entry)
-        return show_hidden or not is_ignored(entry.path or entry.name)
+        return user_show_hidden or auto_show_hidden or not is_ignored(entry.path or entry.name)
       end,
       highlight = function(entry)
         if is_ignored(entry.path or entry.name) then
@@ -1684,7 +1687,8 @@ safely("now", function()
       map("n", "J", "j", { buffer = args.data.buf_id, desc = "Move down" })
       map("n", "K", "k", { buffer = args.data.buf_id, desc = "Move up" })
       map("n", "gh", function()
-        show_hidden = not show_hidden
+        user_show_hidden = not (user_show_hidden or auto_show_hidden)
+        auto_show_hidden = false
         files.refresh(opts)
       end, { buffer = args.data.buf_id, desc = "Toggle hidden entries" })
     end,
@@ -1713,10 +1717,12 @@ safely("now", function()
 
   map("n", "<leader>e", function()
     files.close()
+    auto_show_hidden = false
     files.open(vim.fn.getcwd(), false)
   end, { desc = "Explore files" })
   map("n", "<leader>E", function()
     files.close()
+    auto_show_hidden = false
     local path = vim.api.nvim_buf_get_name(0)
     -- silently ignore if file doesn't exist
     if path == "" or not vim.uv.fs_stat(path) then
@@ -1724,7 +1730,7 @@ safely("now", function()
       return
     end
 
-    show_hidden = show_hidden or is_ignored(path)
+    auto_show_hidden = is_ignored(path)
     files.open(path, false)
     files.reveal_cwd()
   end, { desc = "Reveal current file" })
