@@ -1724,6 +1724,7 @@ safely("now", function()
       return
     end
 
+    show_hidden = show_hidden or is_ignored(path)
     files.open(path, false)
     files.reveal_cwd()
   end, { desc = "Reveal current file" })
