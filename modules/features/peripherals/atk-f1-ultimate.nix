@@ -1,5 +1,5 @@
 {
-  ray.features."hardware/atk-f1-ultimate" = {
+  ray.features."peripherals/atk-f1-ultimate" = {
     nixos =
       { pkgs, ... }:
       let

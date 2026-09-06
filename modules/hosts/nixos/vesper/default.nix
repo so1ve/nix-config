@@ -17,7 +17,6 @@
       "system/kernel/cachyos-lto-zen4"
       "system/performance"
       "boot/systemd-boot"
-      "hardware/atk-f1-ultimate"
       "hardware/battery"
       "hardware/graphics"
       "hardware/smartd"
@@ -25,6 +24,10 @@
       "security/agenix"
       "security/fingerprint"
       "security/sudo"
+
+      # Peripherals
+      "peripherals/atk-f1-ultimate"
+      "peripherals/mchose-mix-87"
 
       # User and desktop
       "home/base"
