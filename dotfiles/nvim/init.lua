@@ -218,7 +218,7 @@ vim.pack.add({
   gh("DrKJeff16/wezterm-types"),
   gh("Saecki/crates.nvim"),
   gh("mrjones2014/smart-splits.nvim"),
-  { src = gh("mistricky/codesnap.nvim"), version = vim.version.range("2.*") },
+  { src = gh("so1ve/codesnap.nvim"), version = "v3.0.0-beta.1" },
   gh("MeanderingProgrammer/render-markdown.nvim"),
   gh("neovim/nvim-lspconfig"),
   gh("b0o/schemastore.nvim"),
@@ -870,6 +870,7 @@ load_plugins("later", "codesnap.nvim", function()
 
   map("x", "<leader>cs", ":CodeSnap<CR>", { desc = "Copy code snapshot" })
   map("x", "<leader>cS", ":CodeSnapSave ", { desc = "Save code snapshot" })
+  map("n", "<leader>cx", "<cmd>CodeSnapCancel<CR>", { desc = "Cancel code snapshot" })
 end)
 
 -- #############################
