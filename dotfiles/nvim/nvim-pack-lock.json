@@ -25,6 +25,11 @@
       "rev": "73bb9a0cdfe42211e272a7fd9d1484bf4dc3f987",
       "src": "https://github.com/mrjones2014/codesettings.nvim"
     },
+    "codesnap.nvim": {
+      "rev": "e916bdcb4112bda11028ed8ec2dbff730e4248a4",
+      "src": "https://github.com/mistricky/codesnap.nvim",
+      "version": "2.0.0 - 3.0.0"
+    },
     "conflict.nvim": {
       "rev": "fdc879c34c528aab90e1b90c5d408d141f31fef8",
       "src": "https://github.com/niekdomi/conflict.nvim"

@@ -218,6 +218,7 @@ vim.pack.add({
   gh("DrKJeff16/wezterm-types"),
   gh("Saecki/crates.nvim"),
   gh("mrjones2014/smart-splits.nvim"),
+  { src = gh("mistricky/codesnap.nvim"), version = vim.version.range("2.*") },
   gh("MeanderingProgrammer/render-markdown.nvim"),
   gh("neovim/nvim-lspconfig"),
   gh("b0o/schemastore.nvim"),
@@ -852,6 +853,26 @@ load_plugins("later", "tiny-comment.nvim", function()
 end)
 
 -- #############################
+-- # Codesnap                  #
+-- #############################
+
+load_plugins("later", "codesnap.nvim", function()
+  require("codesnap").setup({
+    snapshot_config = {
+      window = { margin = { x = 24, y = 24 } },
+      code_config = {
+        font_family = "R Maple Mono NF CN",
+        breadcrumbs = { font_family = "R Maple Mono NF CN" },
+      },
+      watermark = { content = "" },
+    },
+  })
+
+  map("x", "<leader>cs", ":CodeSnap<CR>", { desc = "Copy code snapshot" })
+  map("x", "<leader>cS", ":CodeSnapSave ", { desc = "Save code snapshot" })
+end)
+
+-- #############################
 -- # Search and Replace        #
 -- #############################
 
@@ -1441,7 +1462,7 @@ safely("later", function()
     clues = {
       { mode = "n", keys = "<Leader>a", desc = "+AI" },
       { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
-      { mode = "n", keys = "<Leader>c", desc = "+Code" },
+      { mode = { "n", "x" }, keys = "<Leader>c", desc = "+Code" },
       { mode = "n", keys = "<Leader>d", desc = "+Diagnostics" },
       { mode = "n", keys = "<Leader>f", desc = "+Find" },
       { mode = "n", keys = "<Leader>g", desc = "+Git" },
