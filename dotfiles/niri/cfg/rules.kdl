@@ -23,6 +23,13 @@ window-rule {
 }
 
 window-rule {
+    // QQ's untitled screenshot window assumes it covers the entire output.
+    match app-id=r#"^QQ$"# title=r#"^$"#
+
+    open-fullscreen true
+}
+
+window-rule {
     match app-id=r#"^kitty$"#
     match app-id=r#"^dev\.zed\.Zed$"#
 
