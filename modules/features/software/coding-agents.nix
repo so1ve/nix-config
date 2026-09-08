@@ -119,6 +119,7 @@
         };
 
         home.packages = [
+          pkgs.bubblewrap
           # AppShots needs a Wayland-capable screenshot backend.
           pkgs.grim
         ];
