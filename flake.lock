@@ -462,11 +462,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1787553981,
-        "narHash": "sha256-Gjw5Nn4Q+iz/DgFzJypdqJ/hLSaL4ZHeoPsgUm884QA=",
+        "lastModified": 1788843842,
+        "narHash": "sha256-h8YmxTG/k10oUfvU+xVq/m1a2IvLUask0MEqSlrUU8Y=",
         "owner": "so1ve",
         "repo": "latchshot",
-        "rev": "d0eb21ba68f6707015724e2cabe74fbc99c31785",
+        "rev": "a65a6f85855d25aa859273b62265c03d89c034bf",
         "type": "github"
       },
       "original": {
