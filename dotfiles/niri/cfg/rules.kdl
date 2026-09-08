@@ -39,6 +39,12 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^codex-desktop$"#
+
+    open-maximized-to-edges true
+}
+
+window-rule {
     match app-id=r#"^steam$"#
     exclude app-id=r#"^steam$"# title=r#"^notificationtoasts_\d+_desktop$"#
 
