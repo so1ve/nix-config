@@ -1,8 +1,8 @@
 binds {
     F9 {
-        spawn "latchshot" "--prefer-crop"
+        spawn "sh" "-c" r#"mkdir -p "$HOME/图片/Screenshots" && latchshot --prefer-crop -o "$HOME/图片/Screenshots/capture-$(date +%Y-%m-%d_%H-%M-%S).png" -c"#
     }
     Print {
-        spawn "latchshot" "--prefer-crop"
+        spawn "sh" "-c" r#"mkdir -p "$HOME/图片/Screenshots" && latchshot --prefer-crop -o "$HOME/图片/Screenshots/capture-$(date +%Y-%m-%d_%H-%M-%S).png" -c"#
     }
 }

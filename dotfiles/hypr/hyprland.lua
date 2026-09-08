@@ -72,8 +72,10 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Latchshot.
-hl.bind("F9", hl.dsp.exec_cmd("latchshot"))
-hl.bind("Print", hl.dsp.exec_cmd("latchshot"))
+local screenshot =
+	[[mkdir -p "$HOME/图片/Screenshots" && latchshot -o "$HOME/图片/Screenshots/capture-$(date +%Y-%m-%d_%H-%M-%S).png" -c]]
+hl.bind("F9", hl.dsp.exec_cmd(screenshot))
+hl.bind("Print", hl.dsp.exec_cmd(screenshot))
 
 -- Noctalia shell and IPC integration.
 hl.bind("ALT + SPACE", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher"))
