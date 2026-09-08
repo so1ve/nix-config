@@ -47,6 +47,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      qq-fix = {
+        url = "github:so1ve/qq-fix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       direnv-instant = {
         url = "github:Mic92/direnv-instant";
         inputs.nixpkgs.follows = "nixpkgs";
