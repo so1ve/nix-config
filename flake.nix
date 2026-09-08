@@ -103,6 +103,10 @@
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    qq-fix = {
+      url = "github:so1ve/qq-fix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     smart-splits-nvim = {
       url = "github:mrjones2014/smart-splits.nvim";
       flake = false;

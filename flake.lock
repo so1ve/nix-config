@@ -831,6 +831,26 @@
         "type": "github"
       }
     },
+    "qq-fix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788888109,
+        "narHash": "sha256-z+Qntjxr+d+LdgVEaMY2pHDSmlJKHbEq2DxNZ7WF8Wo=",
+        "owner": "so1ve",
+        "repo": "qq-fix",
+        "rev": "b6b488a7fdc896d1103c49b6330f932053b59c0f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "qq-fix",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -855,6 +875,7 @@
         "nixpkgs": "nixpkgs_6",
         "noctalia-greeter": "noctalia-greeter",
         "nur": "nur",
+        "qq-fix": "qq-fix",
         "smart-splits-nvim": "smart-splits-nvim",
         "so1ve": "so1ve",
         "waydroid-script": "waydroid-script",
