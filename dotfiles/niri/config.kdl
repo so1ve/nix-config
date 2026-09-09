@@ -1,4 +1,5 @@
 include "cfg/input.kdl"
+include "cfg/outputs.kdl"
 include "cfg/layout.kdl"
 include "cfg/workspaces.kdl"
 include "cfg/rules.kdl"
