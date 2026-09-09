@@ -1,4 +1,15 @@
-workspace "main"
-workspace "dev"
-workspace "browser"
-workspace "game"
+workspace "main" {
+    open-on-output "DP-1"
+}
+
+workspace "dev" {
+    open-on-output "DP-1"
+}
+
+workspace "browser" {
+    open-on-output "DP-1"
+}
+
+workspace "game" {
+    open-on-output "DP-1"
+}
