@@ -15,6 +15,6 @@ input {
     mouse {
     }
 
-    // focus-follows-mouse
+    focus-follows-mouse
     workspace-auto-back-and-forth
 }
