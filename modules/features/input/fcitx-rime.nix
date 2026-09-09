@@ -77,8 +77,9 @@ in
           };
 
           configFile."fcitx5/conf/keyboard.conf".text = lib.generators.toINI { } {
-            # Disable Ctrl+Alt+H to avoid collision with Herdr.
+            # Disable Ctrl+Alt+H/J to avoid collisions with Herdr navigation.
             "Hint Trigger" = { };
+            "One Time Hint Trigger" = { };
           };
 
           configFile."fcitx5/conf/classicui.conf".text = ''
