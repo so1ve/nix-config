@@ -2,19 +2,25 @@
   ray.features."desktop/noctalia" = {
     requires = [ "desktop/niri" ];
 
-    nixos = {
-      programs.noctalia = {
-        enable = true;
-        recommendedServices.enable = true;
-      };
+    nixos =
+      { pkgs, ... }:
+      {
+        programs.noctalia = {
+          enable = true;
+          recommendedServices.enable = true;
+        };
 
-      # Niri handles lid-close through Noctalia: lock on external power,
-      # lock then suspend on battery, without racing logind's lid action.
-      services.logind.settings.Login = {
-        HandleLidSwitch = "ignore";
-        HandleLidSwitchExternalPower = "ignore";
+        # Let Noctalia control external monitor brightness through DDC/CI.
+        hardware.i2c.enable = true;
+        environment.systemPackages = [ pkgs.ddcutil ];
+
+        # Niri handles lid-close through Noctalia: lock on external power,
+        # lock then suspend on battery, without racing logind's lid action.
+        services.logind.settings.Login = {
+          HandleLidSwitch = "ignore";
+          HandleLidSwitchExternalPower = "ignore";
+        };
       };
-    };
 
     home =
       {

@@ -11,6 +11,9 @@ categories = true
 compact = true
 auto_paste = true
 
+[brightness]
+enable_ddcutil = true
+
 [lockscreen]
 enabled = true
 fingerprint = true
