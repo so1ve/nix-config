@@ -27,6 +27,21 @@
       };
 
     home = {
+      programs.ssh = {
+        enable = true;
+        settings = {
+          bitnp-prod = {
+            HostName = "192.168.2.143";
+            User = "bitnp";
+          };
+          bitnp-staging = {
+            HostName = "10.1.139.200";
+            User = "root";
+            Port = 8022;
+          };
+        };
+      };
+
       programs.fish.shellAbbrs = {
         wgup = "sudo systemctl start wg-quick-school.service";
         wgdown = "sudo systemctl stop wg-quick-school.service";
