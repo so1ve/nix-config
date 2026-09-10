@@ -16,9 +16,12 @@
           extraPackages = [ pkgs.podman-compose ];
         };
 
-        virtualisation.containers.registries.settings.unqualified-search-registries = [
-          "docker.io"
-        ];
+        virtualisation.containers = {
+          containersConf.settings.engine.compose_warning_logs = false;
+          registries.settings.unqualified-search-registries = [
+            "docker.io"
+          ];
+        };
 
         systemd.tmpfiles.rules = [
           "d /var/lib/containers/${username} 0700 ${username} users - -"
