@@ -90,6 +90,10 @@
       "rev": "8129bb824f65137d7841155aed67f942bb762e5d",
       "src": "https://github.com/so1ve/panels.nvim"
     },
+    "persistence.nvim": {
+      "rev": "b20b2a7887bd39c1a356980b45e03250f3dce49c",
+      "src": "https://github.com/folke/persistence.nvim"
+    },
     "refactoring.nvim": {
       "rev": "64e10d782ae5b9653558482910213b8946651456",
       "src": "https://github.com/ThePrimeagen/refactoring.nvim"
