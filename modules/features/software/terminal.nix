@@ -80,20 +80,31 @@
           };
 
           home.activation.configureHerdr = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-            run ${herdr}/bin/herdr plugin link ${inputs.herdr-automatic-rename}
-            run ${herdr}/bin/herdr plugin link ${inputs.smart-splits-nvim}
+            (
+              herdr_server_status="$(${herdr}/bin/herdr status server --json)"
+              if ${lib.getExe pkgs.jq} -e '.running and (.compatible == false)' <<< "$herdr_server_status" >/dev/null; then
+                # A missing socket makes plugin link use Herdr's locked local registry.
+                herdr_socket_dir="$(${pkgs.coreutils}/bin/mktemp -d)"
+                trap '${pkgs.coreutils}/bin/rmdir "$herdr_socket_dir"' EXIT
+                export HERDR_SOCKET_PATH="$herdr_socket_dir/herdr.sock"
+                echo "Herdr protocol mismatch: configuring plugins offline; restart Herdr when existing panes can be closed."
+              fi
 
-            ${lib.optionalString (lib.elem "software/codex" enabledFeatures) ''
-              run ${herdr}/bin/herdr integration install codex
-            ''}
+              run ${herdr}/bin/herdr plugin link ${inputs.herdr-automatic-rename}
+              run ${herdr}/bin/herdr plugin link ${inputs.smart-splits-nvim}
 
-            ${lib.optionalString (lib.elem "software/pi" enabledFeatures) ''
-              run ${herdr}/bin/herdr integration install pi
-            ''}
+              ${lib.optionalString (lib.elem "software/codex" enabledFeatures) ''
+                run ${herdr}/bin/herdr integration install codex
+              ''}
 
-            if ${herdr}/bin/herdr status server >/dev/null 2>&1; then
-              run ${herdr}/bin/herdr server reload-config
-            fi
+              ${lib.optionalString (lib.elem "software/pi" enabledFeatures) ''
+                run ${herdr}/bin/herdr integration install pi
+              ''}
+
+              if ${lib.getExe pkgs.jq} -e '.running and .compatible' <<< "$herdr_server_status" >/dev/null; then
+                run ${herdr}/bin/herdr server reload-config
+              fi
+            )
           '';
         };
     };
