@@ -202,7 +202,6 @@ vim.pack.add({
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("stevearc/conform.nvim"),
   gh("folke/persistence.nvim"),
-  gh("zbirenbaum/copilot.lua"),
   gh("gbprod/yanky.nvim"),
   gh("Wansmer/treesj"),
   gh("NeogitOrg/neogit"),
@@ -493,12 +492,7 @@ load_plugins("now", "blink.cmp", function()
       ["<Tab>"] = {
         "select_and_accept",
         function()
-          local suggestion = require("copilot.suggestion")
-          if not suggestion.is_visible() then
-            return false
-          end
-          suggestion.accept()
-          return true
+          return vim.lsp.inline_completion.get()
         end,
         "fallback",
       },
@@ -509,7 +503,7 @@ load_plugins("now", "blink.cmp", function()
       ["<C-p>"] = { "select_prev", "show" },
       ["<Up>"] = { "select_prev", "fallback" },
       ["<Down>"] = { "select_next", "fallback" },
-      ["<C-e>"] = { "hide", "fallback" },
+      ["<C-c>"] = { "hide", "fallback" },
     },
     cmdline = {
       keymap = {
@@ -695,86 +689,6 @@ end)
 map({ "n", "v" }, "<leader>cf", function()
   require("conform").format({ async = true })
 end, { desc = "Format buffer" })
-
--- #############################
--- # Copilot                   #
--- #############################
-
-local restart = {
-  delay = 5000,
-  window = 5 * 60 * 1000,
-  limit = 3,
-  times = {},
-}
-
-local function restart_copilot(code)
-  if code == 0 then
-    return
-  end
-
-  local now = vim.uv.now()
-
-  restart.times = vim
-    .iter(restart.times)
-    :filter(function(time)
-      return now - time <= restart.window
-    end)
-    :totable()
-
-  if #restart.times >= restart.limit then
-    vim.notify(
-      "Copilot LSP exited repeatedly; leaving it offline. Run :Copilot enable after the network recovers.",
-      vim.log.levels.WARN
-    )
-    return
-  end
-
-  restart.times[#restart.times + 1] = now
-
-  vim.defer_fn(function()
-    local ok, err = pcall(vim.cmd, "Copilot enable")
-    if not ok then
-      vim.notify("Failed to restart Copilot LSP: " .. tostring(err), vim.log.levels.ERROR)
-    end
-  end, restart.delay)
-end
-
-load_plugins("later", "copilot.lua", function()
-  require("copilot").setup({
-    server = {
-      type = "binary",
-      custom_server_filepath = "copilot-language-server",
-    },
-    filetypes = {
-      markdown = true,
-    },
-    panel = { enabled = false },
-    suggestion = {
-      auto_trigger = true,
-      keymap = {
-        accept = false,
-      },
-    },
-    server_opts_overrides = {
-      on_exit = restart_copilot,
-    },
-  })
-
-  autocmd("User", {
-    pattern = "BlinkCmpMenuOpen",
-    callback = function()
-      require("copilot.suggestion").dismiss()
-      vim.b.copilot_suggestion_hidden = true
-    end,
-  })
-
-  autocmd("User", {
-    pattern = "BlinkCmpMenuClose",
-    callback = function()
-      vim.b.copilot_suggestion_hidden = false
-    end,
-  })
-end)
 
 -- #############################
 -- # Editing                   #
@@ -1020,6 +934,7 @@ local servers = {
     },
   },
   bashls = {},
+  copilot = {},
   cssls = {},
   dartls = {},
   denols = {},
@@ -1350,6 +1265,8 @@ load_plugins("later", "noicelet.nvim", function()
 end)
 
 load_plugins("now", { "schemastore.nvim", "nvim-lspconfig" }, function()
+  vim.lsp.inline_completion.enable()
+
   for server_name, config in pairs(servers) do
     config = type(config) == "function" and config() or config
     local before_init = config.before_init
@@ -2610,11 +2527,6 @@ for mode, keys in pairs({
 end
 
 -- Search
-map("n", "<Esc>", function()
-  vim.cmd.nohlsearch()
-  vim.api.nvim_buf_clear_namespace(0, multicursor_namespace, 0, -1)
-end, { desc = "Clear search highlight or multicursors" })
-
 local clear_commands = {
   "silent normal! <C-c>",
   "let v:hlsearch = 0",
