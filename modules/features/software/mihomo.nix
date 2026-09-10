@@ -50,6 +50,7 @@
           {
             url = "http://127.0.0.1:9090/ui/";
             custom_name = "Zashboard";
+            appId = "mjpchadnnjebmmlokgplpbdaipbpiofb";
           }
         ];
       };
@@ -83,10 +84,9 @@
             force = true;
           };
 
-          # Chrome may leave a policy-installed PWA's OS-integration shortcut
-          # hidden when its install URL is temporarily unavailable.  Keep the
-          # launcher entry declarative so it remains visible independently.
-          desktopEntries.zashboard = {
+          # Use Chrome's desktop ID so the declarative fallback and Chrome's
+          # generated shortcut resolve to one application in the launcher.
+          desktopEntries."chrome-${zashboardAppId}-Default" = {
             name = "Zashboard";
             exec = "google-chrome-stable --profile-directory=Default --app-id=${zashboardAppId}";
             icon = "${pkgs.zashboard}/pwa-512x512.png";

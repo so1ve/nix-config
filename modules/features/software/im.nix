@@ -49,6 +49,7 @@
           {
             url = "https://web.telegram.org/k/";
             custom_name = "Telegram Web";
+            appId = "nigookeodlehlnjcpdfifmophdcbjoma";
           }
         ];
       };
@@ -61,6 +62,7 @@
           {
             url = "https://app.cinny.in/";
             custom_name = "Cinny";
+            appId = "bcngdmpegpihnheapppgoniglphkpfhm";
           }
         ];
       };
@@ -73,6 +75,7 @@
           {
             url = "https://discord.com/app";
             custom_name = "Discord";
+            appId = "pliiebkcmokkgndfalahlmimanmbjlab";
           }
         ];
       };
@@ -85,6 +88,7 @@
           {
             url = "https://web.oopz.cn/";
             custom_name = "Oopz";
+            appId = "hgbpnngkjfhcnkdakkemekcknmjdhfkc";
           }
         ];
       };
@@ -97,6 +101,7 @@
           {
             url = "https://rust-lang.zulipchat.com/";
             custom_name = "Rust Zulip";
+            appId = "doaomjibpoemjdfcplalmkmdhgaadood";
           }
         ];
       };
