@@ -13,7 +13,7 @@
 
           defaultNetwork.settings.dns_enabled = true;
 
-          extraPackages = [ pkgs.podman-compose ];
+          extraPackages = [ pkgs.docker-compose ];
         };
 
         virtualisation.containers = {
