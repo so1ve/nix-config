@@ -2073,54 +2073,15 @@ end, { desc = "Find files" })
 map("n", "<leader>fg", function()
   Snacks.picker.grep()
 end, { desc = "Live grep" })
-map("n", "<leader>fb", function()
-  Snacks.picker.buffers()
-end, { desc = "Buffers" })
 map("n", "<leader>fr", function()
   Snacks.picker.registers()
 end, { desc = "Registers" })
 map("n", "<leader>fu", function()
   Snacks.picker.undo()
 end, { desc = "Undo history" })
-map("n", "<leader>fd", function()
-  Snacks.picker.diagnostics_buffer()
-end, { desc = "Buffer diagnostics" })
-map("n", "<leader>fD", function()
-  Snacks.picker.diagnostics()
-end, { desc = "Workspace diagnostics" })
-map("n", "<leader>fk", function()
-  Snacks.picker.keymaps()
-end, { desc = "Keymaps" })
-map("n", "<leader>fc", function()
-  Snacks.picker.commands()
-end, { desc = "Commands" })
 map("n", "<leader>f:", function()
   Snacks.picker.command_history()
 end, { desc = "Command history" })
-map("n", "<leader>fl", function()
-  local buf = vim.api.nvim_get_current_buf()
-
-  Snacks.picker.pick({
-    finder = function()
-      local extmarks = require("snacks.picker.util.highlight").get_highlights({ buf = buf, extmarks = true })
-      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-      local items = {}
-
-      for lnum, line in ipairs(lines) do
-        items[#items + 1] = {
-          buf = buf,
-          text = line,
-          pos = { lnum, (line:find("%S") or 1) - 1 },
-          highlights = extmarks[lnum],
-        }
-      end
-
-      return items
-    end,
-    format = "lines",
-    title = "Buffer Lines",
-  })
-end, { desc = "Search current buffer" })
 map("n", "<leader>fq", "<cmd>silent vimgrep //gj % | Trouble qflist open focus=true<CR>", {
   desc = "Current search to Trouble",
 })
