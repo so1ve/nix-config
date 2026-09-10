@@ -58,11 +58,6 @@ opt.confirm = true
 
 -- shell
 opt.shell = "fish"
-opt.shellcmdflag = "-c"
-opt.shellquote = ""
-opt.shellxquote = ""
-opt.shellpipe = "2>&1| tee"
-opt.shellredir = ">%s 2>&1"
 
 -- scrolling
 opt.scrolloff = 3
@@ -264,7 +259,6 @@ end
 
 vim.diagnostic.config({
   float = {
-    border = "rounded",
     close_events = { "BufHidden", "CursorMoved", "CursorMovedI", "InsertCharPre" },
     format = function(diagnostic)
       return diagnostic.message:gsub("\n", " \n") .. (diagnostic.code and "" or " ")
@@ -692,9 +686,7 @@ load_plugins("later", "conform.nvim", function()
         return nil
       end
 
-      return {
-        async = true,
-      }
+      return {}
     end,
   })
 end)
@@ -1492,10 +1484,6 @@ safely("later", function()
       },
     },
   })
-
-  -- mini.clue versions before https://github.com/nvim-mini/mini.nvim/issues/2546
-  -- override the builtin multicursor mapping with the old macro-repeat behavior.
-  pcall(vim.keymap.del, "n", "Q")
 end)
 
 safely("later", function()
@@ -1567,11 +1555,8 @@ safely("later", function()
   })
 
   local jump2d = require("mini.jump2d")
-  local spotter =
-    jump2d.gen_spotter.union(jump2d.builtin_opts.word_start.spotter, jump2d.gen_spotter.pattern(".+", "end"))
   jump2d.setup({
-    spotter = spotter,
-    labels = "abcdefghijklmnopqrstuvwxyz",
+    spotter = jump2d.builtin_opts.word_start.spotter,
     view = { n_steps_ahead = 2 },
     allowed_windows = { not_current = false },
     mappings = { start_jumping = "<leader>j" },
@@ -1579,7 +1564,6 @@ safely("later", function()
 
   require("mini.move").setup()
   require("mini.operators").setup({
-    exchange = { prefix = "gx" },
     replace = { prefix = "gR" },
     sort = { prefix = "" },
   })
@@ -1597,13 +1581,8 @@ safely("later", function()
 
   diff.setup({
     mappings = {
-      apply = "gh",
-      reset = "gH",
-      textobject = "gh",
-      goto_first = "[H",
       goto_prev = "[c",
       goto_next = "]c",
-      goto_last = "]H",
     },
   })
 
@@ -2419,14 +2398,6 @@ load_plugins("event:UIEnter", { "codediff.nvim", "neogit" }, function()
     diff = {
       compute_moves = true,
     },
-    explorer = {
-      initial_focus = "explorer",
-      visible_groups = {
-        staged = true,
-        unstaged = true,
-        conflicts = true,
-      },
-    },
     keymaps = {
       view = {
         next_file = "<Tab>",
@@ -2767,10 +2738,6 @@ map("n", "<leader>W", function()
   vim.cmd.write()
   vim.b.disable_autoformat = prev
 end, { desc = "Write without formatting" })
-
--- Buffers
-map("n", "[b", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
-map("n", "]b", "<cmd>bnext<cr>", { desc = "Next buffer" })
 
 -- UI
 map("n", "<leader>lw", "<cmd>setlocal wrap!<CR>", { desc = "Toggle line wrap" })
