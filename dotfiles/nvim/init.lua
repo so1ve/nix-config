@@ -201,6 +201,7 @@ vim.pack.add({
 vim.pack.add({
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("stevearc/conform.nvim"),
+  gh("folke/persistence.nvim"),
   gh("zbirenbaum/copilot.lua"),
   gh("gbprod/yanky.nvim"),
   gh("Wansmer/treesj"),
@@ -1770,100 +1771,17 @@ safely("later", function()
   })
 end)
 
-local sessions = require("mini.sessions")
+load_plugins("now", "persistence.nvim", function()
+  local persistence = require("persistence")
+  persistence.setup({ branch = false })
 
-local session_dir = vim.fs.joinpath(vim.fn.stdpath("state"), "sessions")
-
-local function decode_path(path)
-  return path:gsub("%%", "/")
-end
-
-local function current_session_name()
-  return vim.fn.getcwd():gsub("/+", "%%") .. ".vim"
-end
-
-local function session_path(name)
-  return vim.fs.joinpath(session_dir, name)
-end
-
-local function read_session(name)
-  if vim.fn.filereadable(session_path(name)) == 1 then
-    sessions.read(name)
-  end
-end
-
-local function has_file_buffer()
-  return vim.iter(vim.api.nvim_list_bufs()):any(function(buf)
-    return vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= ""
-  end)
-end
-
-local function save_session(verbose, require_file_buffer)
-  if require_file_buffer and not has_file_buffer() then
-    return
-  end
-
-  sessions.write(current_session_name(), { verbose = verbose })
-end
-
-local function list_sessions()
-  local paths = vim.fn.glob(session_dir .. "/*.vim", true, true)
-
-  table.sort(paths, function(a, b)
-    return vim.fn.getftime(a) > vim.fn.getftime(b)
-  end)
-
-  return vim.tbl_map(function(path)
-    local name = vim.fn.fnamemodify(path, ":t")
-    return { dir = decode_path(vim.fn.fnamemodify(name, ":r")), name = name }
-  end, paths)
-end
-
-local function select_session()
-  vim.ui.select(list_sessions(), {
-    prompt = "Select a session: ",
-    format_item = function(item)
-      return vim.fn.fnamemodify(item.dir, ":p:~")
-    end,
-  }, function(item)
-    if not item then
-      return
-    end
-
-    save_session(false, true)
-    vim.fn.chdir(item.dir)
-    read_session(item.name)
-  end)
-end
-
-sessions.setup({
-  autowrite = false,
-  directory = session_dir,
-  file = "",
-})
-
-autocmd("DirChanged", {
-  callback = function()
-    if vim.v.this_session ~= "" then
-      vim.v.this_session = session_path(current_session_name())
-    end
-  end,
-})
-
-autocmd("ExitPre", {
-  callback = function()
-    save_session(false, true)
-  end,
-})
-
-map("n", "<leader>pr", function()
-  read_session(current_session_name())
-end, { desc = "Restore project session" })
-map("n", "<leader>pw", function()
-  save_session(true, false)
-end, { desc = "Save session" })
-map("n", "<leader>ps", select_session, { desc = "Select session" })
-map("n", "<leader>pl", sessions.read, { desc = "Restore last session" })
+  map("n", "<leader>pr", persistence.load, { desc = "Restore project session" })
+  map("n", "<leader>pw", persistence.save, { desc = "Save session" })
+  map("n", "<leader>ps", persistence.select, { desc = "Select session" })
+  map("n", "<leader>pl", function()
+    persistence.load({ last = true })
+  end, { desc = "Restore last session" })
+end)
 
 -- TODO: reverted to `mini.snippets` again because builtin `vim.snippet` cannot exit session correctly
 -- when sessions are nested
