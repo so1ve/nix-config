@@ -105,6 +105,8 @@ window-rule {
 window-rule {
     // Telegram
     match app-id=r#"^chrome-nigookeodlehlnjcpdfifmophdcbjoma-Default$"#
+    // Bitwarden extension popouts
+    match app-id=r#"^chrome-nngceckbapebfimnlniiiahkandclblb-Default$"#
 
     default-column-width { proportion 0.33333; }
 }
