@@ -63,7 +63,7 @@
       "src": "https://github.com/nvim-lualine/lualine.nvim"
     },
     "mini.nvim": {
-      "rev": "25f25d3e6661d942323e56711096de1850d814ec",
+      "rev": "6664ea9af6c43dc31934e27476bbe61c556c8dc1",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogit": {
@@ -71,7 +71,7 @@
       "src": "https://github.com/NeogitOrg/neogit"
     },
     "noicelet.nvim": {
-      "rev": "c2dbaf8a14d832660b85bf866f834f4a3b8dfd01",
+      "rev": "0ef6934951c3733be43a9345d38c82d9a551b9c3",
       "src": "https://github.com/so1ve/noicelet.nvim"
     },
     "nvim-lspconfig": {
@@ -107,7 +107,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "schemastore.nvim": {
-      "rev": "890d8f5cfca338a1f3e59c686569e461f6182f80",
+      "rev": "e37abcf2f337dc2587aae9118f866b0cf8ed96b7",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "smart-splits.nvim": {
