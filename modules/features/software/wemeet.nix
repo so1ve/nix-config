@@ -2,14 +2,25 @@
   ray.features."software/wemeet" = {
     home =
       { pkgs, ... }:
+      let
+        wemeet = pkgs.wemeet.overrideAttrs (old: {
+          # Tencent's CDN rejects curl's default User-Agent with HTTP 403.
+          src = old.src.overrideAttrs (src: {
+            curlOptsList = src.curlOptsList ++ [
+              "--user-agent"
+              "Mozilla/5.0"
+            ];
+          });
+        });
+      in
       {
-        home.packages = [ pkgs.wemeet ];
+        home.packages = [ wemeet ];
 
         # Native Wayland entry failed to render shared screen video correctly.
         # Use XWayland instead
         xdg.desktopEntries.wemeetapp = {
           name = "WemeetApp";
-          exec = "${pkgs.wemeet}/bin/wemeet-xwayland %u";
+          exec = "${wemeet}/bin/wemeet-xwayland %u";
           icon = "wemeet";
           terminal = false;
           categories = [ "AudioVideo" ];
