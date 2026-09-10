@@ -7,6 +7,7 @@
         {
           url = "https://pairdrop.net/";
           custom_name = "PairDrop";
+          appId = "ndhgbicjlckgkkcbfiloaamoiindppmp";
         }
       ];
     };

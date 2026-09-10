@@ -27,6 +27,7 @@
           {
             url = "https://cg.163.com/";
             custom_name = "网易云游戏";
+            appId = "jfmfhdlohbopnadjpiopnfkncjkjaihl";
           }
         ];
       };
