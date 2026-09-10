@@ -10,6 +10,7 @@
           "paste.bitnp.net"
           "send.bitnp.net"
           "login.bitnp.net"
+          "accounts.bitnp.net"
         ];
 
         bitnpEnv = pkgs.writeShellApplication {
