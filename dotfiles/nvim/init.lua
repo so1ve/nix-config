@@ -207,7 +207,6 @@ vim.pack.add({
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("stevearc/conform.nvim"),
   gh("zbirenbaum/copilot.lua"),
-  gh("copilotlsp-nvim/copilot-lsp"),
   gh("gbprod/yanky.nvim"),
   gh("Wansmer/treesj"),
   gh("NeogitOrg/neogit"),
@@ -506,14 +505,6 @@ load_plugins("now", "blink.cmp", function()
           suggestion.accept()
           return true
         end,
-        function()
-          local nes = require("copilot.nes.api")
-          if not nes.nes_apply_pending_nes() then
-            return false
-          end
-          nes.nes_walk_cursor_end_edit()
-          return true
-        end,
         "fallback",
       },
       ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
@@ -755,9 +746,7 @@ local function restart_copilot(code)
   end, restart.delay)
 end
 
-vim.g.copilot_nes_debounce = 350
-
-load_plugins("later", { "copilot-lsp", "copilot.lua" }, function()
+load_plugins("later", "copilot.lua", function()
   require("copilot").setup({
     server = {
       type = "binary",
@@ -772,10 +761,6 @@ load_plugins("later", { "copilot-lsp", "copilot.lua" }, function()
       keymap = {
         accept = false,
       },
-    },
-    nes = {
-      enabled = true,
-      auto_trigger = true,
     },
     server_opts_overrides = {
       on_exit = restart_copilot,
@@ -2740,6 +2725,15 @@ map("n", "<Esc>", function()
   vim.cmd.nohlsearch()
   vim.api.nvim_buf_clear_namespace(0, multicursor_namespace, 0, -1)
 end, { desc = "Clear search highlight or multicursors" })
+
+local clear_commands = {
+  "silent normal! <C-c>",
+  "let v:hlsearch = 0",
+  "diffupdate",
+  ("call nvim_buf_clear_namespace(0, %d, 0, -1)"):format(multicursor_namespace),
+  "silent normal! <C-l>",
+}
+map("n", "<C-c>", "<Cmd>" .. table.concat(clear_commands, "<CR><Cmd>") .. "<CR>", { desc = "Stop, clear, redraw" })
 
 map({ "n", "x" }, "go", "gx", { desc = "Open filepath or URI under cursor", remap = true })
 
