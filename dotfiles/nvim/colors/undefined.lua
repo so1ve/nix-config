@@ -115,14 +115,6 @@ local styles = {
     warning = { fg = palette.orange },
   },
 
-  statusline = {
-    section = { fg = palette.fg_dim, bg = palette.bg_dark },
-    inactive = { fg = palette.subtle, bg = palette.bg_dark },
-    mode = function(color)
-      return { fg = palette.bg_dark, bg = color }
-    end,
-  },
-
   tabline = {
     current = { fg = palette.fg, bg = palette.bg_alt, bold = true },
     visible = { fg = palette.fg_dim, bg = palette.bg_dark },
@@ -471,28 +463,6 @@ local highlights = {
   BlinkCmpSignatureHelpBorder = styles.float.border,
   BlinkCmpSignatureHelpActiveParameter = { bg = palette.selection, bold = true },
 
-  MiniStatuslineModeNormal = styles.statusline.mode(palette.green),
-  MiniStatuslineModeInsert = styles.statusline.mode(palette.blue),
-  MiniStatuslineModeVisual = styles.statusline.mode(palette.magenta),
-  MiniStatuslineModeReplace = styles.statusline.mode(palette.red),
-  MiniStatuslineModeCommand = styles.statusline.mode(palette.yellow),
-  MiniStatuslineModeOther = styles.statusline.mode(palette.cyan),
-  MiniStatuslineDevinfo = styles.statusline.section,
-  MiniStatuslineWorkspace = { fg = palette.green, bg = palette.bg_alt, bold = true },
-  MiniStatuslinePath = styles.statusline.section,
-  MiniStatuslineDiagnostics = styles.statusline.section,
-  MiniStatuslineInputState = styles.statusline.section,
-  MiniStatuslineMetadata = styles.statusline.section,
-  MiniStatuslineDirectory = { fg = palette.comment, bg = palette.bg_dark },
-  MiniStatuslineFilename = { fg = palette.fg, bg = palette.bg_dark },
-  MiniStatuslineInactive = styles.statusline.inactive,
-  MiniStatuslineDiffAdd = { fg = palette.diff_add_fg, bg = palette.bg_dark },
-  MiniStatuslineDiffChange = { fg = palette.diff_change_fg, bg = palette.bg_dark },
-  MiniStatuslineDiffDelete = { fg = palette.diff_delete_fg, bg = palette.bg_dark },
-  MiniStatuslineDiagnosticError = { fg = palette.red, bg = palette.bg_dark },
-  MiniStatuslineDiagnosticWarn = { fg = palette.orange, bg = palette.bg_dark },
-  MiniStatuslineDiagnosticInfo = { fg = palette.blue, bg = palette.bg_dark },
-  MiniStatuslineDiagnosticHint = { fg = palette.green, bg = palette.bg_dark },
   MiniTablineCurrent = vim.tbl_extend("force", styles.tabline.current, { bg = palette.selection }),
   MiniTablineVisible = styles.tabline.visible,
   MiniTablineHidden = styles.tabline.hidden,

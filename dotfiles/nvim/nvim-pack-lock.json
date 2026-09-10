@@ -38,6 +38,10 @@
       "rev": "016802de402556da54c36bd7359b441266b01cdd",
       "src": "https://github.com/stevearc/conform.nvim"
     },
+    "copilot.lua": {
+      "rev": "69fa45f8bcde5aaf436b43ff208c36d7c6ee5b42",
+      "src": "https://github.com/zbirenbaum/copilot.lua"
+    },
     "crates.nvim": {
       "rev": "b8281be336498035f9288d6542b2881a7140a9ec",
       "src": "https://github.com/Saecki/crates.nvim"
@@ -53,6 +57,10 @@
     "lean.nvim": {
       "rev": "5a2c1dff42ca1055dc8977f1ad3217e42ce72659",
       "src": "https://github.com/Julian/lean.nvim"
+    },
+    "lualine.nvim": {
+      "rev": "221ce6b2d999187044529f49da6554a92f740a96",
+      "src": "https://github.com/nvim-lualine/lualine.nvim"
     },
     "mini.nvim": {
       "rev": "25f25d3e6661d942323e56711096de1850d814ec",
