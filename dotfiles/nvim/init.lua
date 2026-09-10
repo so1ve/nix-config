@@ -202,6 +202,8 @@ vim.pack.add({
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("stevearc/conform.nvim"),
   gh("folke/persistence.nvim"),
+  gh("nvim-lualine/lualine.nvim"),
+  gh("zbirenbaum/copilot.lua"),
   gh("gbprod/yanky.nvim"),
   gh("Wansmer/treesj"),
   gh("NeogitOrg/neogit"),
@@ -492,7 +494,12 @@ load_plugins("now", "blink.cmp", function()
       ["<Tab>"] = {
         "select_and_accept",
         function()
-          return vim.lsp.inline_completion.get()
+          local suggestion = require("copilot.suggestion")
+          if not suggestion.is_visible() then
+            return false
+          end
+          suggestion.accept()
+          return true
         end,
         "fallback",
       },
@@ -503,7 +510,7 @@ load_plugins("now", "blink.cmp", function()
       ["<C-p>"] = { "select_prev", "show" },
       ["<Up>"] = { "select_prev", "fallback" },
       ["<Down>"] = { "select_next", "fallback" },
-      ["<C-c>"] = { "hide", "fallback" },
+      ["<C-e>"] = { "hide", "fallback" },
     },
     cmdline = {
       keymap = {
@@ -689,6 +696,86 @@ end)
 map({ "n", "v" }, "<leader>cf", function()
   require("conform").format({ async = true })
 end, { desc = "Format buffer" })
+
+-- #############################
+-- # Copilot                   #
+-- #############################
+
+local restart = {
+  delay = 5000,
+  window = 5 * 60 * 1000,
+  limit = 3,
+  times = {},
+}
+
+local function restart_copilot(code)
+  if code == 0 then
+    return
+  end
+
+  local now = vim.uv.now()
+
+  restart.times = vim
+    .iter(restart.times)
+    :filter(function(time)
+      return now - time <= restart.window
+    end)
+    :totable()
+
+  if #restart.times >= restart.limit then
+    vim.notify(
+      "Copilot LSP exited repeatedly; leaving it offline. Run :Copilot enable after the network recovers.",
+      vim.log.levels.WARN
+    )
+    return
+  end
+
+  restart.times[#restart.times + 1] = now
+
+  vim.defer_fn(function()
+    local ok, err = pcall(vim.cmd, "Copilot enable")
+    if not ok then
+      vim.notify("Failed to restart Copilot LSP: " .. tostring(err), vim.log.levels.ERROR)
+    end
+  end, restart.delay)
+end
+
+load_plugins("later", "copilot.lua", function()
+  require("copilot").setup({
+    server = {
+      type = "binary",
+      custom_server_filepath = "copilot-language-server",
+    },
+    filetypes = {
+      markdown = true,
+    },
+    panel = { enabled = false },
+    suggestion = {
+      auto_trigger = true,
+      keymap = {
+        accept = false,
+      },
+    },
+    server_opts_overrides = {
+      on_exit = restart_copilot,
+    },
+  })
+
+  autocmd("User", {
+    pattern = "BlinkCmpMenuOpen",
+    callback = function()
+      require("copilot.suggestion").dismiss()
+      vim.b.copilot_suggestion_hidden = true
+    end,
+  })
+
+  autocmd("User", {
+    pattern = "BlinkCmpMenuClose",
+    callback = function()
+      vim.b.copilot_suggestion_hidden = false
+    end,
+  })
+end)
 
 -- #############################
 -- # Editing                   #
@@ -934,7 +1021,6 @@ local servers = {
     },
   },
   bashls = {},
-  copilot = {},
   cssls = {},
   dartls = {},
   denols = {},
@@ -1265,8 +1351,6 @@ load_plugins("later", "noicelet.nvim", function()
 end)
 
 load_plugins("now", { "schemastore.nvim", "nvim-lspconfig" }, function()
-  vim.lsp.inline_completion.enable()
-
   for server_name, config in pairs(servers) do
     config = type(config) == "function" and config() or config
     local before_init = config.before_init
@@ -1742,227 +1826,47 @@ safely("later", function()
   })
 end)
 
-safely("now", function()
-  local trunc_width = 120
-  local max_path_width = 100
-
-  local function statusline_escape(text)
-    return tostring(text):gsub("%%", "%%%%")
+load_plugins("now", "lualine.nvim", function()
+  local function show_metadata()
+    return vim.o.columns >= 120 and vim.bo.buftype == ""
   end
 
-  local function statusline_macro()
-    local register = vim.fn.reg_recording()
-
-    if register == "" then
-      return ""
-    end
-
-    return statusline_escape("recording @" .. register)
-  end
-
-  local function statusline_workspace()
-    local workspace = vim.fn.fnamemodify(vim.fn.getcwd(0), ":t")
-
-    if workspace == "" then
-      return ""
-    end
-
-    return statusline_escape(workspace:upper())
-  end
-
-  local function statusline_show_fileinfo()
-    return not MiniStatusline.is_truncated(trunc_width) and vim.bo.buftype == ""
-  end
-
-  local function redraw_statusline()
-    vim.schedule(function()
-      vim.cmd.redrawstatus()
-    end)
-  end
-
-  local function statusline_metadata()
-    if not statusline_show_fileinfo() then
-      return ""
-    end
-
-    local encoding = vim.bo.fileencoding ~= "" and vim.bo.fileencoding or vim.o.encoding
-    local format = vim.bo.fileformat
-
-    return string.format("%s[%s]", encoding, format)
-  end
-
-  local function statusline_highlight(hl, text)
-    return "%#" .. hl .. "#" .. statusline_escape(text)
-  end
-
-  local function statusline_diff()
-    if MiniStatusline.is_truncated(75) or type(vim.b.minidiff_summary) ~= "table" then
-      return ""
-    end
-
-    local summary = vim.b.minidiff_summary
-    local parts = {}
-
-    if (summary.add or 0) > 0 then
-      table.insert(parts, statusline_highlight("MiniStatuslineDiffAdd", "+" .. summary.add))
-    end
-
-    if (summary.change or 0) > 0 then
-      table.insert(parts, statusline_highlight("MiniStatuslineDiffChange", "~" .. summary.change))
-    end
-
-    if (summary.delete or 0) > 0 then
-      table.insert(parts, statusline_highlight("MiniStatuslineDiffDelete", "-" .. summary.delete))
-    end
-
-    if #parts == 0 then
-      return ""
-    end
-
-    return table.concat(parts, " ") .. "%#MiniStatuslineDevinfo#"
-  end
-
-  local function statusline_diagnostic_counts()
-    if MiniStatusline.is_truncated(90) then
-      return ""
-    end
-
-    local counts = vim.diagnostic.count(0)
-
-    local parts = {}
-
-    for _, item in ipairs({
-      { vim.diagnostic.severity.ERROR, "MiniStatuslineDiagnosticError" },
-      { vim.diagnostic.severity.WARN, "MiniStatuslineDiagnosticWarn" },
-      { vim.diagnostic.severity.INFO, "MiniStatuslineDiagnosticInfo" },
-      { vim.diagnostic.severity.HINT, "MiniStatuslineDiagnosticHint" },
-    }) do
-      local severity, group = item[1], item[2]
-      local count = counts[severity] or 0
-
-      if count > 0 then
-        local label = vim.diagnostic.severity[severity]:sub(1, 1)
-        table.insert(parts, statusline_highlight(group, label .. " " .. count))
-      end
-    end
-
-    if #parts == 0 then
-      return ""
-    end
-
-    return table.concat(parts, " ") .. "%#MiniStatuslineDiagnostics#"
-  end
-
-  local function statusline_pretty_path()
-    local path = vim.api.nvim_buf_get_name(0)
-
-    if path == "" then
-      return ""
-    end
-
-    path = vim.fs.normalize(vim.fn.fnamemodify(path, ":p"))
-
-    local cwd = vim.fs.normalize(vim.fn.getcwd(0))
-    local relative = vim.fs.relpath(cwd, path)
-
-    relative = relative or path
-
-    if vim.fn.strdisplaywidth(relative) <= max_path_width then
-      return relative
-    end
-
-    local parts = vim.split(relative, "/", { plain = true })
-
-    if #parts <= 2 then
-      return relative
-    end
-
-    for tail_start = 3, #parts do
-      local shortened = { parts[1], "…" }
-
-      for index = tail_start, #parts do
-        table.insert(shortened, parts[index])
-      end
-
-      relative = table.concat(shortened, "/")
-
-      if vim.fn.strdisplaywidth(relative) <= max_path_width then
-        break
-      end
-    end
-
-    return relative
-  end
-
-  local function statusline_file()
-    local path = vim.api.nvim_buf_get_name(0)
-
-    if path == "" or vim.bo.buftype ~= "" then
-      return ""
-    end
-
-    local icon, icon_hl = MiniIcons.get("file", path)
-    local icon_part = "%#" .. icon_hl .. "#" .. statusline_escape(icon)
-
-    if MiniStatusline.is_truncated(trunc_width) then
-      return icon_part
-    end
-
-    local pretty_path = statusline_pretty_path()
-    local directory, filename = pretty_path:match("^(.*/)([^/]+)$")
-    local path_part = "%#MiniStatuslineFilename#" .. statusline_escape(filename or pretty_path)
-
-    if filename then
-      path_part = "%#MiniStatuslineDirectory#"
-        .. statusline_escape(directory)
-        .. "%#MiniStatuslineFilename#"
-        .. statusline_escape(filename)
-    end
-
-    return icon_part .. "%#MiniStatuslinePath# " .. path_part
-  end
-
-  local function statusline_active()
-    local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = trunc_width })
-    local workspace = statusline_workspace()
-    local git = MiniStatusline.section_git({ trunc_width = trunc_width })
-    local diff = statusline_diff()
-    local file = statusline_file()
-    local diagnostics = statusline_diagnostic_counts()
-    local metadata = statusline_metadata()
-
-    return MiniStatusline.combine_groups({
-      { hl = mode_hl, strings = { mode } },
-      { hl = "MiniStatuslineWorkspace", strings = { workspace } },
-      { hl = "MiniStatuslineDevinfo", strings = { git, diff } },
-      "%<",
-      { hl = "MiniStatuslinePath", strings = { file } },
-      { hl = "MiniStatuslineDiagnostics", strings = { diagnostics } },
-      "%=",
-      { hl = "MiniStatuslineInputState", strings = { statusline_macro(), "%S" } },
-      { hl = "MiniStatuslineMetadata", strings = { statusline_escape(metadata) } },
-      { hl = mode_hl, strings = { "%l/%L:%v" } },
-    })
-  end
-
-  local function statusline_inactive()
-    return "%#MiniStatuslineInactive#%="
-  end
-
-  require("mini.statusline").setup({
-    content = {
-      active = statusline_active,
-      inactive = statusline_inactive,
+  require("lualine").setup({
+    options = {
+      component_separators = "",
     },
-  })
-
-  autocmd({ "RecordingEnter", "RecordingLeave", "DiagnosticChanged" }, {
-    callback = redraw_statusline,
-  })
-
-  autocmd("User", {
-    pattern = { "MiniDiffUpdated", "MiniGitUpdated" },
-    callback = redraw_statusline,
+    sections = {
+      lualine_a = { "mode" },
+      lualine_b = {
+        "branch",
+        {
+          "diff",
+          cond = function()
+            return vim.o.columns >= 75
+          end,
+        },
+      },
+      lualine_c = {
+        { "filetype", icon_only = true, padding = { left = 1, right = 0 } },
+        { "filename", path = 1 },
+        {
+          "diagnostics",
+          sources = { "nvim_diagnostic" },
+          symbols = { error = "E ", warn = "W ", info = "I ", hint = "H " },
+          update_in_insert = true,
+          cond = function()
+            return vim.o.columns >= 90
+          end,
+        },
+      },
+      lualine_x = { "%S" },
+      lualine_y = {
+        { "encoding", cond = show_metadata },
+        { "fileformat", icons_enabled = false, cond = show_metadata },
+      },
+      lualine_z = { "%l/%L:%v" },
+    },
+    inactive_sections = {},
   })
 end)
 
@@ -2527,6 +2431,11 @@ for mode, keys in pairs({
 end
 
 -- Search
+map("n", "<Esc>", function()
+  vim.cmd.nohlsearch()
+  vim.api.nvim_buf_clear_namespace(0, multicursor_namespace, 0, -1)
+end, { desc = "Clear search highlight or multicursors" })
+
 local clear_commands = {
   "silent normal! <C-c>",
   "let v:hlsearch = 0",
