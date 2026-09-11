@@ -11,6 +11,7 @@
           "send.bitnp.net"
           "login.bitnp.net"
           "accounts.bitnp.net"
+          "forgejo.bitnp.net"
         ];
 
         bitnpEnv = pkgs.writeShellApplication {
