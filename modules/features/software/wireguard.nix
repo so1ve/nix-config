@@ -8,7 +8,6 @@
         age.secrets.wireguard-private-key.file = "${inputs.self}/secrets/wireguard-private-key.age";
 
         networking.wg-quick.interfaces.school = {
-          autostart = false;
           address = [ "192.168.66.3/32" ];
           privateKeyFile = config.age.secrets.wireguard-private-key.path;
 
