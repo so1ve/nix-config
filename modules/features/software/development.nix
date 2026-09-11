@@ -47,14 +47,22 @@
         imports = [ inputs.direnv-instant.homeModules.direnv-instant ];
 
         home.packages = [
+          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.cargo-pretty
           devEnv
           pkgs.devenv
           pkgs.ni
         ];
 
-        programs.fish.interactiveShellInit = ''
-          ${lib.getExe' pkgs.ni "nr"} --completion-fish | source
-        '';
+        programs.fish = {
+          shellAbbrs = {
+            cb = "cargo pretty build";
+            cr = "cargo pretty run";
+            ct = "cargo pretty test";
+          };
+          interactiveShellInit = ''
+            ${lib.getExe' pkgs.ni "nr"} --completion-fish | source
+          '';
+        };
 
         programs.direnv-instant = {
           enable = true;
