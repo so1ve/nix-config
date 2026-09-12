@@ -893,6 +893,35 @@ end, { desc = "Search and replace" })
 -- # LSP                       #
 -- #############################
 
+autocmd("BufReadCmd", {
+  pattern = { "jar://*", "jrt://*" },
+  callback = function(event)
+    local client = assert(vim.lsp.get_clients({ name = "kotlin_lsp" })[1], "Kotlin LSP is not running")
+    -- Load the virtual document before a picker moves the cursor to its target.
+    local response, err = client:request_sync("workspace/executeCommand", {
+      command = "decompile",
+      arguments = { event.match },
+    }, 10000)
+    if not response or response.err then
+      error("Could not decompile " .. event.match .. ": " .. (response and response.err.message or err))
+    end
+    local document = response.result
+    if not document or document == vim.NIL then
+      error("Kotlin LSP could not find " .. event.match)
+    end
+
+    local buf = event.buf
+    vim.bo[buf].modifiable = true
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(document.code, "\n", { plain = true }))
+    vim.bo[buf].buftype = "nofile"
+    vim.bo[buf].swapfile = false
+    vim.bo[buf].filetype = document.language
+    vim.bo[buf].modified = false
+    vim.bo[buf].modifiable = false
+    vim.lsp.buf_attach_client(buf, client.id)
+  end,
+})
+
 local function expand_rust_macro(client, bufnr)
   client:request(
     "rust-analyzer/expandMacro",
