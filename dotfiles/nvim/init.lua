@@ -1028,6 +1028,7 @@ local servers = {
   dockerls = {},
   fish_lsp = {},
   gopls = {},
+  gradle_ls = {},
   html = {},
   hls = {
     settings = {
@@ -1037,7 +1038,29 @@ local servers = {
       },
     },
   },
+  jdtls = {
+    settings = {
+      java = {
+        jdt = {
+          ls = {
+            androidSupport = { enabled = true },
+          },
+        },
+        import = {
+          gradle = {
+            -- Keep the project's Gradle JDK separate from the server's runtime.
+            java = { home = vim.env.JAVA_HOME },
+          },
+        },
+      },
+    },
+  },
   koka = {},
+  kotlin_lsp = {
+    init_options = {
+      defaultSdk = vim.env.JAVA_HOME,
+    },
+  },
   nixd = {},
   vue_ls = {},
   zls = {},
@@ -2240,10 +2263,13 @@ require("tiny-treesitter").setup({
     "gosum",
     "gotmpl",
     "gowork",
+    "groovy",
     "haskell",
     "html",
+    "java",
     "javascript",
     "json",
+    "kotlin",
     "lua",
     "markdown",
     "nix",
@@ -2256,6 +2282,7 @@ require("tiny-treesitter").setup({
     "tsx",
     "typst",
     "vue",
+    "xml",
     "yaml",
     "zig",
     "bash",
