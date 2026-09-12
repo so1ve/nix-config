@@ -40,6 +40,20 @@ const PROFILES = {
       "stack.yaml",
     ],
   ],
+  jvm: [
+    "JDK, Java/Kotlin language servers and Gradle script tooling",
+    [
+      "pom.xml",
+      "gradlew",
+      "build.gradle",
+      "build.gradle.kts",
+      "settings.gradle",
+      "settings.gradle.kts",
+      "*.java",
+      "*.kt",
+      "*.kts",
+    ],
+  ],
   koka: ["Koka compiler and language server", ["*.kk", "*.kki"]],
   lean: [
     "Lean 4 via Elan, Lake and lean.nvim",
@@ -186,10 +200,19 @@ ${imports}
         follows: nixpkgs`);
   }
 
+  if (profiles.includes("jvm")) {
+    inputs.push(`  so1ve:
+    url: github:so1ve/nur-packages
+    flake: false`);
+  }
+
   const devenvYaml = path.join(root, "devenv.yaml");
+  const nixpkgsConfig = profiles.includes("jvm")
+    ? "\nnixpkgs:\n  permitted_unfree_packages:\n    - kotlin-lsp\n"
+    : "";
   fs.writeFileSync(
     devenvYaml,
-    `inputs:\n${inputs.join("\n")}\n`,
+    `inputs:\n${inputs.join("\n")}\n${nixpkgsConfig}`,
   );
 
   const envrc = path.join(root, ".envrc");
