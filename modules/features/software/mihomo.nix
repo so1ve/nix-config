@@ -1,6 +1,6 @@
 {
   ray.features."software/mihomo" = {
-    requires = [
+    requires.allOf = [
       "security/agenix"
       "software/chrome"
     ];

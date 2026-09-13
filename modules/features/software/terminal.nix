@@ -36,7 +36,7 @@
       home =
         {
           config,
-          enabledFeatures,
+          featureEnabled,
           inputs,
           lib,
           mkDotfilesSymlink,
@@ -58,15 +58,18 @@
 
           home.file.".agents/skills/herdr/SKILL.md".source = herdrSkill;
 
-          programs.fish.interactiveShellInit = ''
-            if set -q HERDR_ENV
-              source ${inputs.herdr-automatic-rename}/shell/hook.fish
-            else if set -q KITTY_WINDOW_ID
-              ${herdr}/bin/herdr
-            else if set -q TERM_PROGRAM; and test "$TERM_PROGRAM" = WezTerm
-              ${herdr}/bin/herdr
-            end
-          '';
+          programs = lib.optionalAttrs (featureEnabled "software/shell") {
+            fish.interactiveShellInit = ''
+              if set -q HERDR_ENV
+                source ${inputs.herdr-automatic-rename}/shell/hook.fish
+              else if set -q TERM_PROGRAM; and test "$TERM_PROGRAM" = WezTerm
+                ${herdr}/bin/herdr
+              end
+            '';
+          }
+          // lib.optionalAttrs (featureEnabled "software/kitty") {
+            kitty.settings.shell = lib.getExe herdr;
+          };
 
           xdg.configFile = {
             "herdr/config.toml".source = mkDotfilesSymlink {
@@ -93,11 +96,11 @@
               run ${herdr}/bin/herdr plugin link ${inputs.herdr-automatic-rename}
               run ${herdr}/bin/herdr plugin link ${inputs.smart-splits-nvim}
 
-              ${lib.optionalString (lib.elem "software/codex" enabledFeatures) ''
+              ${lib.optionalString (featureEnabled "software/codex") ''
                 run ${herdr}/bin/herdr integration install codex
               ''}
 
-              ${lib.optionalString (lib.elem "software/pi" enabledFeatures) ''
+              ${lib.optionalString (featureEnabled "software/pi") ''
                 run ${herdr}/bin/herdr integration install pi
               ''}
 

@@ -18,9 +18,23 @@ let
       };
 
       requires = mkOption {
-        type = types.listOf types.str;
-        default = [ ];
-        description = "Features that must be explicitly enabled alongside this feature.";
+        type = types.submodule {
+          options = {
+            allOf = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = "Features that must all be enabled alongside this feature.";
+            };
+
+            anyOf = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = "Alternative features, at least one of which must be enabled.";
+            };
+          };
+        };
+        default = { };
+        description = "Dependencies that must be satisfied when this feature is enabled.";
       };
     };
   };

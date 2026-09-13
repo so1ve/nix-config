@@ -1,7 +1,5 @@
 {
   ray.features."desktop/hyprland" = {
-    requires = [ "desktop/noctalia" ];
-
     nixos = {
       programs.hyprland.enable = true;
     };

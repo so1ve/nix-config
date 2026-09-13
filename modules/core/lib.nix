@@ -12,6 +12,7 @@ let
     ;
 
   availableFeatures = builtins.attrNames config.ray.features;
+  featureExists = name: builtins.hasAttr name config.ray.features;
 
   featureByName =
     name:
@@ -25,10 +26,18 @@ let
         name:
         let
           feature = featureByName name;
+          requirements = feature.requires.allOf ++ feature.requires.anyOf;
+          unknownRequirements = filter (required: !featureExists required) requirements;
+          missingAll = filter (
+            required: featureExists required && !lib.elem required host.features
+          ) feature.requires.allOf;
+          missingAny =
+            feature.requires.anyOf != [ ]
+            && !lib.any (required: lib.elem required host.features) feature.requires.anyOf;
         in
-        map (required: "${name} requires ${required}") (
-          filter (required: !lib.elem required host.features) feature.requires
-        )
+        map (required: "${name} references unknown feature ${required}") unknownRequirements
+        ++ map (required: "${name} requires ${required}") missingAll
+        ++ optional missingAny "${name} requires any of: ${lib.concatStringsSep ", " feature.requires.anyOf}"
       ) host.features;
     in
     if missingRequirements == [ ] then
@@ -53,7 +62,12 @@ let
       mkDotfilesSymlink
       mkFocusOrLaunch
       ;
-    enabledFeatures = host.features;
+    featureEnabled =
+      name:
+      if featureExists name then
+        lib.elem name host.features
+      else
+        throw "Unknown feature '${name}'. Available features: ${lib.concatStringsSep ", " availableFeatures}";
     user = config.ray.registry.users.${host.username};
     inherit (host)
       hostname

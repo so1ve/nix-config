@@ -21,7 +21,7 @@
     };
 
     "software/netease-cloud-game" = {
-      requires = [ "software/chrome" ];
+      requires.allOf = [ "software/chrome" ];
       nixos = {
         ray.chromeWebApps = [
           {

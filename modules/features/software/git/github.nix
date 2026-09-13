@@ -1,7 +1,8 @@
 {
   ray.features."software/git/github" = {
-    requires = [
+    requires.allOf = [
       "software/git"
+      "software/ssh"
       "security/agenix"
     ];
 
@@ -40,7 +41,6 @@
           };
 
           ssh = {
-            enable = true;
             enableDefaultConfig = false;
 
             settings."github.com" = {
