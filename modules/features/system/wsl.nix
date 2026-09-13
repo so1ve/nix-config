@@ -1,6 +1,6 @@
 {
   ray.features."system/wsl" = {
-    requires = [
+    requires.allOf = [
       "system/core"
       "system/nix"
       "security/sudo"

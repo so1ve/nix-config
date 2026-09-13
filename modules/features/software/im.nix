@@ -32,7 +32,10 @@
 
     # fucking QQ fix
     "software/xwayclip" = {
-      requires = [ "desktop/niri" ];
+      requires.anyOf = [
+        "desktop/hyprland"
+        "desktop/niri"
+      ];
       home =
         { inputs, ... }:
         {
@@ -43,7 +46,7 @@
     };
 
     "software/telegram-web" = {
-      requires = [ "software/chrome" ];
+      requires.allOf = [ "software/chrome" ];
       nixos = {
         ray.chromeWebApps = [
           {
@@ -56,7 +59,7 @@
     };
 
     "software/cinny" = {
-      requires = [ "software/chrome" ];
+      requires.allOf = [ "software/chrome" ];
       nixos = {
         ray.chromeWebApps = [
           {
@@ -69,7 +72,7 @@
     };
 
     "software/discord" = {
-      requires = [ "software/chrome" ];
+      requires.allOf = [ "software/chrome" ];
       nixos = {
         ray.chromeWebApps = [
           {
@@ -82,7 +85,7 @@
     };
 
     "software/oopz" = {
-      requires = [ "software/chrome" ];
+      requires.allOf = [ "software/chrome" ];
       nixos = {
         ray.chromeWebApps = [
           {
@@ -95,7 +98,7 @@
     };
 
     "software/rust-zulip" = {
-      requires = [ "software/chrome" ];
+      requires.allOf = [ "software/chrome" ];
       nixos = {
         ray.chromeWebApps = [
           {

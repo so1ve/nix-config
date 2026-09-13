@@ -200,7 +200,7 @@
       };
 
     "software/dsh" = {
-      requires = [ "security/agenix" ];
+      requires.allOf = [ "security/agenix" ];
 
       home =
         {

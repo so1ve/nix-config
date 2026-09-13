@@ -1,6 +1,6 @@
 {
   ray.features."virtualisation/winapps" = {
-    requires = [ "virtualisation/podman" ];
+    requires.allOf = [ "virtualisation/podman" ];
 
     nixos =
       {

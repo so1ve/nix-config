@@ -1,6 +1,6 @@
 {
   ray.features."system/workstation" = {
-    requires = [ "system/core" ];
+    requires.allOf = [ "system/core" ];
 
     nixos =
       { username, ... }:

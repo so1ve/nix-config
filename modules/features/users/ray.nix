@@ -1,6 +1,6 @@
 {
   ray.features."users/ray" = {
-    requires = [ "software/shell" ];
+    requires.allOf = [ "software/shell" ];
 
     nixos =
       {

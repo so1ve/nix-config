@@ -1,6 +1,6 @@
 {
   ray.features."virtualisation/winboat" = {
-    requires = [ "virtualisation/podman" ];
+    requires.allOf = [ "virtualisation/podman" ];
 
     nixos =
       { username, ... }:

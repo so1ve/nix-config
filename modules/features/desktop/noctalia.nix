@@ -1,6 +1,9 @@
 {
   ray.features."desktop/noctalia" = {
-    requires = [ "desktop/niri" ];
+    requires.anyOf = [
+      "desktop/hyprland"
+      "desktop/niri"
+    ];
 
     nixos =
       { pkgs, ... }:
@@ -14,7 +17,7 @@
         hardware.i2c.enable = true;
         environment.systemPackages = [ pkgs.ddcutil ];
 
-        # Niri handles lid-close through Noctalia: lock on external power,
+        # Noctalia handles lid-close: lock on external power,
         # lock then suspend on battery, without racing logind's lid action.
         services.logind.settings.Login = {
           HandleLidSwitch = "ignore";
@@ -37,7 +40,7 @@
   };
 
   ray.features."desktop/noctalia-greeter" = {
-    requires = [ "desktop/niri" ];
+    requires.allOf = [ "desktop/niri" ];
 
     nixos =
       { inputs, ... }:

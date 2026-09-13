@@ -1,6 +1,6 @@
 {
   ray.features."network/school" = {
-    requires = [
+    requires.allOf = [
       "security/agenix"
       "software/ssh"
       "software/wireguard"
@@ -29,16 +29,10 @@
         };
       };
 
-    home = {
-      programs = {
-        fish.shellAbbrs = {
-          wgup = "sudo systemctl start wg-quick-school.service";
-          wgdown = "sudo systemctl stop wg-quick-school.service";
-          wgstatus = "sudo wg show school";
-          wglog = "sudo journalctl -u wg-quick-school.service -b -e";
-        };
-
-        ssh.settings = {
+    home =
+      { featureEnabled, lib, ... }:
+      {
+        programs.ssh.settings = {
           bitnp-prod = {
             HostName = "bit-staging.bitnp.net";
             User = "bitnp";
@@ -51,7 +45,14 @@
             ProxyJump = "bitnp-prod";
           };
         };
+      }
+      // lib.optionalAttrs (featureEnabled "software/shell") {
+        programs.fish.shellAbbrs = {
+          wgup = "sudo systemctl start wg-quick-school.service";
+          wgdown = "sudo systemctl stop wg-quick-school.service";
+          wgstatus = "sudo wg show school";
+          wglog = "sudo journalctl -u wg-quick-school.service -b -e";
+        };
       };
-    };
   };
 }
