@@ -53,7 +53,7 @@ for workspace = 1, 9 do
 end
 
 -- Applications and window management.
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("kitty"), { description = "Open Kitty" })
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("ghostty"), { description = "Open Ghostty" })
 hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { description = "Close window" })
 hl.bind(mainMod .. " + SHIFT + SPACE", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
