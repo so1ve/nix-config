@@ -35,9 +35,10 @@
             # Port = 8022;
           };
           bitnp-staging = {
-            HostName = "10.1.139.200";
+            HostName = "192.168.2.126";
             User = "root";
             Port = 8022;
+            ProxyJump = "bitnp-prod";
           };
         };
       };
