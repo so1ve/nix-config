@@ -30,7 +30,10 @@
               confirm-close-surface = false;
               custom-shader = "${cursorShader}";
               custom-shader-animation = true;
-              font-family = "R Maple Mono NF CN";
+              font-family = [
+                "R Maple Mono NF CN"
+                "Unifont"
+              ];
               font-size = 11;
               theme = "Kitty Default";
               window-decoration = "none";
