@@ -31,28 +31,30 @@
 
     home =
       { featureEnabled, lib, ... }:
-      {
-        programs.ssh.settings = {
-          bitnp-prod = {
-            HostName = "bit-staging.bitnp.net";
-            User = "bitnp";
-            Port = 8022;
+      lib.mkMerge [
+        {
+          programs.ssh.settings = {
+            bitnp-prod = {
+              HostName = "bit-staging.bitnp.net";
+              User = "bitnp";
+              Port = 8022;
+            };
+            bitnp-staging = {
+              HostName = "192.168.2.126";
+              User = "root";
+              Port = 8022;
+              ProxyJump = "bitnp-prod";
+            };
           };
-          bitnp-staging = {
-            HostName = "192.168.2.126";
-            User = "root";
-            Port = 8022;
-            ProxyJump = "bitnp-prod";
+        }
+        (lib.mkIf (featureEnabled "software/shell") {
+          programs.fish.shellAbbrs = {
+            wgup = "sudo systemctl start wg-quick-school.service";
+            wgdown = "sudo systemctl stop wg-quick-school.service";
+            wgstatus = "sudo wg show school";
+            wglog = "sudo journalctl -u wg-quick-school.service -b -e";
           };
-        };
-      }
-      // lib.optionalAttrs (featureEnabled "software/shell") {
-        programs.fish.shellAbbrs = {
-          wgup = "sudo systemctl start wg-quick-school.service";
-          wgdown = "sudo systemctl stop wg-quick-school.service";
-          wgstatus = "sudo wg show school";
-          wglog = "sudo journalctl -u wg-quick-school.service -b -e";
-        };
-      };
+        })
+      ];
   };
 }
