@@ -1,22 +1,43 @@
 {
   ray.features = {
     "software/ghostty" = {
-      home = {
-        programs.ghostty = {
-          enable = true;
-          settings = {
-            background = "000000";
-            background-opacity = 0.9;
-            background-opacity-cells = true;
-            confirm-close-surface = false;
-            font-family = "R Maple Mono NF CN";
-            font-size = 11;
-            theme = "Kitty Default";
-            window-decoration = "none";
-            window-show-tab-bar = "never";
+      home =
+        { inputs, pkgs, ... }:
+        let
+          cursorShader = pkgs.writeText "ghostty-cursor-warp-long.glsl" (
+            builtins.replaceStrings
+              [
+                "const float DURATION = 0.2;"
+                "const float TRAIL_SIZE = 0.8;"
+                "const float THRESHOLD_MIN_DISTANCE = 1.5;"
+              ]
+              [
+                "const float DURATION = 0.4;"
+                "const float TRAIL_SIZE = 0.95;"
+                "const float THRESHOLD_MIN_DISTANCE = 0.5;"
+              ]
+              (builtins.readFile "${inputs.ghostty-cursor-shaders}/cursor_warp.glsl")
+          );
+        in
+        {
+          programs.ghostty = {
+            enable = true;
+            settings = {
+              adjust-cursor-thickness = "300%";
+              background = "000000";
+              background-opacity = 0.9;
+              background-opacity-cells = true;
+              confirm-close-surface = false;
+              custom-shader = "${cursorShader}";
+              custom-shader-animation = true;
+              font-family = "R Maple Mono NF CN";
+              font-size = 11;
+              theme = "Kitty Default";
+              window-decoration = "none";
+              window-show-tab-bar = "never";
+            };
           };
         };
-      };
     };
 
     "software/kitty" = {

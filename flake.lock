@@ -406,6 +406,22 @@
         "type": "github"
       }
     },
+    "ghostty-cursor-shaders": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781606293,
+        "narHash": "sha256-B7B6K7Ee4uJlW8zzLP3ILgddnbcIQyNimY+rVllzbR0=",
+        "owner": "sahaj-b",
+        "repo": "ghostty-cursor-shaders",
+        "rev": "0a274beac8b93ee6ce6b94402b7313a0417b8e38",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sahaj-b",
+        "repo": "ghostty-cursor-shaders",
+        "type": "github"
+      }
+    },
     "herdr-automatic-rename": {
       "flake": false,
       "locked": {
@@ -863,6 +879,7 @@
         "direnv-instant": "direnv-instant",
         "disko": "disko",
         "flake-file": "flake-file",
+        "ghostty-cursor-shaders": "ghostty-cursor-shaders",
         "herdr-automatic-rename": "herdr-automatic-rename",
         "home-manager": "home-manager",
         "import-tree": "import-tree",

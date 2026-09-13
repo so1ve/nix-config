@@ -76,6 +76,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-file.url = "github:denful/flake-file";
+    ghostty-cursor-shaders = {
+      url = "github:sahaj-b/ghostty-cursor-shaders";
+      flake = false;
+    };
     herdr-automatic-rename = {
       url = "github:qu8n/herdr-automatic-rename";
       flake = false;
