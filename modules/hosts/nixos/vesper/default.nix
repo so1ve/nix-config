@@ -42,6 +42,15 @@
       "ui/core"
       "ui/fonts"
 
+      # Defaults
+      "defaults/terminal/kitty"
+      "defaults/editor/neovim"
+      "defaults/browser/chrome"
+      "defaults/file-manager/nautilus"
+      "defaults/archive-manager/peazip"
+      "defaults/image-viewer/swayimg"
+      "defaults/media-player/mpv"
+
       # Development
       "software/ghostty"
       "software/kitty"

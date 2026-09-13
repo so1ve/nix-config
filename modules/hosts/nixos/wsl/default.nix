@@ -17,6 +17,9 @@
       "software/shell"
       "users/ray"
 
+      # Defaults
+      "defaults/editor/neovim"
+
       # Development
       "software/herdr"
       "software/neovim"

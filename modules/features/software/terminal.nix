@@ -38,9 +38,17 @@
             scrollback_pager = "nvim --cmd 'set eventignore=FileType' +'nnoremap q ZQ' +'call nvim_open_term(0, {})' +'set nomodified nolist' +'$' -";
           };
         };
-
-        home.sessionVariables.TERMINAL = "kitty";
       };
+    };
+
+    "defaults/terminal/kitty" = {
+      requires.allOf = [ "software/kitty" ];
+      home.home.sessionVariables.TERMINAL = "kitty";
+    };
+
+    "defaults/terminal/ghostty" = {
+      requires.allOf = [ "software/ghostty" ];
+      home.home.sessionVariables.TERMINAL = "ghostty";
     };
 
     "software/herdr" = {

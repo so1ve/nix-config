@@ -10,12 +10,15 @@
         { pkgs, ... }:
         {
           home.packages = [ pkgs.nautilus ];
-
-          xdg.mimeApps = {
-            enable = true;
-            defaultApplications."inode/directory" = "org.gnome.Nautilus.desktop";
-          };
         };
+    };
+
+    "defaults/file-manager/nautilus" = {
+      requires.allOf = [ "software/nautilus" ];
+      home.xdg.mimeApps = {
+        enable = true;
+        defaultApplications."inode/directory" = "org.gnome.Nautilus.desktop";
+      };
     };
 
     "software/peazip".home =
@@ -57,25 +60,32 @@
           "nautilus/scripts/PeaZip/打开压缩包" = mkNautilusScript "open-archive" "-ext2openasarchive";
           "nautilus/scripts/PeaZip/测试压缩包" = mkNautilusScript "test" "-ext2test";
         };
-
-        xdg.mimeApps = {
-          enable = true;
-          defaultApplications = lib.genAttrs [
-            "application/bzip2"
-            "application/gzip"
-            "application/vnd.rar"
-            "application/x-7z-compressed"
-            "application/x-bzip-compressed-tar"
-            "application/x-compressed-tar"
-            "application/x-gzip"
-            "application/x-rar"
-            "application/x-rar-compressed"
-            "application/x-tar"
-            "application/x-xz"
-            "application/x-xz-compressed-tar"
-            "application/zip"
-          ] (_: "peazip.desktop");
-        };
       };
+
+    "defaults/archive-manager/peazip" = {
+      requires.allOf = [ "software/peazip" ];
+      home =
+        { lib, ... }:
+        {
+          xdg.mimeApps = {
+            enable = true;
+            defaultApplications = lib.genAttrs [
+              "application/bzip2"
+              "application/gzip"
+              "application/vnd.rar"
+              "application/x-7z-compressed"
+              "application/x-bzip-compressed-tar"
+              "application/x-compressed-tar"
+              "application/x-gzip"
+              "application/x-rar"
+              "application/x-rar-compressed"
+              "application/x-tar"
+              "application/x-xz"
+              "application/x-xz-compressed-tar"
+              "application/zip"
+            ] (_: "peazip.desktop");
+          };
+        };
+    };
   };
 }

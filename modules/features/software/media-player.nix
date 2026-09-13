@@ -2,7 +2,6 @@
   ray.features = {
     "software/mpv".home =
       {
-        lib,
         pkgs,
         ...
       }:
@@ -25,35 +24,42 @@
             save-position-on-quit = true;
           };
         };
-
-        xdg.mimeApps = {
-          enable = true;
-          defaultApplications = lib.genAttrs [
-            "application/ogg"
-            "application/vnd.apple.mpegurl"
-            "audio/aac"
-            "audio/flac"
-            "audio/mp4"
-            "audio/mpeg"
-            "audio/ogg"
-            "audio/opus"
-            "audio/x-matroska"
-            "audio/x-mpegurl"
-            "audio/x-wav"
-            "video/3gpp"
-            "video/3gpp2"
-            "video/mp2t"
-            "video/mp4"
-            "video/mpeg"
-            "video/ogg"
-            "video/quicktime"
-            "video/webm"
-            "video/x-flv"
-            "video/x-matroska"
-            "video/x-msvideo"
-          ] (_: "mpv.desktop");
-        };
       };
+
+    "defaults/media-player/mpv" = {
+      requires.allOf = [ "software/mpv" ];
+      home =
+        { lib, ... }:
+        {
+          xdg.mimeApps = {
+            enable = true;
+            defaultApplications = lib.genAttrs [
+              "application/ogg"
+              "application/vnd.apple.mpegurl"
+              "audio/aac"
+              "audio/flac"
+              "audio/mp4"
+              "audio/mpeg"
+              "audio/ogg"
+              "audio/opus"
+              "audio/x-matroska"
+              "audio/x-mpegurl"
+              "audio/x-wav"
+              "video/3gpp"
+              "video/3gpp2"
+              "video/mp2t"
+              "video/mp4"
+              "video/mpeg"
+              "video/ogg"
+              "video/quicktime"
+              "video/webm"
+              "video/x-flv"
+              "video/x-matroska"
+              "video/x-msvideo"
+            ] (_: "mpv.desktop");
+          };
+        };
+    };
 
     "software/haruna".home =
       { pkgs, ... }:
