@@ -30,8 +30,9 @@
         enable = true;
         settings = {
           bitnp-prod = {
-            HostName = "192.168.2.143";
+            HostName = "bit-staging.bitnp.net";
             User = "bitnp";
+            # Port = 8022;
           };
           bitnp-staging = {
             HostName = "10.1.139.200";
