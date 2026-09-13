@@ -104,6 +104,11 @@ in
         flake = false;
       };
 
+      ghostty-cursor-shaders = {
+        url = "github:sahaj-b/ghostty-cursor-shaders";
+        flake = false;
+      };
+
       home-manager = {
         url = "github:nix-community/home-manager";
         inputs.nixpkgs.follows = "nixpkgs";
