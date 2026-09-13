@@ -4,7 +4,17 @@
       home = {
         programs.ghostty = {
           enable = true;
-          settings.font-family = "R Maple Mono NF CN";
+          settings = {
+            background = "000000";
+            background-opacity = 0.9;
+            background-opacity-cells = true;
+            confirm-close-surface = false;
+            font-family = "R Maple Mono NF CN";
+            font-size = 11;
+            theme = "Kitty Default";
+            window-decoration = "none";
+            window-show-tab-bar = "never";
+          };
         };
       };
     };
@@ -23,6 +33,7 @@
             confirm_os_window_close = 0;
             cursor_trail = 3;
             font_family = "R Maple Mono NF CN";
+            font_size = 11;
             linux_display_server = "wayland";
             scrollback_pager = "nvim --cmd 'set eventignore=FileType' +'nnoremap q ZQ' +'call nvim_open_term(0, {})' +'set nomodified nolist' +'$' -";
           };
@@ -58,18 +69,22 @@
 
           home.file.".agents/skills/herdr/SKILL.md".source = herdrSkill;
 
-          programs = lib.optionalAttrs (featureEnabled "software/shell") {
-            fish.interactiveShellInit = ''
-              if set -q HERDR_ENV
-                source ${inputs.herdr-automatic-rename}/shell/hook.fish
-              else if set -q TERM_PROGRAM; and test "$TERM_PROGRAM" = WezTerm
-                ${herdr}/bin/herdr
-              end
-            '';
-          }
-          // lib.optionalAttrs (featureEnabled "software/kitty") {
-            kitty.settings.shell = lib.getExe herdr;
-          };
+          programs =
+            lib.optionalAttrs (featureEnabled "software/shell") {
+              fish.interactiveShellInit = ''
+                if set -q HERDR_ENV
+                  source ${inputs.herdr-automatic-rename}/shell/hook.fish
+                else if set -q TERM_PROGRAM; and test "$TERM_PROGRAM" = WezTerm
+                  ${herdr}/bin/herdr
+                end
+              '';
+            }
+            // lib.optionalAttrs (featureEnabled "software/kitty") {
+              kitty.settings.shell = lib.getExe herdr;
+            }
+            // lib.optionalAttrs (featureEnabled "software/ghostty") {
+              ghostty.settings.command = lib.getExe herdr;
+            };
 
           xdg.configFile = {
             "herdr/config.toml".source = mkDotfilesSymlink {

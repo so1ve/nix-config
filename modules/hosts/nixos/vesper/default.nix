@@ -43,6 +43,7 @@
       "ui/fonts"
 
       # Development
+      "software/ghostty"
       "software/kitty"
       "software/herdr"
       "software/neovim"
