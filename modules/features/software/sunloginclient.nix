@@ -7,7 +7,7 @@
 
         services.sunloginclient = {
           enable = true;
-          uiScale = 2;
+          uiScale = 1;
         };
         users.users.${username}.extraGroups = [ "sunloginclient" ];
       };

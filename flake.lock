@@ -904,11 +904,11 @@
         "nixpkgs": "nixpkgs_8"
       },
       "locked": {
-        "lastModified": 1789287319,
-        "narHash": "sha256-weMnUDS2lVo+2ND62GqIW2xK3DBRaHmWc44yCpWgLqA=",
+        "lastModified": 1789288208,
+        "narHash": "sha256-/aBv5diL5yubF0JlFgbvLLVFGyJ4A7lWDepOU20AUks=",
         "owner": "so1ve",
         "repo": "nur-packages",
-        "rev": "f87a6bfac642a414c352d6361d1e3676a3f9357d",
+        "rev": "d19a2dba28f702116f8cd52fc7bc0bb5167321c5",
         "type": "github"
       },
       "original": {
