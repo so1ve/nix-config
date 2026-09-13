@@ -116,13 +116,10 @@
             ${lib.escapeShellArg "${config.xdg.stateHome}/chrome-shortcut-backups"}
         '';
 
-        home = {
-          packages = [
-            (lib.hiPrio chromeLauncher)
-            chrome
-          ];
-          sessionVariables.BROWSER = lib.getExe chromeLauncher;
-        };
+        home.packages = [
+          (lib.hiPrio chromeLauncher)
+          chrome
+        ];
 
         xdg = {
           configFile."google-chrome/NativeMessagingHosts/${urlRouter.nativeHostName}.json".source =
@@ -141,16 +138,25 @@
             noDisplay = true;
             terminal = false;
           };
+        };
+      };
+  };
 
-          mimeApps = {
-            enable = true;
-            defaultApplications = lib.genAttrs [
-              "application/xhtml+xml"
-              "text/html"
-              "x-scheme-handler/http"
-              "x-scheme-handler/https"
-            ] (_: "open-in-google-chrome.desktop");
-          };
+  ray.features."defaults/browser/chrome" = {
+    requires.allOf = [ "software/chrome" ];
+    home =
+      { lib, ... }:
+      {
+        home.sessionVariables.BROWSER = "google-chrome-stable";
+
+        xdg.mimeApps = {
+          enable = true;
+          defaultApplications = lib.genAttrs [
+            "application/xhtml+xml"
+            "text/html"
+            "x-scheme-handler/http"
+            "x-scheme-handler/https"
+          ] (_: "open-in-google-chrome.desktop");
         };
       };
   };
