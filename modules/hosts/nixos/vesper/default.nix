@@ -79,6 +79,7 @@
       "software/qbittorrent"
       "software/kde-connect"
       "software/pairdrop"
+      "software/sunloginclient"
 
       # Gaming
       "software/gaming"

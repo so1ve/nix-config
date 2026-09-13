@@ -48,6 +48,14 @@ window-rule {
 window-rule {
     match app-id=r#"^codex-desktop$"#
 
+    open-on-workspace "dev"
+    open-maximized-to-edges true
+}
+
+// 向日葵
+window-rule {
+    match app-id=r#"^Awesun$"#
+
     open-maximized-to-edges true
 }
 
