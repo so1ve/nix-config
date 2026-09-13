@@ -74,7 +74,6 @@
       "software/mihomo"
       "software/tailscale"
       "software/wireguard"
-      "software/bitnp"
       "software/ab-download-manager"
       "software/qbittorrent"
       "software/kde-connect"
