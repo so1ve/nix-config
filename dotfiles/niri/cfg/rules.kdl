@@ -32,7 +32,9 @@ window-rule {
 window-rule {
     match app-id=r#"^kitty$"#
     match app-id=r#"^dev\.zed\.Zed$"#
+    match app-id=r#"^com\.mitchellh\.ghostty$"#
 
+    draw-border-with-background false
     open-on-workspace "dev"
     open-maximized true
 }
