@@ -73,7 +73,7 @@
       "software/chrome"
       "software/mihomo"
       "software/tailscale"
-      # "software/wireguard"
+      "software/wireguard"
       "software/ab-download-manager"
       "software/qbittorrent"
       "software/kde-connect"
