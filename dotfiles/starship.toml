@@ -136,6 +136,7 @@ format = '[$ssh_symbol($hostname)]($style) '
 format = '[$symbol($version)]($style) '
 
 [jobs]
+symbol = '+'
 format = '[$symbol$number]($style) '
 
 [julia]
