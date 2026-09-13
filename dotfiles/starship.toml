@@ -176,7 +176,7 @@ format = '[$symbol($version)]($style) '
 
 [nix_shell]
 symbol = ''
-format = '[$symbol$state( \($name\))]($style) '
+format = ''
 
 [nodejs]
 format = '[$symbol($version)]($style) '
