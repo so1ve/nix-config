@@ -4,13 +4,13 @@ binds {
         show-hotkey-overlay
     }
 
-    Mod+T hotkey-overlay-title="Focus or Open Kitty" {
-        spawn "focus-or-launch" "kitty" "kitty"
+    Mod+T hotkey-overlay-title="Focus or Open Terminal" {
+        spawn "focus-or-launch" "ghostty" "ghostty"
     }
 
     // TODO: use Nautilus if yazi doesn't fit my needs
     Mod+E hotkey-overlay-title="Focus or Open Yazi" {
-        spawn "focus-or-launch" "yazi" "kitty" "--class" "yazi" "--title" "Yazi" "yazi"
+        spawn "focus-or-launch" "yazi" "ghostty" "--class=yazi" "--title=Yazi" "-e" "yazi"
     }
 
     Mod+B hotkey-overlay-title="Focus or Open Chrome" {

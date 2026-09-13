@@ -43,7 +43,7 @@
       "ui/fonts"
 
       # Defaults
-      "defaults/terminal/kitty"
+      "defaults/terminal/ghostty"
       "defaults/editor/neovim"
       "defaults/browser/chrome"
       "defaults/file-manager/nautilus"
