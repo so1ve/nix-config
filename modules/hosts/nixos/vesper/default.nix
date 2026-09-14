@@ -104,6 +104,7 @@
       "software/blender"
       "software/obs"
       "software/yanhekt-autoslides"
+      "software/kelivo"
 
       # IM
       "software/cinny"
