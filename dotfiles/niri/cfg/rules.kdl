@@ -13,7 +13,6 @@ window-rule {
     match app-id=r#"^chrome-(bcngdmpegpihnheapppgoniglphkpfhm|pliiebkcmokkgndfalahlmimanmbjlab|hgbpnngkjfhcnkdakkemekcknmjdhfkc|doaomjibpoemjdfcplalmkmdhgaadood|nigookeodlehlnjcpdfifmophdcbjoma)-Default$"#
 
     open-on-workspace "main"
-    open-focused true
 }
 
 window-rule {
