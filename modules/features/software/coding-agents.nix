@@ -65,6 +65,7 @@
       }:
       let
         linuxFeatures = [
+          "api-key-model-visibility"
           "appshots"
           "computer-use-linux"
           "mcp-helper-reaper"
