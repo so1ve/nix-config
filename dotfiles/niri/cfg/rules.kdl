@@ -76,7 +76,6 @@ window-rule {
     match app-id=r#"^waydroid\.com\.hypergryph\.cloud\.endfield$"#
 
     open-on-workspace "game"
-    open-focused true
 }
 
 // Steam renders friend and game activity notifications as separate toplevels.
