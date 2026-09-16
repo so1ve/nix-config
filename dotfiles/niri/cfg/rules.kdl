@@ -75,6 +75,9 @@ window-rule {
     // Endfield cloud game
     match app-id=r#"^waydroid\.com\.hypergryph\.cloud\.endfield$"#
 
+    // Turing Complete
+    match title=r#"^Turing Complete$"#
+
     open-on-workspace "game"
 }
 
