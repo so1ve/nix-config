@@ -200,6 +200,35 @@
         };
       };
 
+    "software/omp" = {
+      requires.allOf = [ "security/agenix" ];
+
+      home =
+        {
+          config,
+          inputs,
+          mkDotfilesSymlink,
+          pkgs,
+          ...
+        }:
+        {
+          age.secrets.omp-models = {
+            file = "${inputs.self}/secrets/omp-models.age";
+            path = "${config.home.homeDirectory}/.omp/agent/models.yml";
+          };
+
+          home = {
+            packages = [ pkgs.omp ];
+            file = {
+              ".omp/agent/AGENTS.md".source = mkDotfilesSymlink {
+                inherit config;
+                name = "agents/AGENTS.md";
+              };
+            };
+          };
+        };
+    };
+
     "software/dsh" = {
       requires.allOf = [ "security/agenix" ];
 

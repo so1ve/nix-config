@@ -5,5 +5,6 @@ in
   "deepseek-api-key.age".publicKeys = [ ray ];
   "github-ssh.age".publicKeys = [ ray ];
   "mihomo-config.age".publicKeys = [ ray ];
+  "omp-models.age".publicKeys = [ ray ];
   "wireguard-private-key.age".publicKeys = [ ray ];
 }

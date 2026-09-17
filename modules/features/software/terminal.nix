@@ -151,6 +151,10 @@
                 run ${herdr}/bin/herdr integration install pi
               ''}
 
+              ${lib.optionalString (featureEnabled "software/omp") ''
+                run ${herdr}/bin/herdr integration install omp
+              ''}
+
               if ${lib.getExe pkgs.jq} -e '.running and .compatible' <<< "$herdr_server_status" >/dev/null; then
                 run ${herdr}/bin/herdr server reload-config
               fi
