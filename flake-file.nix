@@ -72,10 +72,7 @@ in
 
       codex-desktop.url = "github:ilysenko/codex-desktop-linux";
 
-      codex-cli = {
-        url = "github:sadjow/codex-cli-nix";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      llm-agents.url = "github:numtide/llm-agents.nix";
 
       cloudflare-skills = {
         url = "github:cloudflare/skills";

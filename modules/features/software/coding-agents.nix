@@ -34,7 +34,7 @@
       }:
       {
         home = {
-          packages = [ inputs.codex-cli.packages.${pkgs.stdenv.hostPlatform.system}.codex ];
+          packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex ];
           file.".codex/AGENTS.md".source = mkDotfilesSymlink {
             inherit config;
             name = "agents/AGENTS.md";
@@ -42,89 +42,91 @@
         };
       };
 
-    "software/codex-desktop".nixos =
-      { config, username, ... }:
-      {
-        services.gnome.at-spi2-core.enable = true;
+    "software/codex-desktop" = {
+      nixos =
+        { config, username, ... }:
+        {
+          services.gnome.at-spi2-core.enable = true;
 
-        # Computer Use uses uinput for the pointer and ydotool for keyboard input.
-        hardware.uinput.enable = true;
-        programs.ydotool.enable = true;
-        users.users.${username}.extraGroups = [
-          "uinput"
-          config.programs.ydotool.group
-        ];
-      };
-
-    "software/codex-desktop".home =
-      {
-        inputs,
-        lib,
-        pkgs,
-        ...
-      }:
-      let
-        linuxFeatures = [
-          "api-key-model-visibility"
-          "appshots"
-          "computer-use-linux"
-          "mcp-helper-reaper"
-          "node-repl-reaper"
-          "ui-tweaks"
-        ];
-
-        linuxFeaturesConfig = pkgs.writeText "codex-linux-features.json" (
-          builtins.toJSON {
-            enabled = upstreamDesktop.passthru.effectiveLinuxFeatureIds;
-            settings."ui-tweaks".tweaks = {
-              home.suggestedPrompts.enabled = false;
-              # FIXME: This optional tweak is tightly coupled to the minified webview
-              # bundle and currently drifts on desktop 26.901.31953.
-              modelPicker.showModelsByDefault.enabled = false;
-              reasoning.keepEffortLabelsEnglish.enabled = true;
-              sidebar.projectName.enabled = false;
-            };
-          }
-        );
-
-        upstreamDesktop =
-          inputs.codex-desktop.packages.${pkgs.stdenv.hostPlatform.system}.codex-desktop.override
-            {
-              linuxFeatureIds = linuxFeatures;
-            };
-
-        desktop = upstreamDesktop.overrideAttrs (old: {
-          installPhase =
-            let
-              lines = lib.splitString "\n" old.installPhase;
-              featureConfigLines = lib.filter (lib.hasInfix "export CODEX_LINUX_FEATURES_CONFIG=") lines;
-            in
-            assert builtins.length featureConfigLines == 1;
-            lib.concatStringsSep "\n" (
-              map (
-                line:
-                if lib.hasInfix "export CODEX_LINUX_FEATURES_CONFIG=" line then
-                  ''export CODEX_LINUX_FEATURES_CONFIG="${linuxFeaturesConfig}"''
-                else
-                  line
-              ) lines
-            );
-        });
-      in
-      {
-        imports = [ inputs.codex-desktop.homeManagerModules.default ];
-
-        programs.codexDesktopLinux = {
-          enable = true;
-          package = desktop;
+          # Computer Use uses uinput for the pointer and ydotool for keyboard input.
+          hardware.uinput.enable = true;
+          programs.ydotool.enable = true;
+          users.users.${username}.extraGroups = [
+            "uinput"
+            config.programs.ydotool.group
+          ];
         };
 
-        home.packages = [
-          pkgs.bubblewrap
-          # AppShots needs a Wayland-capable screenshot backend.
-          pkgs.grim
-        ];
-      };
+      home =
+        {
+          inputs,
+          lib,
+          pkgs,
+          ...
+        }:
+        let
+          linuxFeatures = [
+            "api-key-model-visibility"
+            "appshots"
+            "computer-use-linux"
+            "mcp-helper-reaper"
+            "node-repl-reaper"
+            "ui-tweaks"
+          ];
+
+          linuxFeaturesConfig = pkgs.writeText "codex-linux-features.json" (
+            builtins.toJSON {
+              enabled = upstreamDesktop.passthru.effectiveLinuxFeatureIds;
+              settings."ui-tweaks".tweaks = {
+                home.suggestedPrompts.enabled = false;
+                # FIXME: This optional tweak is tightly coupled to the minified webview
+                # bundle and currently drifts on desktop 26.901.31953.
+                modelPicker.showModelsByDefault.enabled = false;
+                reasoning.keepEffortLabelsEnglish.enabled = true;
+                sidebar.projectName.enabled = false;
+              };
+            }
+          );
+
+          upstreamDesktop =
+            inputs.codex-desktop.packages.${pkgs.stdenv.hostPlatform.system}.codex-desktop.override
+              {
+                linuxFeatureIds = linuxFeatures;
+              };
+
+          desktop = upstreamDesktop.overrideAttrs (old: {
+            installPhase =
+              let
+                lines = lib.splitString "\n" old.installPhase;
+                featureConfigLines = lib.filter (lib.hasInfix "export CODEX_LINUX_FEATURES_CONFIG=") lines;
+              in
+              assert builtins.length featureConfigLines == 1;
+              lib.concatStringsSep "\n" (
+                map (
+                  line:
+                  if lib.hasInfix "export CODEX_LINUX_FEATURES_CONFIG=" line then
+                    ''export CODEX_LINUX_FEATURES_CONFIG="${linuxFeaturesConfig}"''
+                  else
+                    line
+                ) lines
+              );
+          });
+        in
+        {
+          imports = [ inputs.codex-desktop.homeManagerModules.default ];
+
+          programs.codexDesktopLinux = {
+            enable = true;
+            package = desktop;
+          };
+
+          home.packages = [
+            pkgs.bubblewrap
+            # AppShots needs a Wayland-capable screenshot backend.
+            pkgs.grim
+          ];
+        };
+    };
 
     "software/pi".home =
       {
@@ -218,7 +220,7 @@
           };
 
           home = {
-            packages = [ pkgs.omp ];
+            packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp ];
             file = {
               ".omp/agent/AGENTS.md".source = mkDotfilesSymlink {
                 inherit config;
