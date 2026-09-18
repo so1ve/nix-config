@@ -35,6 +35,7 @@
                 "Unifont"
               ];
               font-size = 11;
+              mouse-scroll-multiplier = "precision:0.6,discrete:1";
               theme = "Kitty Default";
               window-decoration = "none";
               window-show-tab-bar = "never";
