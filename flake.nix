@@ -20,6 +20,7 @@
   nixConfig = {
     extra-substituters = [
       "https://attic.xuyh0120.win/lantian"
+      "https://cache.numtide.com"
       "https://codex-desktop-linux.cachix.org"
       "https://nix-community.cachix.org"
       "https://noctalia.cachix.org"
@@ -27,6 +28,7 @@
     ];
     extra-trusted-public-keys = [
       "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "codex-desktop-linux.cachix.org-1:nX/xy6AdK9hQE24A8ALGjkCKj2ObFmcnemiL5Cid4nk="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
@@ -62,10 +64,6 @@
       url = "github:cloudflare/skills";
       flake = false;
     };
-    codex-cli = {
-      url = "github:sadjow/codex-cli-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     codex-desktop.url = "github:ilysenko/codex-desktop-linux";
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
@@ -90,6 +88,7 @@
     };
     import-tree.url = "github:denful/import-tree";
     latchshot.url = "github:so1ve/latchshot";
+    llm-agents.url = "github:numtide/llm-agents.nix";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     nix-alien.url = "github:thiagokokada/nix-alien";
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
