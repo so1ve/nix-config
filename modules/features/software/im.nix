@@ -1,5 +1,14 @@
 {
   ray.features = {
+    "software/dingtalk".home =
+      { inputs, pkgs, ... }:
+      let
+        dingtalk = (import inputs.so1ve { inherit pkgs; }).dingtalk;
+      in
+      {
+        home.packages = [ dingtalk ];
+      };
+
     "software/qq".home =
       {
         inputs,

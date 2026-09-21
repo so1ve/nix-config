@@ -109,6 +109,7 @@
 
       # IM
       "software/cinny"
+      "software/dingtalk"
       "software/discord"
       "software/oopz"
       "software/qq"
