@@ -3,7 +3,8 @@
     nixos =
       { inputs, pkgs, ... }:
       {
-        # FIXME: Remove this pin once the Bluetooth reconnect/audio regression is fixed upstream.
+        # FIXME: Remove this pin once the Bluetooth reconnect/A2DP regression is fixed upstream:
+        # https://github.com/bluez/bluez/issues/2524
         hardware.bluetooth.package =
           inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}."bluez-5_86";
 
