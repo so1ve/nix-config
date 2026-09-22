@@ -63,6 +63,7 @@ opt.shell = "fish"
 opt.scrolloff = 3
 opt.sidescrolloff = 3
 opt.jumpoptions = "view"
+opt.mousescroll = "ver:1,hor:6"
 opt.smoothscroll = true
 
 -- wrapping
