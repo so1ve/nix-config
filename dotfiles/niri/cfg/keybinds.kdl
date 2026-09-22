@@ -5,7 +5,7 @@ binds {
     }
 
     Mod+T hotkey-overlay-title="Focus or Open Terminal" {
-        spawn "focus-or-launch" "ghostty" "ghostty"
+        spawn "focus-or-launch" "com.mitchellh.ghostty" "ghostty"
     }
 
     Mod+E hotkey-overlay-title="Focus or Open Nautilus" {
