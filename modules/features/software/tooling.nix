@@ -12,6 +12,7 @@
           btop
           fastfetch
           fd
+          hyperfine
           jq
           just
           nvd
