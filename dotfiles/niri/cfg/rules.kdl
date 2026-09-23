@@ -113,6 +113,12 @@ window-rule {
     open-maximized-to-edges true
 }
 
+window-rule {
+    match app-id=r#"^AlgerMusicPlayer$"#
+
+    open-on-workspace "music"
+}
+
 // Sizes
 window-rule {
     // Telegram

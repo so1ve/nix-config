@@ -13,3 +13,7 @@ workspace "browser" {
 workspace "game" {
     open-on-output "DP-1"
 }
+
+workspace "music" {
+    open-on-output "DP-1"
+}
