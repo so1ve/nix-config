@@ -110,6 +110,10 @@
       url = "github:so1ve/qq-fix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    relvi = {
+      url = "github:so1ve/relvi";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     smart-splits-nvim = {
       url = "github:mrjones2014/smart-splits.nvim";
       flake = false;

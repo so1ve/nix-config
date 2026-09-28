@@ -36,6 +36,7 @@
       "desktop/media"
       "desktop/niri"
       "desktop/noctalia"
+      "software/relvi"
       "desktop/hyprland"
       "desktop/noctalia-greeter"
       "input/fcitx-rime"

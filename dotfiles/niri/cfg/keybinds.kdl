@@ -4,6 +4,10 @@ binds {
         show-hotkey-overlay
     }
 
+    Alt+Space hotkey-overlay-title="Open Relvi" {
+        spawn "relvi" "toggle"
+    }
+
     Mod+T hotkey-overlay-title="Focus or Open Terminal" {
         spawn "focus-or-launch" "com.mitchellh.ghostty" "ghostty"
     }
