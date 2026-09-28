@@ -921,6 +921,26 @@
         "type": "github"
       }
     },
+    "relvi": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790620327,
+        "narHash": "sha256-C3KtdluCXKRhFXQBtIQBLFh8uI6Oehnm1RxRfOZWJmU=",
+        "owner": "so1ve",
+        "repo": "relvi",
+        "rev": "0177a7cce4e5050780d6220be0b0e049edc0f0c9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "relvi",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -947,6 +967,7 @@
         "noctalia-greeter": "noctalia-greeter",
         "nur": "nur",
         "qq-fix": "qq-fix",
+        "relvi": "relvi",
         "smart-splits-nvim": "smart-splits-nvim",
         "so1ve": "so1ve",
         "waydroid-script": "waydroid-script",

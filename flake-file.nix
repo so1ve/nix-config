@@ -37,6 +37,11 @@ in
 
       latchshot.url = "github:so1ve/latchshot";
 
+      relvi = {
+        url = "github:so1ve/relvi";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       bitgateway = {
         url = "github:so1ve/bitgateway";
         inputs.nixpkgs.follows = "nixpkgs";

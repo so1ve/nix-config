@@ -54,6 +54,7 @@ end
 
 -- Applications and window management.
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("ghostty"), { description = "Open Ghostty" })
+hl.bind("ALT + SPACE", hl.dsp.exec_cmd("relvi toggle"), { description = "Open Relvi" })
 hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { description = "Close window" })
 hl.bind(mainMod .. " + SHIFT + SPACE", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
@@ -78,7 +79,6 @@ hl.bind("F9", hl.dsp.exec_cmd(screenshot))
 hl.bind("Print", hl.dsp.exec_cmd(screenshot))
 
 -- Noctalia shell and IPC integration.
-hl.bind("ALT + SPACE", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher"))
 hl.bind(mainMod .. " + period", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher '/emo '"))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"))
 hl.bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"))
