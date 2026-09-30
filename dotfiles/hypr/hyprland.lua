@@ -55,6 +55,7 @@ end
 -- Applications and window management.
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("ghostty"), { description = "Open Ghostty" })
 hl.bind("ALT + SPACE", hl.dsp.exec_cmd("relvi toggle"), { description = "Open Relvi" })
+hl.bind(mainMod .. " + period", hl.dsp.exec_cmd("relvi emoji toggle"), { description = "Open Emoji Picker" })
 hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { description = "Close window" })
 hl.bind(mainMod .. " + SHIFT + SPACE", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
@@ -79,10 +80,9 @@ hl.bind("F9", hl.dsp.exec_cmd(screenshot))
 hl.bind("Print", hl.dsp.exec_cmd(screenshot))
 
 -- Noctalia shell and IPC integration.
-hl.bind(mainMod .. " + period", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher '/emo '"))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"))
 hl.bind(mainMod .. " + comma", hl.dsp.exec_cmd(noctalia .. "settings-toggle"))
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(noctalia .. "panel-toggle clipboard"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("relvi clipboard toggle"))
 hl.bind("ALT + Tab", hl.dsp.exec_cmd(noctalia .. "window-switcher"))
 hl.bind("SUPER + ALT + L", hl.dsp.exec_cmd(noctalia .. "session lock"))
 hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(noctalia .. "session logout"))
