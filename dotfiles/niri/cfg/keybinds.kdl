@@ -8,6 +8,10 @@ binds {
         spawn "relvi" "toggle"
     }
 
+    Mod+Period hotkey-overlay-title="Open Emoji Picker" {
+      spawn "relvi" "emoji" "toggle"
+    }
+
     Mod+T hotkey-overlay-title="Focus or Open Terminal" {
         spawn "focus-or-launch" "com.mitchellh.ghostty" "ghostty"
     }
@@ -280,7 +284,7 @@ binds {
     }
 
     Mod+V {
-        spawn "noctalia" "msg" "panel-toggle" "clipboard"
+        spawn "relvi" "clipboard" "toggle"
     }
     Mod+Shift+Space {
         toggle-window-floating
