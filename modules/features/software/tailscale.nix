@@ -8,7 +8,10 @@
     {
       services.tailscale = {
         enable = true;
-        extraSetFlags = [ "--operator=${username}" ];
+        extraSetFlags = [
+          "--operator=${username}"
+          "--accept-routes=true"
+        ];
       };
 
       networking.firewall = {
