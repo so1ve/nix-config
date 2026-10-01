@@ -1,6 +1,6 @@
 ---
 name: refactor-for-simplicity
-description: Review and refactor codebases across languages toward simpler, deeper modules with smaller production interfaces, cohesive implementations, direct control flow, and fewer moving parts. Use for broad simplification, overengineering cleanup, API-shape improvements, clean breaking API redesigns in actively evolving or not-yet-usable projects, removal of shallow abstractions or test-driven API distortion, and audits of redundant defensive logic, speculative fallbacks, low-value error translations, unused state, or compatibility code. Preserve intended behavior and protections required by concrete external, security, persistence, concurrency, memory-safety, or irreversible-operation constraints. Do not use for ordinary narrowly scoped fixes unless explicitly invoked. Apply the mandatory Rust-specific review whenever Rust sources or Cargo manifests are in scope.
+description: Review and refactor codebases across languages toward deeper modules, smaller production interfaces, direct control flow, and fewer moving parts. Use for broad simplification, overengineering cleanup, API redesigns in actively evolving projects, removal of shallow abstractions or test-driven API distortion, cleanup of low-value or redundant tests (including source-text change detectors), and audits of speculative defenses, fallbacks, error translations, unused state, or compatibility code. Preserve intended behavior and protections required by concrete external, security, persistence, concurrency, memory-safety, or irreversible-operation constraints. Do not use for ordinary narrowly scoped fixes unless explicitly invoked. Apply the mandatory Rust-specific review whenever Rust sources or Cargo manifests are in scope.
 ---
 
 # Refactor for Simplicity
@@ -89,7 +89,9 @@ Inspect production code, tests, manifests, and call sites for:
   subscriptions, and invalidation paths;
 - unused fields, methods, variants, derives, dependencies, feature flags, wrappers,
   traits, and interfaces;
-- production abstractions that exist only for redundant tests.
+- production abstractions that exist only for redundant tests;
+- source-text assertions, implementation-coupled mocks, tautological expectations,
+  vacuous assertions, oversized snapshots, and duplicate test scenarios.
 
 Use language-appropriate searches to build an inventory, then inspect each use in
 context. Do not limit the review to one macro, helper, or error type.
@@ -132,9 +134,121 @@ context. Do not limit the review to one macro, helper, or error type.
   call it directly. Test through the existing production API. Extract a helper only
   when it is a sound production abstraction independent of testing; keep genuinely
   test-only helpers in test code.
-- Keep tests for observable behavior, protocol semantics, security properties,
-  persistence, and realistic failure modes. Remove tests of deleted defensive
-  branches, meaningless wrappers, and language or standard-library behavior.
+
+## Simplify tests
+
+Always audit tests within the requested scope, even when the suite passes. Actually
+delete, consolidate, or rewrite low-value tests; do not merely flag them or leave
+them in place because they are green. Do not create these patterns in replacements.
+Test count and line coverage are not evidence of useful regression protection.
+
+For each suspect test, identify the requirement it protects, the production surface
+it exercises, and a plausible incorrect behavior its assertion would catch. Also
+ask whether a behavior-preserving implementation change would break it. Use these
+questions to inspect the test, not to impose paperwork on every existing test.
+
+### Remove change detectors and tests without a useful oracle
+
+- **Source-text change detectors:** tests that read production source and use
+  substring matching, regexes, line comparisons, source hashes, or AST inspection
+  merely to assert that a name, call, branch, annotation, or code fragment exists
+  or is absent. Examples include `assert "authorize(" in source` and asserting
+  that a deleted helper's name no longer appears. These prove spelling or shape,
+  not that the reachable production path works. Search for stale symbols as a
+  one-time refactor check; do not turn that search into a permanent regression test.
+  If authorization matters, exercise an unauthorized request and assert rejection
+  and absence of the protected side effect.
+- **Implementation replicas and tautologies:** tests that copy the production
+  algorithm to calculate the expected result, call the same implementation for
+  both actual and expected values, compare a value with itself, or derive the
+  expected value from the result under test. Use independently specified examples,
+  reference vectors, or meaningful properties instead. Independent reference
+  implementations, differential tests, and round-trip properties can be valuable;
+  do not confuse them with duplicating the same logic and the same possible bug.
+- **Self-fulfilling mocks:** tests that replace the behavior under test, then assert
+  the mock's configured return value or invocation without exercising real
+  production decisions. Also remove assertions that merely replay internal helper
+  calls, incidental order or counts, or redundant reads of stubbed data. Assert
+  resulting output or state; retain interaction assertions when the external
+  action, non-action, count, or sequence is itself a requirement.
+- **Vacuous success:** unconditional assertions, assertions on fixture setup alone,
+  swallowed exceptions, or conditional assertions that allow the relevant case to
+  finish without checking its outcome. A mere non-null result, successful import,
+  or absence of an exception is insufficient when the claimed behavior needs a
+  stronger assertion. Keep such smoke tests when startup, loading, or successful
+  completion is the actual contract; assertion syntax alone does not decide value.
+- **Language and dependency retests:** tests of standard-library behavior, trivial
+  accessors, pass-through wrappers, or defaults with no application requirement.
+  Retain small tests when they enforce a real public contract, mapping, or policy.
+- **Unreachable defensive scenarios:** tests that corrupt private state, bypass
+  enforced constructors or types, or make jointly maintained siblings violate
+  guaranteed contracts solely to exercise speculative recovery. Remove them with
+  the unnecessary branches. Preserve malformed external-input tests, realistic
+  failures, and meaningful invariant, concurrency, and fault-injection tests.
+- **Speculative compatibility:** tests of old API shapes, legacy aliases, fallback
+  formats, deprecated modes, or hypothetical third-party consumers when there is
+  no current consumer, deployed integration, persistent-data migration need, or
+  established compatibility commitment. Delete them with the obsolete paths; do
+  not retain shims or parallel implementations just to satisfy these tests.
+- **Excessive safety testing:** repeated checks of the same constraint after its
+  enforcing boundary, arbitrary combinations of invalid internal states, or
+  imagined attack and failure scenarios with no reachable ingress or concrete
+  threat model. Remove them; do not add production guards to make these scenarios
+  recoverable. A test labeled "security", "safety", or "compatibility" earns no
+  exemption: identify the actual boundary, requirement, and distinct failure it
+  protects.
+
+Source inspection is legitimate when source is the product under test (a compiler,
+linter, code generator, or codemod), or a concrete architecture or security rule is
+itself a maintained requirement. Text assertions on actual CLI output, serialized
+formats, rendered content, or generated artifacts can also protect real contracts.
+Keep those checks focused on the requirement; never substitute source matching for
+behavioral validation merely because executing the production path is inconvenient.
+
+### Reduce redundant cases and test machinery
+
+- Consolidate cases with the same behavioral requirement and failure signal when
+  extra inputs add no distinct boundary, equivalence class, or regression. Keep
+  historical bug cases that remain applicable and meaningful boundary cases.
+  Remove obsolete regression cases when their feature or contract is intentionally
+  removed. Similar setup is not proof of redundancy; a focused unit test and an
+  integration test can protect different failure modes even when they overlap in
+  executed code.
+- Replace broad snapshots of private objects, entire component trees, or incidental
+  formatting with focused assertions when they mostly create review noise. Retain
+  deterministic, reviewable golden files, visual baselines, and snapshots of real
+  output or compatibility contracts. Inspect failures before updating a baseline;
+  do not regenerate it simply to make the suite pass.
+- Delete fixtures, mocks, helpers, dependencies, and runner configuration made
+  unused by test removal, after checking their other consumers. Simplify custom
+  harnesses, inheritance, builders, and parameter matrices that obscure a small
+  number of behaviors. Prefer explicit inputs and expectations; retain shared
+  setup that makes realistic tests clearer. Do not force DRY at the expense of
+  readability or ban useful parameterized, property-based, or fuzz testing.
+
+### Preserve protection while cleaning up
+
+Replace a bad test only when it is the sole protection for a concrete current
+requirement, and exercise that requirement through the existing production surface.
+If it protects no requirement or only duplicates adequate coverage, delete it
+without a one-for-one replacement. Retain necessary coverage of real security
+boundaries, in-use persistent formats, realistic external failures, and established
+compatibility commitments. Do not expand safety or compatibility testing to
+hypothetical requirements during cleanup. Do not widen production visibility or
+add abstractions solely to make a replacement test possible.
+
+Do not weaken an assertion, skip a failing test, or delete a regression case merely
+to get a green suite. Investigate whether the failure is a real regression, an
+authorized contract change, or coupling to obsolete implementation details. Resolve
+it accordingly; do not mechanically mirror the new implementation in the test.
+
+These rules draw on:
+
+- [Google: Change-Detector Tests Considered Harmful](https://testing.googleblog.com/2015/01/testing-on-toilet-change-detector-tests.html).
+- [Software Engineering at Google: Unit Testing](https://abseil.io/resources/swe-book/html/ch12.html) and [Test Doubles](https://abseil.io/resources/swe-book/html/ch13.html).
+- [Microsoft: Unit testing best practices](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices).
+- [Jest: Snapshot testing best practices](https://jestjs.io/docs/snapshot-testing#best-practices).
+- [Martin Fowler: Test Coverage](https://martinfowler.com/bliki/TestCoverage.html).
 
 ## Rust-specific review
 
@@ -200,6 +314,8 @@ Apply these Rust rules:
    and newly unused code.
 5. Report separately:
    - unnecessary logic removed;
+   - tests deleted, consolidated, or rewritten, the low-value patterns removed, and
+     the meaningful behavioral protection retained or added;
    - reviewed protections retained and the concrete requirement each satisfies;
    - formatting, static-analysis, and test results, including anything not run.
 
