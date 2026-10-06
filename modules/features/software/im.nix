@@ -9,50 +9,13 @@
         home.packages = [ dingtalk ];
       };
 
-    "software/qq".home =
+    "software/qq".nixos =
+      { inputs, ... }:
       {
-        inputs,
-        lib,
-        pkgs,
-        ...
-      }:
-      let
-        qqFix = inputs.qq-fix.packages.${pkgs.stdenv.hostPlatform.system}.default;
-        qqFixed = pkgs.symlinkJoin {
-          name = "qq-fixed";
-          paths = [ pkgs.qq ];
-          nativeBuildInputs = [ pkgs.makeWrapper ];
-          postBuild = ''
-            rm "$out/bin/qq" "$out/share/applications/qq.desktop"
-            makeWrapper "${lib.getExe qqFix}" "$out/bin/qq" \
-              --add-flags "${pkgs.qq}/bin/qq"
-            substitute "${pkgs.qq}/share/applications/qq.desktop" \
-              "$out/share/applications/qq.desktop" \
-              --replace-fail "${pkgs.qq}/bin/qq" "$out/bin/qq"
-          '';
-          meta = pkgs.qq.meta // {
-            mainProgram = "qq";
-          };
-        };
-      in
-      {
-        home.packages = [ qqFixed ];
+        imports = [ inputs.linuxqq-wayland-fix.nixosModules.default ];
+
+        programs.linuxqq-wayland-fix.enable = true;
       };
-
-    # fucking QQ fix
-    "software/xwayclip" = {
-      requires.anyOf = [
-        "desktop/hyprland"
-        "desktop/niri"
-      ];
-      home =
-        { inputs, ... }:
-        {
-          imports = [ inputs.xwayclip.homeManagerModules.default ];
-
-          services.xwayclip.enable = true;
-        };
-    };
 
     "software/telegram-web" = {
       requires.allOf = [ "software/chrome" ];

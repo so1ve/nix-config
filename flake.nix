@@ -88,6 +88,10 @@
     };
     import-tree.url = "github:denful/import-tree";
     latchshot.url = "github:so1ve/latchshot";
+    linuxqq-wayland-fix = {
+      url = "github:SHORiN-KiWATA/linuxqq-wayland-fix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     llm-agents.url = "github:numtide/llm-agents.nix";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     nix-alien.url = "github:thiagokokada/nix-alien";
@@ -106,10 +110,6 @@
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    qq-fix = {
-      url = "github:so1ve/qq-fix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     relvi = {
       url = "github:so1ve/relvi";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -123,6 +123,5 @@
       url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    xwayclip.url = "github:so1ve/xwayclip";
   };
 }
