@@ -52,8 +52,8 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-      qq-fix = {
-        url = "github:so1ve/qq-fix";
+      linuxqq-wayland-fix = {
+        url = "github:SHORiN-KiWATA/linuxqq-wayland-fix";
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
@@ -133,8 +133,6 @@ in
         url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
         inputs.nixpkgs.follows = "nixpkgs";
       };
-
-      xwayclip.url = "github:so1ve/xwayclip";
 
     };
   };
