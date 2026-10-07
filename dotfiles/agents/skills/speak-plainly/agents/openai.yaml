@@ -1,0 +1,4 @@
+interface:
+  display_name: "Speak Plainly"
+  short_description: "Cut filler while preserving meaning and contracts"
+  default_prompt: "Use $speak-plainly to rewrite this text in direct, concrete language while preserving facts, necessary conditions, and code contracts."
