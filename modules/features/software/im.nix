@@ -15,7 +15,22 @@
         imports = [ inputs.linuxqq-wayland-fix.nixosModules.default ];
 
         programs.linuxqq-wayland-fix.enable = true;
+        environment.variables.QQ_CLIPBOARD_FIX_DISABLE = "1";
       };
+
+    "software/xwayclip" = {
+      requires.anyOf = [
+        "desktop/hyprland"
+        "desktop/niri"
+      ];
+      home =
+        { inputs, ... }:
+        {
+          imports = [ inputs.xwayclip.homeManagerModules.default ];
+
+          services.xwayclip.enable = true;
+        };
+    };
 
     "software/telegram-web" = {
       requires.allOf = [ "software/chrome" ];
