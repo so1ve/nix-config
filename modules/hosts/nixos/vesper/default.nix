@@ -116,7 +116,6 @@
       "software/qq"
       "software/rust-zulip"
       "software/telegram-web"
-      "software/xwayclip"
 
       # Misc
       "software/mission-center"
