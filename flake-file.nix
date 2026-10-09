@@ -57,8 +57,6 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-      xwayclip.url = "github:so1ve/xwayclip";
-
       direnv-instant = {
         url = "github:Mic92/direnv-instant";
         inputs.nixpkgs.follows = "nixpkgs";

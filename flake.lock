@@ -514,11 +514,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791078534,
-        "narHash": "sha256-adAVcZqyq5ZqIXbEJIAZyv756bnyiJBVbdJxmEwMRXI=",
+        "lastModified": 1791519390,
+        "narHash": "sha256-BOOfZyo5PcWBY0w1Usb6xILNNaOc3Hz830f1jRyvaw8=",
         "owner": "SHORiN-KiWATA",
         "repo": "linuxqq-wayland-fix",
-        "rev": "7d7f82d297e69299ea5419c5900042826158e87a",
+        "rev": "01bdc033f9b893847e7c3c4a7a8f9ce1e1143947",
         "type": "github"
       },
       "original": {
@@ -741,22 +741,6 @@
         "type": "github"
       }
     },
-    "nixpkgs_10": {
-      "locked": {
-        "lastModified": 1788614874,
-        "narHash": "sha256-7QYjT2vHLuX9Z1pdxHXDKCbh1CR3D/2rywB9Tx0MPRg=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "c043004d1c6985732bcc1cbc5a9c9aecbbb4e0f0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1787360063,
@@ -970,8 +954,7 @@
         "relvi": "relvi",
         "smart-splits-nvim": "smart-splits-nvim",
         "so1ve": "so1ve",
-        "waydroid-script": "waydroid-script",
-        "xwayclip": "xwayclip"
+        "waydroid-script": "waydroid-script"
       }
     },
     "smart-splits-nvim": {
@@ -1167,24 +1150,6 @@
         "owner": "casualsnek",
         "repo": "waydroid_script",
         "rev": "d5289cfd8929e86e7f0dc89ecadcef8b66930eec",
-        "type": "github"
-      }
-    },
-    "xwayclip": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_10"
-      },
-      "locked": {
-        "lastModified": 1788756019,
-        "narHash": "sha256-3Wk+AFAp9um3au4imWnY58xrEIcYgpAziorZM1FvcfU=",
-        "owner": "so1ve",
-        "repo": "xwayclip",
-        "rev": "051626b4e4db94ff878efad1925ae36fbb6ed88c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "so1ve",
-        "repo": "xwayclip",
         "type": "github"
       }
     }
