@@ -912,11 +912,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791464072,
-        "narHash": "sha256-FASjOtAcH2XwOoIvS7NRtG4oGd+++23kcTOzaymKA4E=",
+        "lastModified": 1791556770,
+        "narHash": "sha256-wkp/QHkDScisJ4hSzTuZRD7+V+/ddJSXxKYHMlQ6xMc=",
         "owner": "so1ve",
         "repo": "relvi",
-        "rev": "51f22f5fb93ed54f18d4e6d918423f661e5e8373",
+        "rev": "ee6966d489f102cff113667a64adda341352f732",
         "type": "github"
       },
       "original": {
