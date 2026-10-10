@@ -120,7 +120,7 @@
     };
     so1ve.url = "github:so1ve/nur-packages";
     waydroid-script = {
-      url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
+      url = "github:casualsnek/waydroid_script/48dbfaf34a6ddbe78688c530f9ba1c26522aafb2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
