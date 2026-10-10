@@ -101,6 +101,7 @@
 
       # Media
       "software/swayimg"
+      "software/picgo"
       "software/mpv"
       "software/alger-music-player"
       "software/blender"
