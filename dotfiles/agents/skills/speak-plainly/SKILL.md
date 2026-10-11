@@ -28,27 +28,40 @@ or design reasons. If missing information prevents an answer, name the gap.
   polishing individual sentences.
 - **Cut empty additions.** Delete repeated conclusions, writing announcements,
   off-topic background, and assurances unrelated to the user's concern. Inspect
-  trailing clauses and parentheses: keep them only when they add useful
-  information.
+  trailing clauses and parentheses for new information. Remove endings such as
+  "ensuring clarity," "highlighting its importance," or "reflecting a broader
+  trend" when they add unsupported analysis or restate the point.
 - **Name the actor and action.** Replace abstract noun chains and self-praise with
   concrete changes. Write "Consolidated four checks into one method" instead of
   "Significantly improved maintainability."
 - **Use contrasts to clarify.** Correct an actual misconception, distinguish
   easily confused concepts, or compare concrete options. Delete negative asides
-  about interpretations or uses the reader has no reason to consider.
+  about interpretations or uses the reader has no reason to consider, including
+  decorative "not X, but Y" and "Y rather than X" constructions.
 - **State uncertainty precisely.** Separate observations, inferences, and unknowns.
-  Write "Allocations decreased; runtime has not been measured" instead of claiming
+  Write "Allocations decreased. Runtime has not been measured" instead of claiming
   a speedup or stacking vague qualifiers.
+- **Use punctuation for clarity.** Prefer periods to routine semicolon pairs.
+  Use a semicolon when it makes a close relationship or a complex list easier to
+  follow. Use dashes for necessary asides. Delete dramatic
+  verdicts and unsupported praise appended with a dash.
+- **Let lists follow the facts.** Keep each item only when it contributes a
+  distinct, relevant point. Avoid padding lists or adjective groups to three items,
+  such as "clear, robust, and maintainable," without evidence for each claim.
+- **Use transitions where they help.** Add a connector when the relationship
+  between ideas needs explaining. Remove habitual paragraph openings such as
+  "Furthermore," "Importantly," and "Overall" when the text already flows.
 - **Choose a useful structure.** Use paragraphs for connected explanations, tables
   for comparisons, and lists for steps or parallel items. Give complex reasoning
-  enough room; avoid arbitrary item counts and headings for every sentence.
-  Retain the object and outcome: "Renamed it to `DependencyGraph`; the library
-  check passed" conveys more than "Changed. Passed."
+  enough room. Avoid headings for every sentence, a fixed pattern of bold label,
+  explanation, and benefit for every point, and a summary after every section.
+  Retain the object and
+  outcome: "Renamed it to `DependencyGraph`. The library check passed" conveys
+  more than "Changed. Passed."
 
-Judge these choices in context. Long sentences, semicolons, technical terms, and
-repetition can help; an independently read section may need to repeat a prerequisite.
-Preserve useful transitions and natural courtesy. Do not manufacture a human voice
-through slang, exaggeration, or deliberate mistakes.
+Repeat prerequisites when a section will be read independently. Preserve natural
+courtesy. Do not manufacture a human voice through slang, exaggeration, or
+deliberate mistakes.
 
 ## Code comments and API documentation
 
@@ -58,9 +71,10 @@ the gap rather than inventing a rationale or deleting a possible contract.
 
 - **Implementation comments explain what the code cannot readily express:**
   reasons, invariants, ordering requirements, and non-obvious tradeoffs. For example,
-  "Equal results can still have different dependencies; update dependencies before
-  returning" explains why `finish()` precedes an early return. Explain complex
-  mechanisms when useful; omit narration of ordinary syntax and visible operations.
+  "Update dependencies before returning because equal results can still have
+  different dependencies" explains why `finish()` precedes an early return.
+  Explain complex mechanisms when useful. Omit narration of ordinary syntax and
+  visible operations.
   If nothing needs explaining, leave the code uncommented.
 - **API documentation tells callers how to use the interface.** Describe purpose
   and observable behavior, including relevant units, special values, ownership,
@@ -70,7 +84,7 @@ the gap rather than inventing a rationale or deleting a possible contract.
   comment explains why those conditions hold there. Include the type, validity,
   lifetime, alignment, aliasing, or exclusive-access facts the operation needs.
   Delete "the borrow covers only `mem::replace`" when it merely narrates visible
-  code; keep a scope argument when it establishes a required safety condition.
+  code. Keep a scope argument when it establishes a required safety condition.
 - **Explain shared reasons where they are maintained.** Keep each call site's
   local conditions and evidence. Deduplication must not erase a distinct safety
   argument.
@@ -80,6 +94,8 @@ the gap rather than inventing a rationale or deleting a possible contract.
 Ask: **What would the reader lose if this sentence disappeared?** Delete it when
 nothing useful would be lost. Check that the result still answers the question,
 supports its claims, and preserves the conditions and connections needed to act.
+Scan for repeated sentence shapes, punctuation, and section templates. Rewrite
+patterns that make unrelated points sound mechanically alike.
 
 Deliver the answer or rewrite. In work reports, include relevant verification and
 unfinished work. Explain edits separately only when they affect meaning or require
@@ -90,7 +106,9 @@ summaries, ceremonial conclusions, and routine offers out of the response.
 
 - [Google: Voice and tone](https://developers.google.com/style/tone),
   [Short sentences](https://developers.google.com/tech-writing/one/short-sentences),
+  [Semicolons](https://developers.google.com/style/semicolons),
   and [Microsoft: Simple words, concise sentences](https://learn.microsoft.com/en-us/style-guide/word-choice/use-simple-words-concise-sentences).
 - [Google: Code review comments](https://google.github.io/eng-practices/review/reviewer/looking-for.html#comments)
   and [Linux: Commenting](https://www.kernel.org/doc/html/latest/process/coding-style.html#commenting).
 - [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
+- [Do LLMs write like humans? Variation in grammatical and rhetorical styles](https://arxiv.org/html/2410.16107v2).
