@@ -154,9 +154,15 @@ Do not leave commented-out code, deletion placeholders, or backup copies without
 a current purpose. Keep a temporary bridge only for a required transition, and
 remove it when that transition ends.
 
-Read [Simplify tests](references/test-quality.md) before changing tests or test
-support code. Keep tests of required behavior and update tests tied to old internals.
-Do not change production APIs just to expose helpers to tests.
+Read [Design and simplify the test suite](references/test-quality.md) before changing
+tests or test support code, and when a requested cleanup includes the test suite.
+Choose the behaviors that need protection instead of testing every module. Check
+results rather than ordinary logs or private calls. Prefer real implementations;
+use test doubles only where needed. Consolidate repeated setup, resource management,
+fakes, and assertions with the project's existing test facilities. Keep important
+case inputs and expectations visible. Delete redundant tests and their unused
+support, and preserve checks of required behavior. Do not change production APIs
+just to expose helpers to tests.
 
 Whenever Rust sources or Cargo manifests are in scope, read and apply
 [Rust-specific review](references/rust.md).
@@ -165,8 +171,10 @@ Whenever Rust sources or Cargo manifests are in scope, read and apply
 
 Check behavior and the new structure:
 
-1. Test through the production API or entry point. Use a smoke or integration test
-   when testing private steps would require changing the API.
+1. Use relevant existing tests and add a test only for a meaningful gap in required
+   behavior. Test through the production API or entry point. Use a smoke or integration
+   test when testing private steps would require changing the API. A private module
+   exercised through its callers need not have a separate test suite.
 2. Confirm that entry points and callers use the new implementation. Search for old
    symbols, dependencies, aliases, and duplicate paths, then inspect the matches.
    This one-time search does not need to become a source-text regression test.
