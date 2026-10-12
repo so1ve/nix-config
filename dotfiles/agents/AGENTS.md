@@ -161,9 +161,23 @@ implement, clean up, or finish work does not override them.
   Retry only recoverable failures, with limits and defined rules for side effects
   and idempotency.
 - Test behavior, contracts, security, persistence, and failures that can occur in
-  the supported system. Do not expose private code or add production APIs just for
-  tests. Extract a helper only when it is useful to the production design on its
-  own. Otherwise test through the existing API.
+  the supported system. Choose tests by the behavior and regressions they can detect,
+  not by file count or a goal of testing every module. A module needs no separate
+  test when it has no independent behavior to protect or is adequately exercised
+  through production callers. Remove redundant or low-value tests without replacing
+  each one. Do not expose private code or add production APIs just for tests. Extract
+  a production helper only when it improves the production design on its own.
+- Assert results, errors, state, and required external actions. Do not use ordinary
+  log messages, logger calls, or private call order as a substitute for behavior.
+  Test logs or action counts when they have a current contract or security purpose.
+  Prefer real implementations; use maintained fakes or narrow mocks at boundaries
+  where real dependencies are impractical or failures need to be controlled. Do not
+  mock away the behavior being tested or make doubles violate real contracts.
+- Reuse the project's test framework and libraries. Consolidate repeated setup,
+  resource cleanup, data preparation, fakes, and useful assertions in small shared
+  test helpers or fixtures. Migrate retained tests and delete old copies. Keep cases
+  independent and their important inputs and expectations visible. Do not build a
+  general testing framework or hide scenarios in giant fixtures or helper layers.
 - In Rust, leave implementation details private and use plain `pub` for public
   APIs. Use `pub(crate)`, `pub(super)`, or another restricted visibility only when
   a production caller needs that boundary, never just to expose code to tests.
