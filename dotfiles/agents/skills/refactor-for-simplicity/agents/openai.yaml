@@ -1,4 +1,4 @@
 interface:
   display_name: "Refactor for Simplicity"
-  short_description: "Simplify code, APIs, and low-value tests"
-  default_prompt: "Use $refactor-for-simplicity to simplify this codebase into cohesive, deep modules with smaller APIs, direct control flow, and fewer moving parts. Audit and remove or rewrite low-value and redundant tests while preserving meaningful behavioral protection."
+  short_description: "Simplify architecture, code, interfaces, and tests"
+  default_prompt: "Use $refactor-for-simplicity to simplify the architecture, code, interfaces, and tests in this codebase. Follow confirmed runtime facts and preserve required behavior and external contracts. Remove redundant code, migrate affected callers, and test the changed entry points. Confirm that old paths are gone."
