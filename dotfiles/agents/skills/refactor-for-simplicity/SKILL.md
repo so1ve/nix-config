@@ -7,7 +7,8 @@ description: Review and refactor existing codebases to simplify architecture, co
 
 Make the requested code easier to understand and change. Preserve required behavior
 and unrelated user changes. Favor fewer concepts, state sources, and branches that
-a maintainer has to follow. Line count and diff size alone do not measure simplicity.
+a maintainer has to follow. Choose the right responsibilities and interfaces before
+minimizing the diff.
 
 ## Define the change
 
@@ -31,9 +32,9 @@ Briefly state:
 
 When the user asks generally for simplification, choose a target from the request
 and code, state it briefly, and proceed with authorized edits. For a review-only
-request, report findings without editing. Keep a narrow bug fix focused. Create
-plan files, inventories, approval tables, or proof records only if the task requires
-them.
+request, report findings without editing. Keep a narrow bug fix focused on its cause,
+even when that takes more than a few lines. Create plan files, inventories, approval
+tables, or proof records only if the task requires them.
 
 ## Detect overengineering
 
@@ -120,6 +121,18 @@ or replace them with a smaller proof framework.
 
 ## Refactor the code
 
+Find the layer that should own the behavior or invariant being changed. Use data
+ownership, the boundary that can enforce the rule, and production callers' contracts
+to locate it. If the current structure puts responsibility in the wrong place, move
+it and change the interface. Do not add caller-specific guards, mode flags, wrappers,
+or error suppression just to make one case pass while leaving that design error.
+
+Prefer a larger refactor at the right layer over a small workaround at the wrong
+layer. Judge the result by what a maintainer must understand and change next time.
+Keep rules with their owners, hide implementation details from callers, and remove
+the need to repeat fixes across callers. Improve future maintenance by correcting
+today's structure, while keeping the work to current requirements.
+
 Choose the simplest final structure within scope. An authorized structural refactor
 can change internal modules, types, signatures, and directories. Move responsibilities
 and dependencies. Renaming code or adding wrappers alone does not do that. Change
@@ -161,8 +174,10 @@ Check behavior and the new structure:
    and build permissions. If a required command is not allowed, give the user the
    exact command and state that it was not run.
 4. Review the relevant diff once for regressions, weakened checks, unnecessary code,
-   missed callers, and unrelated edits. Confirm that invented evidence layers were
-   removed, not renamed or wrapped again.
+   missed callers, and unrelated edits. Check that the changed rule belongs at that
+   layer and that callers no longer compensate for the old design. A passing test
+   for one case does not establish that the cause was fixed. Confirm that invented
+   evidence layers were removed, not renamed or wrapped again.
 
 Check reported problems against code paths that can run and the user's confirmed
 facts. A severity label does not prove a defect. Fix failures and repeat affected

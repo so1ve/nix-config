@@ -115,11 +115,15 @@ implement, clean up, or finish work does not override them.
   supported inputs or normalize credentials.
 - When special cases accumulate, redesign the affected module instead of adding
   more branches.
-- Keep ordinary fixes focused on their cause. In an authorized structural refactor,
-  aim for the simplest final design. Move responsibilities, migrate all affected
-  internal callers, and delete old paths even when that requires a larger diff.
-  Preserve the project's style and required behavior. Avoid unrelated fixes,
-  formatting changes, future features, and framework changes the task does not need.
+- Fix the cause at the layer that owns the behavior or invariant. Prefer a larger
+  refactor that puts responsibilities at the right layer over a few lines that patch
+  one case at the wrong layer. Judge the final design by responsibilities, interfaces,
+  and the work needed for later changes, not diff size. In a structural refactor
+  within the authorized scope, move responsibilities, migrate all affected internal
+  callers, and delete old paths. Keep ordinary fixes focused on their cause; this
+  does not mean changing the fewest lines. Preserve the project's style and required
+  behavior. Avoid unrelated fixes, formatting changes, future features, and framework
+  changes the task does not need.
 - Keep modules deep: put related implementation behind a small interface. Expose
   only what production callers need. Do not expose state, settings, parameters, or
   intermediate steps just to simplify tests or wiring.
