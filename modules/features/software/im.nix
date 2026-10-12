@@ -17,6 +17,26 @@
         programs.linuxqq-wayland-fix.enable = true;
       };
 
+    "software/qq".home =
+      { osConfig, ... }:
+      {
+        xdg.desktopEntries.qq = {
+          name = "QQ";
+          comment = "QQ";
+          exec = "${osConfig.programs.linuxqq-wayland-fix.package}/bin/linuxqq-wayland-fix %U";
+          icon = "qq";
+          terminal = false;
+          categories = [ "Network" ];
+          settings.StartupWMClass = "QQ";
+        };
+
+        # Hide the upstream repair entry after replacing the default QQ entry.
+        xdg.dataFile."applications/linuxqq-wayland-fix.desktop".text = ''
+          [Desktop Entry]
+          Hidden=true
+        '';
+      };
+
     "software/telegram-web" = {
       requires.allOf = [ "software/chrome" ];
       nixos = {
