@@ -84,54 +84,85 @@ implement, clean up, or finish work does not override them.
 <code_design_principles>
 # Code design principles
 
-- Treat components as one implementation when repository evidence establishes that
-  they are maintained together under a shared protocol. Do not add compatibility
-  defenses solely in case a sibling component violates that contract.
-- Treat API compatibility as a requirement only when repository evidence shows a
-  stable compatibility commitment or separately maintained consumers. During active
-  development without that commitment, or while the project is not yet usable, make
-  clean breaking API changes when they improve the design. Update all jointly
-  maintained callers, tests, documentation, and configuration in the same change
-  instead of adding shims or legacy paths. Preserve separately versioned protocols,
-  persistent formats, and deployed integrations unless their migration is in scope.
-- Enforce each constraint once, at the boundary best positioned to enforce it. Avoid
-  duplicate validation across internal layers.
-- Preserve checks required by concrete external or safety constraints, including
-  untrusted input, secrets, authentication, external I/O, permissions, persistent
-  state, memory safety, and irreversible operations.
-- Treat violations of internally guaranteed contracts as invariant failures. Use the
-  language's idiomatic fail-fast or assertion mechanism instead of inventing a
-  recoverable business-error path.
-- Prefer the correct shape over incremental patches. When special cases accumulate,
-  redesign the bounded local module into a simpler cohesive structure instead of
-  layering more conditions on top.
-- Preserve established style and observable behavior while refactoring. Keep changes
-  within the requested scope; do not mix a refactor with unrelated bug fixes,
-  formatting churn, or speculative features.
-- Keep modules deep: expose the smallest interface callers actually need and hide a
-  cohesive implementation behind it. Do not expose internal state, knobs, parameters,
-  or intermediate steps for testing or wiring convenience.
-- Prefer direct, sequential implementations with the fewest moving parts. Delete
-  shallow abstractions that neither reduce caller complexity nor represent a stable
-  interface or substitution point. Every cache, token, flag, wrapper, compatibility
-  branch, and broad dispatch table must serve a current requirement; remove
-  speculative fallbacks, unreachable branches, and placeholder APIs.
+- Use the user's confirmed deployment, lifecycle, caller, and concurrency facts.
+  Question them only when code, configuration, or an explicit contract contradicts
+  them. Point to the conflict. Possible future deployment changes do not expand
+  the current task.
+- Implement current requirements and supported inputs. Reuse the language, standard
+  library, and existing framework. Check framework behavior when uncertain and add
+  only what is missing. Do not invent future capabilities.
+- When code or documentation shows that components are maintained together under
+  one protocol, treat them as one implementation. Do not add compatibility checks
+  just in case one component breaks that protocol.
+- Preserve API compatibility when the repository has a stable commitment or
+  separately maintained consumers. During active development without that
+  commitment, or before the project is usable, change internal APIs when it
+  improves the design. Update callers, tests, documentation, and configuration
+  together instead of keeping shims or old internal paths. Preserve separately
+  versioned protocols, persistent formats, and deployed integrations unless their
+  migration is part of the task.
+- Validate each constraint once at the boundary that can enforce it. Internal callers
+  can rely on that check. Validate again when data enters a new trust domain or
+  a state change invalidates the earlier guarantee.
+- Preserve checks needed for untrusted input, secrets, authentication, external I/O,
+  permissions, persistent data, memory safety, and irreversible operations.
+- If an internal invariant fails, use the language's usual assertion or immediate
+  failure mechanism. Do not turn it into a recoverable business error. Use types,
+  ownership, and constructors to represent valid states. Do not hide I/O errors
+  behind defaults or type assertions.
+- Choose checks and cryptography for the data and protocol being handled. Compare
+  ordinary public IDs and status values normally. Do not arbitrarily restrict
+  supported inputs or normalize credentials.
+- When special cases accumulate, redesign the affected module instead of adding
+  more branches.
+- Keep ordinary fixes focused on their cause. In an authorized structural refactor,
+  aim for the simplest final design. Move responsibilities, migrate all affected
+  internal callers, and delete old paths even when that requires a larger diff.
+  Preserve the project's style and required behavior. Avoid unrelated fixes,
+  formatting changes, future features, and framework changes the task does not need.
+- Keep modules deep: put related implementation behind a small interface. Expose
+  only what production callers need. Do not expose state, settings, parameters, or
+  intermediate steps just to simplify tests or wiring.
+- Prefer direct, sequential code. Remove abstractions that neither simplify callers
+  nor provide a stable interface or needed substitution point. Each cache, token,
+  flag, wrapper, compatibility branch, and dispatch table must meet a current
+  requirement. Remove speculative fallbacks, unreachable branches, and placeholders.
+- Keep one source of truth. Store derived state only when performance, history, or
+  recovery requires it.
+- Do not create or retain AI-invented evidence, provenance, confidence, receipt, or
+  forensics layers around ordinary business operations. Return domain results and
+  errors directly. Remove proof objects and their hashes, snapshots, registries,
+  ledgers, validators, storage, retention, reconciliation, and execution gates.
+  Migrate their callers. Generated consumers, tests, documents, and plans do not
+  justify keeping this design. Do not preserve it under a new name or replace it
+  with a smaller version of the same architecture.
+- Judge existing mechanisms against the original requirements. Agent-created code,
+  tests, documents, and plans do not create new requirements. Remove unused files
+  and dependencies with the capability they support. Preserve user changes,
+  production data, and external commitments.
 - Make mutation visible in APIs. Use hidden or interior mutation only when shared
-  mutation is genuinely required.
-- Add error context only when it identifies a concrete external operation or target
-  and materially improves diagnosis. Otherwise propagate clear errors directly.
-- Keep tests focused on observable behavior, contracts, security, persistence, and
-  realistic failure modes. Do not change production visibility, add test-only
-  production entry points, or extract a single-use step from a cohesive one-pass
-  implementation solely so a unit test can call it directly. Test through the
-  existing production API; extract a helper only when it is a sound production
-  abstraction independent of testing.
-- In Rust, keep implementation details private with no visibility modifier and use
-  plain `pub` for intentional public APIs. Use `pub(crate)`, `pub(super)`, or other
-  restricted visibility only when a concrete production consumer requires that exact
-  internal boundary, never as a habitual compromise or merely to expose an item to
-  tests.
-- Verify changes through the actual production surface as callers use it, not only by
-  inspecting source or testing internal steps. Prefer realistic smoke or integration
-  tests when direct unit tests would require reshaping the production API.
+  mutation is required.
+- Propagate clear errors directly. Add context when it names an external operation
+  or target and helps diagnose the failure. Handle or log an error where code can
+  decide how to recover or report it. Do not log the same error at every layer.
+  Retry only recoverable failures, with limits and defined rules for side effects
+  and idempotency.
+- Test behavior, contracts, security, persistence, and failures that can occur in
+  the supported system. Do not expose private code or add production APIs just for
+  tests. Extract a helper only when it is useful to the production design on its
+  own. Otherwise test through the existing API.
+- In Rust, leave implementation details private and use plain `pub` for public
+  APIs. Use `pub(crate)`, `pub(super)`, or another restricted visibility only when
+  a production caller needs that boundary, never just to expose code to tests.
+- Test through the production API or entry point. Use a smoke or integration test
+  when testing a private step would require changing the API. After a structural
+  refactor, confirm that callers use the new path and old symbols, dependencies,
+  and temporary bridges are gone. Passing old tests does not prove the migration
+  is complete.
+- Review the relevant diff once for unnecessary complexity. Check reported problems
+  against code paths that can run and the user's confirmed facts. Separate defects
+  from optional suggestions. A severity label alone does not establish a defect.
+  Fix failures and repeat the affected checks. Stop when the acceptance criteria
+  are met. Do not add governance tools, proof files, work logs, or review loops
+  unless the task requires them.
 </code_design_principles>
