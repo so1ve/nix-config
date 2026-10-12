@@ -1,6 +1,6 @@
 ---
 name: refactor-for-simplicity
-description: Review and refactor existing codebases to simplify architecture, code, interfaces, and tests. Use for broad simplification, overengineering cleanup, structural migrations, or simplification reviews. Remove redundant checks, state, abstractions, old compatibility paths, and low-value tests. Migrate affected callers, preserve required behavior and external contracts, and check that the new structure works and old paths are gone. Do not use for ordinary narrowly scoped fixes unless explicitly invoked.
+description: Review and refactor existing codebases to simplify architecture, code, interfaces, and tests. Use for broad simplification, overengineering cleanup, structural migrations, or simplification reviews. Detect mechanisms unsupported by current requirements. Remove redundant checks, state, abstractions, old compatibility paths, and low-value tests. Migrate affected callers, preserve required behavior and external contracts, and check that the new structure works and old paths are gone. Do not use for ordinary narrowly scoped fixes unless explicitly invoked.
 ---
 
 # Refactor for Simplicity
@@ -35,11 +35,36 @@ request, report findings without editing. Keep a narrow bug fix focused. Create
 plan files, inventories, approval tables, or proof records only if the task requires
 them.
 
-## Choose what to keep
+## Detect overengineering
 
-Ask who uses each mechanism, what current requirement it meets, or what failure it
-handles in the supported system. Explain the reason briefly when needed. A search
-match is a candidate to inspect, not a reason to delete code.
+Trace a supported operation from its production entry point to its result, including
+state changes and failures. Inspect the whole affected path, including mechanisms
+the user did not name. For each layer, state source, dependency, or coordination
+step, ask:
+
+- Which current behavior, contract, or supported failure would be mishandled if it
+  were removed? Identify the caller or boundary that needs it.
+- Could direct code, a domain type, or the existing runtime or framework meet the
+  same requirement with fewer concepts and responsibilities?
+- What must maintainers configure, coordinate, store, deploy, or recover because
+  of it? What current benefit justifies that work?
+- Is its supporting code solving a domain problem, or only a problem created by
+  another unnecessary mechanism?
+
+Compare callers and implementations together, including everything needed to run
+them. If an abstraction hides complexity, check how it simplifies current callers.
+A short wrapper can still require a large subsystem. Future flexibility and labels
+such as "decoupled", "scalable", or "robust" do not establish a requirement. A
+mechanism's existence, callers, or passing tests do not establish that it belongs
+in the design.
+
+Read [Overengineering examples](references/overengineering.md) when reviewing
+architecture or unnecessary mechanisms. Use the examples to recognize similar
+structures under other names. A search match is a candidate to inspect, not a
+reason to delete code. Explain findings briefly in terms of the current requirement,
+the added work, and the simpler design. Do not create scores or proof records.
+
+## Choose what to keep
 
 - Reuse checks and guarantees provided by types, constructors, parsers, the standard
   library, and existing frameworks. Check library behavior when uncertain and add
