@@ -127,6 +127,15 @@ implement, clean up, or finish work does not override them.
   nor provide a stable interface or needed substitution point. Each cache, token,
   flag, wrapper, compatibility branch, and dispatch table must meet a current
   requirement. Remove speculative fallbacks, unreachable branches, and placeholders.
+- Detect overengineering by tracing a supported operation from its entry point to
+  its result. For each layer, state source, dependency, or coordination step, ask
+  what would be lost by removing it, which current requirement or production caller
+  needs that benefit, and whether a simpler design using existing facilities would
+  meet the same need. Look for code needed only to operate another unnecessary
+  mechanism. Future flexibility or a pattern name does not establish a requirement.
+  Remove unnecessary mechanisms with the code, state, configuration, dependencies,
+  and tests that exist only for them. Preserve required behavior, safety checks,
+  and external or persistence contracts.
 - Keep one source of truth. Store derived state only when performance, history, or
   recovery requires it.
 - Do not create or retain AI-invented evidence, provenance, confidence, receipt, or
