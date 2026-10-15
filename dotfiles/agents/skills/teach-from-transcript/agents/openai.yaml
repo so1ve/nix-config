@@ -1,0 +1,8 @@
+interface:
+  display_name: 课程精讲：从脚本到解题
+  short_description: 从课程文字脚本提炼知识与做题要求，串联概念，用代表题讲清方法和迁移
+  default_prompt: 使用 $teach-from-transcript，把我提供的课程文字脚本整理为精要、连贯的知识讲解，提炼做题要求，用对应例题讲清方法，保留必要计算步骤。
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  allow_implicit_invocation: true
