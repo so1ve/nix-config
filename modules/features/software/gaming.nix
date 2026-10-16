@@ -33,6 +33,19 @@
       };
     };
 
+    "software/endfield-cloud-game" = {
+      requires.allOf = [ "software/chrome" ];
+      nixos = {
+        ray.chromeWebApps = [
+          {
+            url = "https://endfield.hypergryph.com/cloud";
+            custom_name = "云·终末地";
+            appId = "jgjehckfkoefhaehfbpjfpeggilbkije";
+          }
+        ];
+      };
+    };
+
     "software/hmcl".home =
       { pkgs, ... }:
       let

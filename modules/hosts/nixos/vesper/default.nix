@@ -98,6 +98,7 @@
       "software/gaming"
       "software/hmcl"
       "software/netease-cloud-game"
+      "software/endfield-cloud-game"
 
       # Media
       "software/swayimg"

@@ -73,9 +73,6 @@ window-rule {
     match app-id=r#"(?i)^(hmcl|org\.jackhuang\.hmcl(?:\..*)?)$"#
     match app-id=r#"^java$"# title=r#"^HMCL(?:\s|$)"#
 
-    // Endfield cloud game
-    match app-id=r#"^waydroid\.com\.hypergryph\.cloud\.endfield$"#
-
     // Turing Complete
     match title=r#"^Turing Complete$"#
 
@@ -92,7 +89,9 @@ window-rule {
 }
 
 window-rule {
+    // NetEase Cloud Game and Endfield Cloud Game.
     match app-id=r#"^chrome-jfmfhdlohbopnadjpiopnfkncjkjaihl-Default$"#
+    match app-id=r#"^chrome-jgjehckfkoefhaehfbpjfpeggilbkije-Default$"#
 
     open-on-workspace "game"
     open-focused true
