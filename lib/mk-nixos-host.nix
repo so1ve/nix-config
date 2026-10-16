@@ -17,12 +17,10 @@ let
 
   mkDotfilesSymlink = import "${inputs.self}/lib/mk-dotfiles-symlink.nix";
   mkFocusOrLaunch = import "${inputs.self}/lib/mk-focus-or-launch.nix" { inherit inputs; };
-  mkAppImage = import "${inputs.self}/lib/mk-appimage.nix" { inherit lib; };
 
   specialArgsFor = host: {
     inherit
       inputs
-      mkAppImage
       mkDotfilesSymlink
       mkFocusOrLaunch
       ;
