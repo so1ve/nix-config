@@ -66,6 +66,19 @@ in
         rimeLmdg = pkgs.nur.repos.jetcookies.rime-lmdg;
       in
       {
+        # XDG autostart services are not restarted by Home Manager's service switch.
+        home.activation.restartFcitx =
+          lib.hm.dag.entryAfter
+            [
+              "onFilesChange"
+              "reloadSystemd"
+            ]
+            ''
+              if ${pkgs.systemd}/bin/systemctl --user is-active --quiet app-org.fcitx.Fcitx5@autostart.service; then
+                run ${pkgs.systemd}/bin/systemctl --user restart app-org.fcitx.Fcitx5@autostart.service
+              fi
+            '';
+
         # Fcitx5-Qt renders the candidate window inside Qt applications and
         # only reads this user-level file, not /etc/xdg/fcitx5.
         xdg = {
