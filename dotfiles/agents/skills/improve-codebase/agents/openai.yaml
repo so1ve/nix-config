@@ -1,0 +1,4 @@
+interface:
+  display_name: "Improve Codebase"
+  short_description: "Coordinate design, naming, tests, and documentation"
+  default_prompt: "Use $improve-codebase to coordinate production refactoring, naming improvements, and test-suite cleanup in this codebase, using the relevant specialist skills and verifying the combined result."

@@ -1,6 +1,6 @@
 ---
 name: refactor-for-simplicity
-description: Review and refactor existing codebases to simplify architecture, code, interfaces, and tests. Use for broad simplification, overengineering cleanup, structural migrations, or simplification reviews. Detect mechanisms unsupported by current requirements. Remove redundant checks, state, abstractions, old compatibility paths, and low-value tests. Migrate affected callers, preserve required behavior and external contracts, and check that the new structure works and old paths are gone. Do not use for ordinary narrowly scoped fixes unless explicitly invoked.
+description: Review and refactor production architecture and code to simplify responsibilities, interfaces, control flow, state, and dependencies. Use for structural simplification, overengineering cleanup, migrations, or production design reviews. Remove mechanisms unsupported by current requirements, migrate affected callers, and preserve required behavior and external contracts. Do not use for standalone naming reviews, test-suite cleanup, or ordinary narrowly scoped fixes unless explicitly invoked.
 ---
 
 # Refactor for Simplicity
@@ -9,6 +9,13 @@ Make the requested code easier to understand and change. Preserve required behav
 and unrelated user changes. Favor fewer concepts, state sources, and branches that
 a maintainer has to follow. Choose the right responsibilities and interfaces before
 minimizing the diff.
+
+This skill owns production design and its required caller migrations. Use
+[Clarify Code Names](../clarify-code-names/SKILL.md) for a naming review and
+[Improve Test Suite](../improve-test-suite/SKILL.md) for test-suite cleanup when
+those tasks are in scope. Read their full instructions from the session's skill
+catalog when applying them. Ordinary caller, name, and test updates needed to
+complete a production refactor remain part of this skill.
 
 ## Define the change
 
@@ -154,15 +161,9 @@ Do not leave commented-out code, deletion placeholders, or backup copies without
 a current purpose. Keep a temporary bridge only for a required transition, and
 remove it when that transition ends.
 
-Read [Design and simplify the test suite](references/test-quality.md) before changing
-tests or test support code, and when a requested cleanup includes the test suite.
-Choose the behaviors that need protection instead of testing every module. Check
-results rather than ordinary logs or private calls. Prefer real implementations;
-use test doubles only where needed. Consolidate repeated setup, resource management,
-fakes, and assertions with the project's existing test facilities. Keep important
-case inputs and expectations visible. Delete redundant tests and their unused
-support, and preserve checks of required behavior. Do not change production APIs
-just to expose helpers to tests.
+Update affected behavior tests through the production API. Do not expose helpers
+or change production APIs just for tests. Use Improve Test Suite when the request
+also includes reorganizing the suite or shared test support.
 
 Whenever Rust sources or Cargo manifests are in scope, read and apply
 [Rust-specific review](references/rust.md).
