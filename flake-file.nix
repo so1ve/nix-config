@@ -89,11 +89,6 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-      nur = {
-        url = "github:nix-community/NUR";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
-
       so1ve.url = "github:so1ve/nur-packages";
 
       herdr-automatic-rename = {

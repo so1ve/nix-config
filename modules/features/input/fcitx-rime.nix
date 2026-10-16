@@ -1,8 +1,8 @@
 let
   mkRimeWithWanxiang =
-    pkgs:
+    pkgs: wanxiang:
     let
-      wanxiangPatched = pkgs.rime-wanxiang.overrideAttrs (old: {
+      wanxiangPatched = wanxiang.overrideAttrs (old: {
         postPatch = (old.postPatch or "") + ''
           for schema in wanxiang.schema.yaml wanxiang_english.schema.yaml; do
             substituteInPlace "$schema" \
@@ -20,9 +20,10 @@ in
 {
   ray.features."input/fcitx-rime" = {
     nixos =
-      { pkgs, ... }:
+      { inputs, pkgs, ... }:
       let
-        rimeWithWanxiang = mkRimeWithWanxiang pkgs;
+        personalPackages = import inputs.so1ve { inherit pkgs; };
+        rimeWithWanxiang = mkRimeWithWanxiang pkgs personalPackages.rime-wanxiang;
       in
       {
         i18n.inputMethod = {
@@ -57,13 +58,15 @@ in
     home =
       {
         config,
+        inputs,
         lib,
         pkgs,
         ...
       }:
       let
-        rimeWithWanxiang = mkRimeWithWanxiang pkgs;
-        rimeLmdg = pkgs.nur.repos.jetcookies.rime-lmdg;
+        personalPackages = import inputs.so1ve { inherit pkgs; };
+        rimeWithWanxiang = mkRimeWithWanxiang pkgs personalPackages.rime-wanxiang;
+        rimeLmdg = personalPackages.rime-lmdg;
       in
       {
         # XDG autostart services are not restarted by Home Manager's service switch.

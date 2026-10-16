@@ -10,8 +10,6 @@
     nixos =
       { pkgs, ... }:
       {
-        nixpkgs.overlays = [ inputs.nur.overlays.default ];
-
         programs = {
           nh.enable = true;
           nix-ld.enable = true;
