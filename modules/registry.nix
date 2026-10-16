@@ -8,7 +8,8 @@
 
     nixCacheSettings = {
       extra-substituters = [
-        "https://attic.xuyh0120.win/lantian"
+        "https://cache.xinux.uz"
+        # "https://attic.xuyh0120.win/lantian"
         "https://cache.numtide.com"
         "https://codex-desktop-linux.cachix.org"
         "https://nix-community.cachix.org"
@@ -16,7 +17,8 @@
         "https://so1ve.cachix.org"
       ];
       extra-trusted-public-keys = [
-        "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+        "cache.xinux.uz:BXCrtqejFjWzWEB9YuGB7X2MV4ttBur1N8BkwQRdH+0="
+        # "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
         "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
         "codex-desktop-linux.cachix.org-1:nX/xy6AdK9hQE24A8ALGjkCKj2ObFmcnemiL5Cid4nk="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
