@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clarify Code Names"
+  short_description: "Clarify code names, API intent, and domain vocabulary"
+  default_prompt: "Use $clarify-code-names to review names at real call sites, correct misleading terms, and migrate related references without changing behavior or external contracts."

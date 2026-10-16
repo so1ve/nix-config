@@ -1,4 +1,35 @@
-# Design and simplify the test suite
+---
+name: improve-test-suite
+description: Review and improve test suites by selecting useful behavior tests, removing redundant or brittle cases, limiting mocks, and consolidating shared test support. Use for test-suite cleanup, log or implementation-detail assertions, mock-heavy tests, copied fixtures, resource isolation problems, or reusable test-support design. Do not use for routine test updates accompanying an unrelated fix unless explicitly invoked.
+---
+
+# Improve Test Suite
+
+Make the retained tests detect meaningful regressions and keep the suite practical
+to maintain. This includes deciding which tests to delete and building shared support
+for those worth keeping.
+
+## Scope and approach
+
+Read repository instructions and the relevant production entry points, callers,
+contracts, tests, runner configuration, and support code. Use the user's confirmed
+runtime facts. Existing tests and agent-created documents do not create requirements.
+For a review-only request, report findings without editing. Otherwise complete the
+authorized cleanup, including migration of retained tests and removal of old helpers.
+
+Review related cases together so duplicated setup and missing shared facilities are
+visible. Use the guidance below to decide what to remove, retain, rewrite, or share.
+Do not start by generating tests for every module or wrapping each existing mock
+in a new helper.
+
+Preserve production behavior and external contracts. If a testing problem comes
+from misplaced production responsibilities, identify that cause. When a production
+refactor is in scope, apply [Refactor for Simplicity](../refactor-for-simplicity/SKILL.md)
+from the session's skill catalog. A test-only request does not authorize changing
+business rules or adding production APIs for testing. In Rust, keep test-only support
+private or in test modules. Do not widen production visibility for tests.
+
+## Review existing tests
 
 Review tests affected by the refactor or included in a requested cleanup, even when
 they pass. Delete, merge, or rewrite tests that protect no current requirement.

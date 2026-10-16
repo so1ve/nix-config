@@ -1,0 +1,4 @@
+interface:
+  display_name: "Improve Test Suite"
+  short_description: "Keep useful tests and simplify shared test support"
+  default_prompt: "Use $improve-test-suite to remove low-value tests, replace brittle assertions and excessive mocks, and consolidate shared test support while preserving tests of required behavior."
