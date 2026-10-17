@@ -4,7 +4,7 @@
       { inputs, pkgs, ... }:
       {
         home.packages = [
-          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.alger-music-player
+          (import inputs.so1ve { inherit pkgs; }).alger-music-player
         ];
       };
 
@@ -12,7 +12,7 @@
       { inputs, pkgs, ... }:
       {
         home.packages = [
-          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.yesplaymusic
+          (import inputs.so1ve { inherit pkgs; }).yesplaymusic
         ];
       };
 

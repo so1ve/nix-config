@@ -47,7 +47,7 @@
         imports = [ inputs.direnv-instant.homeModules.direnv-instant ];
 
         home.packages = [
-          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.cargo-pretty
+          (import inputs.so1ve { inherit pkgs; }).cargo-pretty
           devEnv
           pkgs.devenv
           pkgs.ni

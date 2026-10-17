@@ -17,7 +17,10 @@
     home =
       { inputs, pkgs, ... }:
       {
-        home.packages = [ inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.winboat-unstable ];
+        home.packages = [
+          # Keep the original nixpkgs pin until guest-server stops using buildGo125Module.
+          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.winboat-unstable
+        ];
       };
   };
 }
