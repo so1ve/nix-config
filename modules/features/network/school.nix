@@ -11,6 +11,9 @@
       {
         age.secrets.wireguard-private-key.file = "${inputs.self}/secrets/wireguard-private-key.age";
 
+        # avoid displaying in noctalia panel to prevent accidental disconnect and state mismatch
+        networking.networkmanager.unmanaged = [ "interface-name:school" ];
+
         networking.wg-quick.interfaces.school = {
           address = [ "192.168.66.3/32" ];
           privateKeyFile = config.age.secrets.wireguard-private-key.path;
