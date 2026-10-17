@@ -5,8 +5,7 @@
       {
         # FIXME: Remove this pin once the Bluetooth reconnect/A2DP regression is fixed upstream:
         # https://github.com/bluez/bluez/issues/2524
-        hardware.bluetooth.package =
-          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}."bluez-5_86";
+        hardware.bluetooth.package = (import inputs.so1ve { inherit pkgs; })."bluez-5_86";
 
         services = {
           pulseaudio.enable = false;

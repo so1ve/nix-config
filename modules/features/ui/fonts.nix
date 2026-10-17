@@ -9,7 +9,7 @@
       }:
       {
         fonts.packages = [
-          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.r-maple-mono-nf-cn
+          (import inputs.so1ve { inherit pkgs; }).r-maple-mono-nf-cn
           pkgs.noto-fonts-cjk-sans
           pkgs.noto-fonts-cjk-serif
         ];

@@ -88,7 +88,7 @@
           ...
         }:
         let
-          herdr = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
+          herdr = (import inputs.so1ve { inherit pkgs; }).herdr;
           herdrSkill = pkgs.runCommand "herdr-skill-${herdr.version}" { } ''
             ${herdr}/bin/herdr --skill > "$out"
           '';

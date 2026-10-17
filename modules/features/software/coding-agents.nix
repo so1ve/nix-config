@@ -243,7 +243,7 @@
         }:
         let
           deepseekApiKey = config.age.secrets.deepseek-api-key.path;
-          deepseekHarness = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.deepseek-harness;
+          deepseekHarness = (import inputs.so1ve { inherit pkgs; }).deepseek-harness;
           dsh = pkgs.writeShellApplication {
             name = "dsh";
             text = ''

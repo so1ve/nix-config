@@ -7,7 +7,7 @@ pkgs.writeShellApplication {
     pkgs.jq
     # FIXME: Switch back to pkgs.niri after the upstream PR is merged:
     # https://github.com/niri-wm/niri/pull/3305 or https://github.com/niri-wm/niri/pull/4147
-    inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.niri
+    (import inputs.so1ve { inherit pkgs; }).niri
   ];
   text = ''
     if [ "$#" -lt 2 ]; then
