@@ -2,6 +2,9 @@
   ray.features."desktop/niri" = {
     nixos =
       { inputs, pkgs, ... }:
+      let
+        personalPackages = import inputs.so1ve { inherit pkgs; };
+      in
       {
         environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
@@ -9,7 +12,7 @@
         # https://github.com/niri-wm/niri/pull/3305 or https://github.com/niri-wm/niri/pull/4147
         programs.niri = {
           enable = true;
-          package = inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.niri;
+          package = personalPackages.niri;
         };
         services.displayManager.defaultSession = "niri";
 
@@ -22,7 +25,7 @@
         environment.systemPackages = [
           # FIXME: Switch back to pkgs.xwayland-satellite after the upstream PR is merged:
           # https://github.com/Supreeeme/xwayland-satellite/pull/477
-          inputs.so1ve.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite
+          personalPackages.xwayland-satellite
         ];
       };
 

@@ -120,7 +120,11 @@ in
         };
       };
 
-      noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter";
+      # must follow nixpkgs to avoid glibc version mismatch
+      noctalia-greeter = {
+        url = "github:noctalia-dev/noctalia-greeter";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
 
       neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
