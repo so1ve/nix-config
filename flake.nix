@@ -105,7 +105,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter";
+    noctalia-greeter = {
+      url = "github:noctalia-dev/noctalia-greeter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     relvi = {
       url = "github:so1ve/relvi";
       inputs.nixpkgs.follows = "nixpkgs";
