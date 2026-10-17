@@ -19,9 +19,7 @@
         allowedUDPPorts = [ config.services.tailscale.port ];
       };
 
-      systemd.services.tailscaled.serviceConfig.Environment = [
-        "TS_DEBUG_FIREWALL_MODE=nftables"
-      ];
+      systemd.services.tailscaled.environment.TS_DEBUG_FIREWALL_MODE = "nftables";
     };
 
   ray.features."software/tailscale".home =
