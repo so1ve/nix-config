@@ -105,6 +105,7 @@
       "software/picgo"
       "software/mpv"
       "software/alger-music-player"
+      "software/go-musicfox"
       "software/blender"
       "software/obs"
       "software/yanhekt-autoslides"
