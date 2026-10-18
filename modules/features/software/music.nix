@@ -1,5 +1,11 @@
 {
   ray.features = {
+    "software/go-musicfox".home =
+      { pkgs, ... }:
+      {
+        home.packages = [ pkgs.go-musicfox ];
+      };
+
     "software/alger-music-player".home =
       { inputs, pkgs, ... }:
       {
