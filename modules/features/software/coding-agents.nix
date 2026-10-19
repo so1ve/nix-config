@@ -272,14 +272,14 @@
                 "npm:@deepseek-ai/dsh-web-app"
                 "github:YuJunZhiXue/dsh-purge"
               ];
-              patch = [
-                {
-                  id = "connection";
-                  config.trustedHosts.__jsExpr = "${builtins.toJSON tailscaleHosts}.concat(ctx.webRuntime.trustedHosts)";
-                }
-              ];
             };
+            # The Web UI rewrites its profile patch when saving settings.
+            # Keep declarative overrides in the separate home-level layer.
             cordisPatch = [
+              {
+                id = "connection";
+                config.trustedHosts.__jsExpr = "${builtins.toJSON tailscaleHosts}.concat(ctx.webRuntime.trustedHosts)";
+              }
               {
                 insert = [
                   {
