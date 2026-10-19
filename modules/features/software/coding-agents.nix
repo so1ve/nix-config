@@ -239,6 +239,12 @@
       }:
       let
         rea = (import inputs.so1ve { inherit pkgs; }).rea;
+        tailscaleHosts = [
+          "100.126.102.21"
+          "[fd7a:115c:a1e0::4a3a:6617]"
+          "vesper"
+          "vesper.tailad1c3c.ts.net"
+        ];
       in
       {
         imports = [ inputs.so1ve.homeModules.deepseek-harness ];
@@ -251,11 +257,19 @@
 
         programs.deepseek-harness = {
           enable = true;
-          profiles.web.plugins = [
-            "npm:@deepseek-ai/dsh-base"
-            "npm:@deepseek-ai/dsh-web-app"
-            "github:YuJunZhiXue/dsh-purge"
-          ];
+          profiles.web = {
+            plugins = [
+              "npm:@deepseek-ai/dsh-base"
+              "npm:@deepseek-ai/dsh-web-app"
+              "github:YuJunZhiXue/dsh-purge"
+            ];
+            patch = [
+              {
+                id = "connection";
+                config.trustedHosts.__jsExpr = "${builtins.toJSON tailscaleHosts}.concat(ctx.webRuntime.trustedHosts)";
+              }
+            ];
+          };
           cordisPatch = [
             {
               insert = [
