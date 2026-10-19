@@ -231,68 +231,78 @@
         };
     };
 
-    "software/dsh".home =
-      {
-        inputs,
-        pkgs,
-        ...
-      }:
-      let
-        rea = (import inputs.so1ve { inherit pkgs; }).rea;
-        tailscaleHosts = [
-          "100.126.102.21"
-          "[fd7a:115c:a1e0::4a3a:6617]"
-          "vesper"
-          "vesper.tailad1c3c.ts.net"
-        ];
-      in
-      {
-        imports = [ inputs.so1ve.homeModules.deepseek-harness ];
+    "software/dsh" = {
+      requires.allOf = [ "security/agenix" ];
 
-        home = {
-          packages = [ rea ];
-          file.".dsh/skills/reverse-engineer-anything".source =
-            "${rea}/share/rea/node_modules/rea-agents/skills/reverse-engineer-anything";
-        };
+      home =
+        {
+          config,
+          inputs,
+          pkgs,
+          ...
+        }:
+        let
+          rea = (import inputs.so1ve { inherit pkgs; }).rea;
+          tailscaleHosts = [
+            "100.126.102.21"
+            "[fd7a:115c:a1e0::4a3a:6617]"
+            "vesper"
+            "vesper.tailad1c3c.ts.net"
+          ];
+        in
+        {
+          imports = [ inputs.so1ve.homeModules.deepseek-harness ];
 
-        programs.deepseek-harness = {
-          enable = true;
-          profiles.web = {
-            plugins = [
-              "npm:@deepseek-ai/dsh-base"
-              "npm:@deepseek-ai/dsh-web-app"
-              "github:YuJunZhiXue/dsh-purge"
-            ];
-            patch = [
-              {
-                id = "connection";
-                config.trustedHosts.__jsExpr = "${builtins.toJSON tailscaleHosts}.concat(ctx.webRuntime.trustedHosts)";
-              }
-            ];
+          age.secrets.dsh-env = {
+            file = "${inputs.self}/secrets/dsh-env.age";
+            path = "${config.home.homeDirectory}/.dsh/.env";
           };
-          cordisPatch = [
-            {
-              insert = [
+
+          home = {
+            packages = [ rea ];
+            file.".dsh/skills/reverse-engineer-anything".source =
+              "${rea}/share/rea/node_modules/rea-agents/skills/reverse-engineer-anything";
+          };
+
+          programs.deepseek-harness = {
+            enable = true;
+            profiles.web = {
+              plugins = [
+                "npm:@deepseek-ai/dsh-base"
+                "npm:@deepseek-ai/dsh-web-app"
+                "github:YuJunZhiXue/dsh-purge"
+              ];
+              patch = [
                 {
-                  id = "rea-mcp";
-                  name = "@deepseek-ai/dsh-mcp-client";
-                  config = {
-                    serverName = "rea";
-                    transport = "stdio";
-                    command = "${rea}/bin/rea";
-                    args = [ "mcp" ];
-                    toolCallTimeoutMs = 450000;
-                    reconnect.enabled = false;
-                  };
+                  id = "connection";
+                  config.trustedHosts.__jsExpr = "${builtins.toJSON tailscaleHosts}.concat(ctx.webRuntime.trustedHosts)";
                 }
               ];
-            }
-          ];
-          agentsFile = ''
-            Before starting any task, read and follow the instructions in
-            ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
-          '';
+            };
+            cordisPatch = [
+              {
+                insert = [
+                  {
+                    id = "rea-mcp";
+                    name = "@deepseek-ai/dsh-mcp-client";
+                    config = {
+                      serverName = "rea";
+                      transport = "stdio";
+                      command = "${rea}/bin/rea";
+                      args = [ "mcp" ];
+                      toolCallTimeoutMs = 450000;
+                      reconnect.enabled = false;
+                    };
+                  }
+                ];
+              }
+            ];
+            agentsFile = ''
+              Before starting any task, read and follow the instructions in
+              ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
+            '';
+          };
         };
-      };
+    };
   };
 }
