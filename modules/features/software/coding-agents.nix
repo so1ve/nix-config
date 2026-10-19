@@ -231,42 +231,54 @@
         };
     };
 
-    "software/dsh" = {
-      requires.allOf = [ "security/agenix" ];
+    "software/dsh".home =
+      {
+        inputs,
+        pkgs,
+        ...
+      }:
+      let
+        rea = (import inputs.so1ve { inherit pkgs; }).rea;
+      in
+      {
+        imports = [ inputs.so1ve.homeModules.deepseek-harness ];
 
-      home =
-        {
-          config,
-          inputs,
-          pkgs,
-          ...
-        }:
-        let
-          deepseekApiKey = config.age.secrets.deepseek-api-key.path;
-          deepseekHarness = (import inputs.so1ve { inherit pkgs; }).deepseek-harness;
-          dsh = pkgs.writeShellApplication {
-            name = "dsh";
-            text = ''
-              DEEPSEEK_API_KEY="$(< "${deepseekApiKey}")"
-              export DEEPSEEK_API_KEY
-              exec ${deepseekHarness}/bin/dsh "$@"
-            '';
-          };
-        in
-        {
-          imports = [ inputs.so1ve.homeModules.deepseek-harness ];
-
-          age.secrets.deepseek-api-key.file = "${inputs.self}/secrets/deepseek-api-key.age";
-
-          programs.deepseek-harness = {
-            enable = true;
-            package = dsh;
-            agentsFile = ''
-              Before starting any task, read and follow the instructions in
-              ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
-            '';
-          };
+        home = {
+          packages = [ rea ];
+          file.".dsh/skills/reverse-engineer-anything".source =
+            "${rea}/share/rea/node_modules/rea-agents/skills/reverse-engineer-anything";
         };
-    };
+
+        programs.deepseek-harness = {
+          enable = true;
+          profiles.web.plugins = [
+            "npm:@deepseek-ai/dsh-base"
+            "npm:@deepseek-ai/dsh-web-app"
+            "github:YuJunZhiXue/dsh-purge"
+          ];
+          cordisPatch = [
+            {
+              insert = [
+                {
+                  id = "rea-mcp";
+                  name = "@deepseek-ai/dsh-mcp-client";
+                  config = {
+                    serverName = "rea";
+                    transport = "stdio";
+                    command = "${rea}/bin/rea";
+                    args = [ "mcp" ];
+                    toolCallTimeoutMs = 450000;
+                    reconnect.enabled = false;
+                  };
+                }
+              ];
+            }
+          ];
+          agentsFile = ''
+            Before starting any task, read and follow the instructions in
+            ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
+          '';
+        };
+      };
   };
 }
