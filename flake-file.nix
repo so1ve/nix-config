@@ -84,6 +84,11 @@ in
         flake = false;
       };
 
+      yanhekit = {
+        url = "github:windlandneko/yanhekit";
+        flake = false;
+      };
+
       disko = {
         url = "github:nix-community/disko/latest";
         inputs.nixpkgs.follows = "nixpkgs";

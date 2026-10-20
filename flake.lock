@@ -900,7 +900,8 @@
         "relvi": "relvi",
         "smart-splits-nvim": "smart-splits-nvim",
         "so1ve": "so1ve",
-        "waydroid-script": "waydroid-script"
+        "waydroid-script": "waydroid-script",
+        "yanhekit": "yanhekit"
       }
     },
     "smart-splits-nvim": {
@@ -1096,6 +1097,22 @@
         "owner": "casualsnek",
         "repo": "waydroid_script",
         "rev": "d5289cfd8929e86e7f0dc89ecadcef8b66930eec",
+        "type": "github"
+      }
+    },
+    "yanhekit": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792436023,
+        "narHash": "sha256-/OuSC+WIdDDXv+yEZLAp0SqKHrwXkl2lcZ72XKOHh4I=",
+        "owner": "windlandneko",
+        "repo": "yanhekit",
+        "rev": "a85de3ab6b0dfad6b4440775a6057ccab2881270",
+        "type": "github"
+      },
+      "original": {
+        "owner": "windlandneko",
+        "repo": "yanhekit",
         "type": "github"
       }
     }

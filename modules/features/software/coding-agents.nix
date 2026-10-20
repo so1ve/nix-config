@@ -2,15 +2,21 @@
 {
   ray.features = {
     "software/agent-skills".home =
-      { inputs, ... }:
+      { inputs, pkgs, ... }:
       {
         imports = [ inputs.agent-skills.homeManagerModules.default ];
+
+        home.packages = [ pkgs.uv ];
 
         programs.agent-skills = {
           enable = true;
           sources = {
             cloudflare = {
               input = "cloudflare-skills";
+              subdir = "skills";
+            };
+            yanhekit = {
+              input = "yanhekit";
               subdir = "skills";
             };
             local.path = ../../../dotfiles/agents/skills;
