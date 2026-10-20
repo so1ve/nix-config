@@ -237,6 +237,24 @@
         };
     };
 
+    "software/opencode".home =
+      {
+        config,
+        mkDotfilesSymlink,
+        pkgs,
+        ...
+      }:
+      {
+        # Unlike llm-agents' build, the nixpkgs package disables self-update and
+        # ships the model schema for offline use.
+        home.packages = [ pkgs.opencode ];
+
+        xdg.configFile."opencode/AGENTS.md".source = mkDotfilesSymlink {
+          inherit config;
+          name = "agents/AGENTS.md";
+        };
+      };
+
     "software/dsh" = {
       requires.allOf = [ "security/agenix" ];
 
@@ -270,43 +288,66 @@
               "${rea}/share/rea/node_modules/rea-agents/skills/reverse-engineer-anything";
           };
 
-          programs.deepseek-harness = {
-            enable = true;
-            profiles.web = {
-              plugins = [
-                "npm:@deepseek-ai/dsh-base"
-                "npm:@deepseek-ai/dsh-web-app"
-                "github:YuJunZhiXue/dsh-purge"
-              ];
-            };
-            # The Web UI rewrites its profile patch when saving settings.
-            # Keep declarative overrides in the separate home-level layer.
-            cordisPatch = [
-              {
-                id = "connection";
-                config.trustedHosts.__jsExpr = "${builtins.toJSON tailscaleHosts}.concat(ctx.webRuntime.trustedHosts)";
-              }
-              {
-                insert = [
-                  {
-                    id = "rea-mcp";
-                    name = "@deepseek-ai/dsh-mcp-client";
-                    config = {
-                      serverName = "rea";
-                      transport = "stdio";
-                      command = "${rea}/bin/rea";
-                      args = [ "mcp" ];
-                      toolCallTimeoutMs = 450000;
-                      reconnect.enabled = false;
-                    };
-                  }
+          programs = {
+            deepseek-harness = {
+              enable = true;
+              profiles.web = {
+                plugins = [
+                  "npm:@deepseek-ai/dsh-base"
+                  "npm:@deepseek-ai/dsh-web-app"
+                  "github:YuJunZhiXue/dsh-purge"
                 ];
-              }
-            ];
-            agentsFile = ''
-              Before starting any task, read and follow the instructions in
-              ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
-            '';
+              };
+              # The Web UI rewrites its profile patch when saving settings.
+              # Keep declarative overrides in the separate home-level layer.
+              cordisPatch = [
+                {
+                  id = "connection";
+                  config.trustedHosts.__jsExpr = "${builtins.toJSON tailscaleHosts}.concat(ctx.webRuntime.trustedHosts)";
+                }
+                {
+                  insert = [
+                    {
+                      id = "rea-mcp";
+                      name = "@deepseek-ai/dsh-mcp-client";
+                      disabled.__jsExpr = "process.env.DSH_ENABLE_REA !== '1'";
+                      config = {
+                        serverName = "rea";
+                        transport = "stdio";
+                        command = "${rea}/bin/rea";
+                        args = [ "mcp" ];
+                        toolCallTimeoutMs = 450000;
+                        reconnect.enabled = false;
+                      };
+                    }
+                  ];
+                }
+                {
+                  id = "dsh-purge";
+                  disabled.__jsExpr = "process.env.DSH_ENABLE_PURGE !== '1'";
+                }
+                {
+                  id = "dsh-purge-redteam";
+                  disabled.__jsExpr = "process.env.DSH_ENABLE_PURGE !== '1'";
+                }
+                {
+                  id = "dsh-purge-redteam-store";
+                  disabled.__jsExpr = "process.env.DSH_ENABLE_PURGE !== '1'";
+                }
+                {
+                  id = "dsh-purge-redteam-ui";
+                  disabled.__jsExpr = "process.env.DSH_ENABLE_PURGE !== '1'";
+                }
+              ];
+              agentsFile = ''
+                Before starting any task, read and follow the instructions in
+                ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
+              '';
+            };
+
+            fish.shellAbbrs = {
+              dsh-purge = "DSH_ENABLE_REA=1 DSH_ENABLE_PURGE=1 dsh web";
+            };
           };
         };
     };

@@ -63,6 +63,7 @@
       "software/codex-desktop"
       "software/pi"
       "software/omp"
+      "software/opencode"
       "software/dsh"
       "software/development"
       "software/git"
