@@ -122,5 +122,9 @@
       url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    yanhekit = {
+      url = "github:windlandneko/yanhekit";
+      flake = false;
+    };
   };
 }
