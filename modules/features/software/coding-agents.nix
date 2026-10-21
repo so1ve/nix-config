@@ -284,6 +284,8 @@
 
           home = {
             packages = [ rea ];
+            # DSH rewrites this manifest; Nix owns the profile's plugin list.
+            file.".dsh/profiles/web/package.json".force = true;
             file.".dsh/skills/reverse-engineer-anything".source =
               "${rea}/share/rea/node_modules/rea-agents/skills/reverse-engineer-anything";
           };
