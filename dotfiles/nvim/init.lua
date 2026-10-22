@@ -2451,6 +2451,12 @@ map("n", "<C-c>", "<Cmd>" .. table.concat(clear_commands, "<CR><Cmd>") .. "<CR>"
 
 map({ "n", "x" }, "go", "gx", { desc = "Open filepath or URI under cursor", remap = true })
 
+-- Macro recording
+map("n", "<leader>m", "q", { desc = "Record macro" })
+map("n", "q", function()
+  return vim.fn.reg_recording() ~= "" and "q" or ""
+end, { expr = true, desc = "Stop macro recording" })
+
 -- Editing
 map({ "n", "x" }, "x", '"_x', { desc = "Delete without yanking" })
 map({ "i", "c" }, "jj", "<Esc>", { desc = "Exit insert or command-line mode" })
