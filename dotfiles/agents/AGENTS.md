@@ -193,3 +193,11 @@ implement, clean up, or finish work does not override them.
   are met. Do not add governance tools, proof files, work logs, or review loops
   unless the task requires them.
 </code_design_principles>
+
+<required_skills>
+# Required skills
+
+- When designing, implementing, or reviewing a user interface, MUST read and apply
+  the `design-ui` skill before producing designs, editing UI code or copy, or
+  reporting UI review findings.
+</required_skills>
