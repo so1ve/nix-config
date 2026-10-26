@@ -78,6 +78,11 @@
             "mcp-helper-reaper"
             "node-repl-reaper"
             "ui-tweaks"
+            "tray-usage"
+            "wayland-global-shortcuts"
+            "pet-overlay"
+            "remote-control-ui"
+            "remote-mobile-control"
           ];
 
           linuxFeaturesConfig = pkgs.writeText "codex-linux-features.json" (
