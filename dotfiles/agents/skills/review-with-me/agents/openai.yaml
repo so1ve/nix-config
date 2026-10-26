@@ -1,0 +1,3 @@
+interface:
+  display_name: "Review With Me"
+  short_description: "Trace source code together and retain review feedback"
