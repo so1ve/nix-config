@@ -1,7 +1,7 @@
 {
   "plugins": {
     "async.nvim": {
-      "rev": "15f28ec323a75f34f317336831c00c2d1b0a7192",
+      "rev": "4182ab361c09ff251ac159c4a4110ec8e7723215",
       "src": "https://github.com/lewis6991/async.nvim"
     },
     "blame.nvim": {
@@ -22,7 +22,7 @@
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "codesettings.nvim": {
-      "rev": "b4d8bc0fced71e6b5b75e6dd62d61ab6b50954d3",
+      "rev": "df635a3fde5ecdb38a6dd2429b0fadc37c65cb94",
       "src": "https://github.com/mrjones2014/codesettings.nvim"
     },
     "codesnap.nvim": {
@@ -39,7 +39,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "copilot.lua": {
-      "rev": "84c129a0fe6841743ad7180fb714d4018e132f1e",
+      "rev": "82607bbb8528222a9a28bfcab0aceb3a7fed7e85",
       "src": "https://github.com/zbirenbaum/copilot.lua"
     },
     "crates.nvim": {
@@ -47,15 +47,15 @@
       "src": "https://github.com/Saecki/crates.nvim"
     },
     "filler-begone.nvim": {
-      "rev": "122018c0f54519b9ee16fb0e31b96989a7682e1c",
+      "rev": "0946377b673677d0f86a7e96a17e89f63a46096d",
       "src": "https://github.com/saghen/filler-begone.nvim"
     },
     "grug-far.nvim": {
-      "rev": "11595bf747edc270bce2069d1020502ad4ae56cf",
+      "rev": "91b7e58b6ffc6ddad5acb7a7c1df21257724449e",
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
     "lean.nvim": {
-      "rev": "42186878a385ab021296e8f8024521d11a661754",
+      "rev": "52a2eeb623e01033c82fbe8d73cdf6da4caf62ee",
       "src": "https://github.com/Julian/lean.nvim"
     },
     "lualine.nvim": {
@@ -63,11 +63,11 @@
       "src": "https://github.com/nvim-lualine/lualine.nvim"
     },
     "mini.nvim": {
-      "rev": "8831fa150fa26492cfe135801fa498132f1491d2",
+      "rev": "a03ad899bda446b5a81cfa99d8aeeb92241522f3",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogit": {
-      "rev": "a6549816e62cec7037f1549d8f1659d45635370c",
+      "rev": "697ad3ee86a73cf6b6758b838d7a7d76cf3b9f86",
       "src": "https://github.com/NeogitOrg/neogit"
     },
     "noicelet.nvim": {
@@ -75,7 +75,7 @@
       "src": "https://github.com/so1ve/noicelet.nvim"
     },
     "nvim-lspconfig": {
-      "rev": "ac062d0d01c019c0dbdb798968f3e5d8b35c3853",
+      "rev": "77b7432d4770d23b277d37923e5a08a442d8bb07",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-treesitter-context": {
@@ -107,11 +107,11 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "schemastore.nvim": {
-      "rev": "1c6d5e0b721c877c4c8061d2361f8fc20adaf896",
+      "rev": "bc61f7c787ccd31e06d84991bd399c2aca421f43",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "smart-splits.nvim": {
-      "rev": "07dbad410256f755e69ffd31cb8d122bcd6b91f7",
+      "rev": "dd40c3a03ef71bcdf77fb4b14668cc1320293f48",
       "src": "https://github.com/mrjones2014/smart-splits.nvim"
     },
     "snacks.nvim": {
@@ -127,7 +127,7 @@
       "src": "https://github.com/so1ve/tiny-md.nvim"
     },
     "tiny-treesitter.nvim": {
-      "rev": "11275793894f744d3ce221c7dd9c5327a3852584",
+      "rev": "89e593b36d33974076d7d2bf673698ee76fa8485",
       "src": "https://github.com/so1ve/tiny-treesitter.nvim"
     },
     "treesj": {
