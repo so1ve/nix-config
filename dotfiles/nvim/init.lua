@@ -87,7 +87,7 @@ local function append_fold_virtual_text(chunks, line_text, line_number, column_o
 
   for index = 1, #line_text do
     local char = line_text:sub(index, index)
-    local captures = vim.treesitter.get_captures_at_pos(0, line_number, column_offset + index - 1)
+    local captures = vim.treesitter.get_captures(0, { line_number, column_offset + index - 1 })
     local capture = captures[#captures]
 
     if capture then
@@ -1792,7 +1792,7 @@ safely("later", function()
         "[^%.%w_]()" .. keyword .. "()" .. todo_suffix,
       },
       group = function(buf_id, _, data)
-        for _, capture in ipairs(vim.treesitter.get_captures_at_pos(buf_id, data.line - 1, data.from_col - 1)) do
+        for _, capture in ipairs(vim.treesitter.get_captures(buf_id, { data.line - 1, data.from_col - 1 })) do
           if capture.capture:find("^comment") then
             return group
           end
