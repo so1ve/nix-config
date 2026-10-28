@@ -33,7 +33,7 @@
 
           git = {
             signing = {
-              key = githubPublicKey;
+              key = githubKey;
               format = "ssh";
               signByDefault = true;
             };
@@ -41,17 +41,12 @@
             settings.gpg.ssh.allowedSignersFile = allowedSignersFile;
           };
 
-          ssh = {
-            enableDefaultConfig = false;
-
-            settings."github.com" = {
-              HostName = "ssh.github.com";
-              Port = 443;
-              User = "git";
-              IdentityFile = githubKey;
-              IdentitiesOnly = true;
-              AddKeysToAgent = "yes";
-            };
+          ssh.settings."github.com ssh.github.com" = {
+            HostName = "ssh.github.com";
+            Port = 443;
+            User = "git";
+            IdentityFile = githubKey;
+            IdentitiesOnly = true;
           };
         };
 
