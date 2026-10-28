@@ -47,4 +47,18 @@
         };
       };
   };
+
+  ray.features."defaults/shell/fish" = {
+    requires.allOf = [
+      "software/shell"
+      "users/ray"
+    ];
+
+    nixos =
+      _:
+      { config, username, ... }:
+      {
+        users.users.${username}.shell = config.programs.fish.package;
+      };
+  };
 }
