@@ -6,16 +6,9 @@
 
     home =
       _:
+      { mkDotfilesSource, ... }:
       {
-        config,
-        mkDotfilesSymlink,
-        ...
-      }:
-      {
-        xdg.configFile."hypr".source = mkDotfilesSymlink {
-          inherit config;
-          name = "hypr";
-        };
+        xdg.configFile."hypr".source = mkDotfilesSource "hypr";
       };
   };
 }

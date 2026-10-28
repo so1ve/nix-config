@@ -19,11 +19,7 @@
 
     home =
       settings:
-      {
-        config,
-        mkDotfilesSymlink,
-        ...
-      }:
+      { config, mkDotfilesSource, ... }:
       let
         cliLocale = "en_US.UTF-8";
         bashEnabled = lib.elem "bash" settings.shells;
@@ -63,10 +59,7 @@
           zoxide.enable = true;
         };
 
-        xdg.configFile."starship.toml".source = mkDotfilesSymlink {
-          inherit config;
-          name = "starship.toml";
-        };
+        xdg.configFile."starship.toml".source = mkDotfilesSource "starship.toml";
       };
   };
 }

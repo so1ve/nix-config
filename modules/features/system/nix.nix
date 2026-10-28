@@ -7,8 +7,21 @@
 
 {
   ray.features."system/nix" = {
+    options = {
+      minFree = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 50 * 1024 * 1024 * 1024;
+        description = "Free space in bytes below which Nix starts automatic garbage collection.";
+      };
+      maxFree = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 100 * 1024 * 1024 * 1024;
+        description = "Target free space in bytes for automatic garbage collection.";
+      };
+    };
+
     nixos =
-      _:
+      settings:
       { pkgs, ... }:
       {
         programs = {
@@ -26,8 +39,8 @@
             "nix-command"
             "flakes"
           ];
-          min-free = lib.mkDefault (50 * 1024 * 1024 * 1024);
-          max-free = lib.mkDefault (100 * 1024 * 1024 * 1024);
+          min-free = settings.minFree;
+          max-free = settings.maxFree;
           trusted-users = [ "@wheel" ];
         }
         // config.ray.registry.nixCacheSettings;

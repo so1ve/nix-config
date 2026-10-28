@@ -12,15 +12,8 @@ let
     inherit lib;
   };
 
-  mkDotfilesSymlink = import "${inputs.self}/lib/mk-dotfiles-symlink.nix";
-  mkFocusOrLaunch = import "${inputs.self}/lib/mk-focus-or-launch.nix" { inherit inputs; };
-
   specialArgsFor = host: {
-    inherit
-      inputs
-      mkDotfilesSymlink
-      mkFocusOrLaunch
-      ;
+    inherit inputs;
     featureEnabled = featureRegistry.enabled host.features;
     user = config.ray.registry.users.${host.username};
     inherit (host)
@@ -37,7 +30,20 @@ let
       useGlobalPkgs = true;
       useUserPackages = true;
       extraSpecialArgs = specialArgsFor host;
-      users.${host.username}.imports = homeModules;
+      users.${host.username} =
+        { config, pkgs, ... }:
+        {
+          imports = homeModules;
+          _module.args = {
+            mkDotfilesSource = import ./mk-dotfiles-source.nix {
+              inherit config;
+              inherit (host) dotfilesMode;
+            };
+            focusOrLaunch = import ./mk-focus-or-launch.nix {
+              inherit inputs pkgs;
+            };
+          };
+        };
       backupFileExtension = "home-manager.backup";
     };
   };

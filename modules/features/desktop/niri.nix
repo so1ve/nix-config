@@ -33,23 +33,19 @@
     home =
       _:
       {
-        config,
+        focusOrLaunch,
         inputs,
-        mkDotfilesSymlink,
-        mkFocusOrLaunch,
+        mkDotfilesSource,
         pkgs,
         ...
       }:
       {
         home.packages = [
-          (mkFocusOrLaunch pkgs)
+          focusOrLaunch
           inputs.latchshot.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
 
-        xdg.configFile."niri".source = mkDotfilesSymlink {
-          inherit config;
-          name = "niri";
-        };
+        xdg.configFile."niri".source = mkDotfilesSource "niri";
       };
   };
 }

@@ -1,10 +1,19 @@
+{ lib, ... }:
+
 {
   ray.features."security/sudo" = {
+    options.wheelNeedsPassword = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Require a password when wheel members use sudo.";
+    };
+
     nixos =
-      _:
+      settings:
       { username, ... }:
       {
         security.sudo-rs = {
+          inherit (settings) wheelNeedsPassword;
           enable = true;
           execWheelOnly = true;
         };

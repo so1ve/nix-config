@@ -48,9 +48,9 @@
       _:
       {
         config,
+        focusOrLaunch,
         inputs,
         lib,
-        mkFocusOrLaunch,
         osConfig,
         pkgs,
         ...
@@ -84,7 +84,6 @@
           inherit pkgs;
           browser = chrome;
         };
-        focusOrLaunch = mkFocusOrLaunch pkgs;
         chromeLauncher = pkgs.writeShellApplication {
           name = "google-chrome-stable";
           text = ''

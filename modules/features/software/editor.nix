@@ -4,9 +4,8 @@
       home =
         _:
         {
-          config,
           inputs,
-          mkDotfilesSymlink,
+          mkDotfilesSource,
           pkgs,
           system,
           ...
@@ -29,10 +28,7 @@
             ];
           };
 
-          xdg.configFile."nvim".source = mkDotfilesSymlink {
-            inherit config;
-            name = "nvim";
-          };
+          xdg.configFile."nvim".source = mkDotfilesSource "nvim";
         };
     };
 

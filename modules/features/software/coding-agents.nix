@@ -34,19 +34,15 @@
     "software/codex".home =
       _:
       {
-        config,
         inputs,
-        mkDotfilesSymlink,
+        mkDotfilesSource,
         pkgs,
         ...
       }:
       {
         home = {
           packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex ];
-          file.".codex/AGENTS.md".source = mkDotfilesSymlink {
-            inherit config;
-            name = "agents/AGENTS.md";
-          };
+          file.".codex/AGENTS.md".source = mkDotfilesSource "agents/AGENTS.md";
         };
       };
 
@@ -147,7 +143,7 @@
       _:
       {
         config,
-        mkDotfilesSymlink,
+        mkDotfilesSource,
         pkgs,
         ...
       }:
@@ -163,10 +159,7 @@
 
         programs.pi-coding-agent = {
           enable = true;
-          context = mkDotfilesSymlink {
-            inherit config;
-            name = "agents/AGENTS.md";
-          };
+          context = mkDotfilesSource "agents/AGENTS.md";
           extraPackages = with pkgs; [
             git
             nodejs
@@ -226,7 +219,7 @@
         {
           config,
           inputs,
-          mkDotfilesSymlink,
+          mkDotfilesSource,
           pkgs,
           ...
         }:
@@ -239,10 +232,7 @@
           home = {
             packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp ];
             file = {
-              ".omp/agent/AGENTS.md".source = mkDotfilesSymlink {
-                inherit config;
-                name = "agents/AGENTS.md";
-              };
+              ".omp/agent/AGENTS.md".source = mkDotfilesSource "agents/AGENTS.md";
             };
           };
         };
@@ -251,8 +241,7 @@
     "software/opencode".home =
       _:
       {
-        config,
-        mkDotfilesSymlink,
+        mkDotfilesSource,
         pkgs,
         ...
       }:
@@ -261,10 +250,7 @@
         # ships the model schema for offline use.
         home.packages = [ pkgs.opencode ];
 
-        xdg.configFile."opencode/AGENTS.md".source = mkDotfilesSymlink {
-          inherit config;
-          name = "agents/AGENTS.md";
-        };
+        xdg.configFile."opencode/AGENTS.md".source = mkDotfilesSource "agents/AGENTS.md";
       };
 
     "software/dsh" = {

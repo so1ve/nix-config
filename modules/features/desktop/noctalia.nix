@@ -28,16 +28,9 @@
 
     home =
       _:
+      { mkDotfilesSource, ... }:
       {
-        config,
-        mkDotfilesSymlink,
-        ...
-      }:
-      {
-        xdg.configFile."noctalia".source = mkDotfilesSymlink {
-          inherit config;
-          name = "noctalia";
-        };
+        xdg.configFile."noctalia".source = mkDotfilesSource "noctalia";
       };
   };
 

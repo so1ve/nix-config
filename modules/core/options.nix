@@ -75,6 +75,15 @@ let
           type = types.str;
         };
 
+        dotfilesMode = mkOption {
+          type = types.enum [
+            "symlink"
+            "copy"
+          ];
+          default = "symlink";
+          description = "Link to dotfiles in the local repository (symlink) or copy them into the Nix store (copy).";
+        };
+
         features = mkOption {
           type = types.submodule {
             options = lib.mapAttrs (

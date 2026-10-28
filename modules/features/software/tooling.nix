@@ -3,8 +3,7 @@
     home =
       _:
       {
-        config,
-        mkDotfilesSymlink,
+        mkDotfilesSource,
         pkgs,
         ...
       }:
@@ -25,10 +24,7 @@
           wl-clipboard
         ];
 
-        xdg.configFile."fastfetch/config.jsonc".source = mkDotfilesSymlink {
-          inherit config;
-          name = "fastfetch/config.jsonc";
-        };
+        xdg.configFile."fastfetch/config.jsonc".source = mkDotfilesSource "fastfetch/config.jsonc";
       };
   };
 }

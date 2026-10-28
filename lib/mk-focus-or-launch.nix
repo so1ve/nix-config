@@ -1,5 +1,4 @@
-{ inputs }:
-pkgs:
+{ inputs, pkgs }:
 
 pkgs.writeShellApplication {
   name = "focus-or-launch";

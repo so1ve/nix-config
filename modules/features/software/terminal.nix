@@ -83,7 +83,7 @@
           featureEnabled,
           inputs,
           lib,
-          mkDotfilesSymlink,
+          mkDotfilesSource,
           pkgs,
           ...
         }:
@@ -129,10 +129,7 @@
           };
 
           xdg.configFile = {
-            "herdr/config.toml".source = mkDotfilesSymlink {
-              inherit config;
-              name = "herdr/config.toml";
-            };
+            "herdr/config.toml".source = mkDotfilesSource "herdr/config.toml";
             "herdr-automatic-rename/config.sh".text = ''
               AUTO_INDEX=0
               AGENT_TITLES=0

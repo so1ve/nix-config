@@ -21,16 +21,6 @@
           defaultUser = username;
           useWindowsDriver = true;
         };
-
-        # NixOS-WSL users do not have a password until one is explicitly set.
-        security.sudo-rs.wheelNeedsPassword = false;
-
-        # A WSL virtual disk should not reserve the workstation's 50-100 GiB
-        # Nix store free-space thresholds.
-        nix.settings = {
-          min-free = 1 * 1024 * 1024 * 1024;
-          max-free = 5 * 1024 * 1024 * 1024;
-        };
       };
   };
 }

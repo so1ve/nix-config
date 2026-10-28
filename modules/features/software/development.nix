@@ -24,7 +24,7 @@
         config,
         inputs,
         lib,
-        mkDotfilesSymlink,
+        mkDotfilesSource,
         pkgs,
         ...
       }:
@@ -75,10 +75,7 @@
           hide_env_diff = true
         '';
 
-        xdg.configFile."devenv/ray".source = mkDotfilesSymlink {
-          inherit config;
-          name = "devenv";
-        };
+        xdg.configFile."devenv/ray".source = mkDotfilesSource "devenv";
       };
   };
 }
