@@ -15,14 +15,14 @@
         ...
       }:
       let
-        githubKey = config.age.secrets.github-ssh.path;
-        githubPublicKey = builtins.readFile "${inputs.self}/keys/ray-github.pub";
+        githubKey = config.age.secrets.ssh-github.path;
+        githubPublicKey = builtins.readFile "${inputs.self}/keys/ssh-github.pub";
         allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
       in
       {
-        age.secrets.github-ssh = {
-          file = "${inputs.self}/secrets/github-ssh.age";
-          path = "${config.home.homeDirectory}/.ssh/id_ed25519_github";
+        age.secrets.ssh-github = {
+          file = "${inputs.self}/secrets/ssh-github.age";
+          path = "${config.home.homeDirectory}/.ssh/ssh-github";
         };
 
         programs = {
