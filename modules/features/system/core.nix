@@ -5,9 +5,16 @@
       {
         hostname,
         stateVersion,
+        user,
+        username,
         ...
       }:
       {
+        users.users.${username} = {
+          isNormalUser = true;
+          inherit (user) description;
+        };
+
         networking.hostName = hostname;
         time.timeZone = "Asia/Shanghai";
 

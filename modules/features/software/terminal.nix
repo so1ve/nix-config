@@ -46,25 +46,33 @@
     };
 
     "software/kitty" = {
-      home = _: {
-        programs.kitty = {
-          enable = true;
-          keybindings = {
-            "ctrl+shift+h" = "";
-            "ctrl+shift+l" = "";
-            "ctrl+shift+p" = "show_scrollback";
-          };
-          settings = {
-            background_opacity = "0.9";
-            confirm_os_window_close = 0;
-            cursor_trail = 3;
-            font_family = "R Maple Mono NF CN";
-            font_size = 11;
-            linux_display_server = "wayland";
-            scrollback_pager = "nvim --cmd 'set eventignore=FileType' +'nnoremap q ZQ' +'call nvim_open_term(0, {})' +'set nomodified nolist' +'$' -";
+      home =
+        _:
+        { config, lib, ... }:
+        {
+          programs.kitty = {
+            enable = true;
+            # Kitty computes its own integration defaults; honor the global opt-outs.
+            shellIntegration = {
+              enableBashIntegration = lib.mkIf (!config.home.shell.enableBashIntegration) (lib.mkDefault false);
+              enableFishIntegration = lib.mkIf (!config.home.shell.enableFishIntegration) (lib.mkDefault false);
+            };
+            keybindings = {
+              "ctrl+shift+h" = "";
+              "ctrl+shift+l" = "";
+              "ctrl+shift+p" = "show_scrollback";
+            };
+            settings = {
+              background_opacity = "0.9";
+              confirm_os_window_close = 0;
+              cursor_trail = 3;
+              font_family = "R Maple Mono NF CN";
+              font_size = 11;
+              linux_display_server = "wayland";
+              scrollback_pager = "nvim --cmd 'set eventignore=FileType' +'nnoremap q ZQ' +'call nvim_open_term(0, {})' +'set nomodified nolist' +'$' -";
+            };
           };
         };
-      };
     };
 
     "defaults/terminal/kitty" = {
@@ -104,22 +112,31 @@
 
           home.file.".agents/skills/herdr/SKILL.md".source = herdrSkill;
 
-          programs =
-            lib.optionalAttrs (featureEnabled "software/shell") {
-              fish.interactiveShellInit = ''
-                if set -q HERDR_ENV
-                  source ${inputs.herdr-automatic-rename}/shell/hook.fish
-                else if set -q TERM_PROGRAM; and test "$TERM_PROGRAM" = WezTerm
+          programs = {
+            bash.initExtra = lib.mkIf config.home.shell.enableBashIntegration (
+              lib.mkAfter ''
+                if [ -n "''${HERDR_ENV:-}" ]; then
+                  source ${inputs.herdr-automatic-rename}/shell/hook.bash
+                elif [ "''${TERM_PROGRAM:-}" = WezTerm ]; then
                   ${herdr}/bin/herdr
-                end
-              '';
-            }
-            // lib.optionalAttrs (featureEnabled "software/kitty") {
-              kitty.settings.shell = lib.getExe herdr;
-            }
-            // lib.optionalAttrs (featureEnabled "software/ghostty") {
-              ghostty.settings.command = lib.getExe herdr;
-            };
+                fi
+              ''
+            );
+
+            fish.interactiveShellInit = lib.mkIf config.home.shell.enableFishIntegration ''
+              if set -q HERDR_ENV
+                source ${inputs.herdr-automatic-rename}/shell/hook.fish
+              else if set -q TERM_PROGRAM; and test "$TERM_PROGRAM" = WezTerm
+                ${herdr}/bin/herdr
+              end
+            '';
+          }
+          // lib.optionalAttrs (featureEnabled "software/kitty") {
+            kitty.settings.shell = lib.getExe herdr;
+          }
+          // lib.optionalAttrs (featureEnabled "software/ghostty") {
+            ghostty.settings.command = lib.getExe herdr;
+          };
 
           xdg.configFile = {
             "herdr/config.toml".source = mkDotfilesSymlink {

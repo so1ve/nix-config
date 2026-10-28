@@ -1,11 +1,24 @@
+{ lib, ... }:
+
 {
   ray.features."software/shell" = {
-    nixos = _: {
-      programs.fish.enable = true;
+    options.shells = lib.mkOption {
+      type = lib.types.listOf (
+        lib.types.enum [
+          "bash"
+          "fish"
+        ]
+      );
+      default = [ "bash" ];
+      description = "Interactive shells to configure";
+    };
+
+    nixos = settings: {
+      programs.fish.enable = lib.elem "fish" settings.shells;
     };
 
     home =
-      _:
+      settings:
       {
         config,
         mkDotfilesSymlink,
@@ -13,24 +26,33 @@
       }:
       let
         cliLocale = "en_US.UTF-8";
+        bashEnabled = lib.elem "bash" settings.shells;
+        fishEnabled = lib.elem "fish" settings.shells;
       in
       {
+        home = {
+          shell = {
+            enableBashIntegration = lib.mkDefault config.programs.bash.enable;
+            enableFishIntegration = lib.mkDefault config.programs.fish.enable;
+          };
+          shellAliases = {
+            nd = ''nix develop -c "$SHELL"'';
+            sr = "steam-run";
+          };
+        };
+
         programs = {
           bash = {
-            enable = true;
-            initExtra = ''
+            enable = bashEnabled;
+            initExtra = lib.mkIf bashEnabled ''
               export LANG=${cliLocale}
               export LANGUAGE=en_US
             '';
           };
 
           fish = {
-            enable = true;
-            shellAbbrs = {
-              nd = "nix develop -c fish";
-              sr = "steam-run";
-            };
-            interactiveShellInit = ''
+            enable = fishEnabled;
+            interactiveShellInit = lib.mkIf fishEnabled ''
               set -gx LANG ${cliLocale}
               set -gx LANGUAGE en_US
               set -g fish_greeting
@@ -49,16 +71,24 @@
   };
 
   ray.features."defaults/shell/fish" = {
-    requires.allOf = [
-      "software/shell"
-      "users/ray"
-    ];
+    requires.allOf = [ "software/shell" ];
 
     nixos =
       _:
       { config, username, ... }:
       {
         users.users.${username}.shell = config.programs.fish.package;
+      };
+  };
+
+  ray.features."defaults/shell/bash" = {
+    requires.allOf = [ "software/shell" ];
+
+    nixos =
+      _:
+      { pkgs, username, ... }:
+      {
+        users.users.${username}.shell = pkgs.bashInteractive;
       };
   };
 }

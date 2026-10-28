@@ -55,16 +55,15 @@
           pkgs.ni
         ];
 
-        programs.fish = {
-          shellAbbrs = {
-            cb = "cargo pretty build";
-            cr = "cargo pretty run";
-            ct = "cargo pretty test";
-          };
-          interactiveShellInit = ''
-            ${lib.getExe' pkgs.ni "nr"} --completion-fish | source
-          '';
+        home.shellAliases = {
+          cb = "cargo pretty build";
+          cr = "cargo pretty run";
+          ct = "cargo pretty test";
         };
+
+        programs.fish.interactiveShellInit = lib.mkIf config.home.shell.enableFishIntegration ''
+          ${lib.getExe' pkgs.ni "nr"} --completion-fish | source
+        '';
 
         programs.direnv-instant = {
           enable = true;

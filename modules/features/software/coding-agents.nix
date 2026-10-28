@@ -301,6 +301,8 @@
             file.".dsh/profiles/web/package.json".force = true;
             file.".dsh/skills/reverse-engineer-anything".source =
               "${rea}/share/rea/node_modules/rea-agents/skills/reverse-engineer-anything";
+
+            shellAliases.dsh-purge = "DSH_ENABLE_REA=1 DSH_ENABLE_PURGE=1 dsh web";
           };
 
           programs = {
@@ -358,10 +360,6 @@
                 Before starting any task, read and follow the instructions in
                 ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
               '';
-            };
-
-            fish.shellAbbrs = {
-              dsh-purge = "DSH_ENABLE_REA=1 DSH_ENABLE_PURGE=1 dsh web";
             };
           };
         };
