@@ -98,7 +98,7 @@
               containerConfig = {
                 # The restored homeserver's appservice registration uses this name.
                 ContainerName = "mautrix";
-                Image = "dock.mau.dev/mautrix/telegram:v26.04";
+                Image = "dock.mau.dev/mautrix/telegram:v26.10";
                 Network = [
                   networks.cloudflared.ref
                   networks.matrix.ref
