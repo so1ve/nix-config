@@ -65,6 +65,10 @@
       flake = false;
     };
     codex-desktop.url = "github:ilysenko/codex-desktop-linux";
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
       inputs.nixpkgs.follows = "nixpkgs";

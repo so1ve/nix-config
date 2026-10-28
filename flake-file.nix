@@ -74,6 +74,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      deploy-rs = {
+        url = "github:serokell/deploy-rs";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       agent-skills = {
         url = "github:Kyure-A/agent-skills-nix";
         inputs.nixpkgs.follows = "nixpkgs";
