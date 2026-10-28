@@ -2204,6 +2204,8 @@ load_plugins("event:UIEnter", { "codediff.nvim", "neogit" }, function()
       spell_check = false,
     },
   })
+  -- Graph colors are a persisted log-popup option, separate from graph_style.
+  require("neogit.lib.state").set({ "NeogitLogPopup", "color" }, true)
 end)
 
 map("n", "<leader>gg", function()
