@@ -58,6 +58,12 @@ let
           default = name;
         };
 
+        isServer = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Identify this host as a server";
+        };
+
         system = mkOption {
           type = types.enum [ "x86_64-linux" ];
           default = "x86_64-linux";

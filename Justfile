@@ -1,3 +1,6 @@
+set unstable
+set lists
+
 host := "workstation"
 
 default:
@@ -22,10 +25,11 @@ boot:
 switch:
     nh os switch . -H {{ host }} --accept-flake-config
 
-# Build locally and deploy over SSH; target defaults to the configuration name.
-[positional-arguments]
-deploy hostname target="":
-    nixos-rebuild switch --flake ".#$1" --target-host "${2:-$1}" --sudo --ask-sudo-password --accept-flake-config
+# Evaluate checks, then build and deploy only the selected server.
+deploy node *args: check
+    nix run .#deploy-rs --accept-flake-config -- \
+      --skip-checks {{quote(".#" + node)}} {{quote(args)}} \
+      -- --accept-flake-config
 
 # Format all Nix files with the formatter exported by the flake.
 fmt:
@@ -37,7 +41,7 @@ write-flake:
 
 # Update all flake inputs.
 update *input:
-    nix flake update --accept-flake-config {{ input }}
+    nix flake update --accept-flake-config {{quote(input)}}
 
 # Keep at least 3 generations and recent gcroots, then collect all unreachable store paths.
 gc period="7d" keep="3":

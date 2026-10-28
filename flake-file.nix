@@ -8,10 +8,15 @@
 let
   system = "x86_64-linux";
   pkgs = inputs.nixpkgs.legacyPackages.${system};
+  serverHosts = lib.filterAttrs (_: host: host.isServer) config.ray.hosts.nixos;
 
   nixosConfigurations = lib.mapAttrs (
     _: host: config.ray.lib.mkNixosHost host
   ) config.ray.hosts.nixos;
+
+  deploy.nodes = lib.mapAttrs (
+    name: host: config.ray.lib.mkDeployNode host nixosConfigurations.${name}
+  ) serverHosts;
 in
 {
   imports = [ (inputs.import-tree ./modules) ];
@@ -152,15 +157,19 @@ in
   };
 
   outputs = _: {
-    inherit nixosConfigurations;
+    inherit nixosConfigurations deploy;
 
     checks.${system} =
       lib.mapAttrs (_: nixos: nixos.config.system.build.toplevel) nixosConfigurations
+      // inputs.deploy-rs.lib.${system}.deployChecks deploy
       // {
         check-flake-file = config.flake-file.check-flake-file pkgs;
       };
 
     formatter.${system} = pkgs.nixfmt-tree;
-    packages.${system}.write-flake = config.flake-file.apps.write-flake pkgs;
+    packages.${system} = {
+      write-flake = config.flake-file.apps.write-flake pkgs;
+      deploy-rs = inputs.deploy-rs.packages.${system}.default;
+    };
   };
 }

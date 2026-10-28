@@ -1,16 +1,19 @@
 { config, lib, ... }:
 
+let
+  serverHosts = lib.filterAttrs (_: host: host.isServer) config.ray.hosts.nixos;
+in
 {
   ray.features."software/ssh".home = _: {
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;
 
-      # Automatically detect servers and add them to ssh tab completion list
+      # Add declared servers to SSH configuration and hostname completion.
       settings = lib.mapAttrs (_: host: {
         HostName = host.hostname;
         User = host.username;
-      }) (lib.filterAttrs (_: host: host.features ? "system/server") config.ray.hosts.nixos);
+      }) serverHosts;
     };
   };
 
