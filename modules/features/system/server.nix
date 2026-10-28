@@ -23,6 +23,8 @@
           openssh = {
             enable = true;
             settings = {
+              AllowUsers = [ username ];
+              AllowAgentForwarding = false;
               PasswordAuthentication = false;
               KbdInteractiveAuthentication = false;
               PermitRootLogin = "no";

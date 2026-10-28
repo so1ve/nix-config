@@ -4,6 +4,7 @@
     options = {
       acceptRoutes = lib.mkEnableOption "routes advertised by other Tailscale nodes";
       ssh = lib.mkEnableOption "Tailscale SSH";
+      trustInterface = lib.mkEnableOption "unrestricted incoming traffic on the Tailscale interface";
     };
 
     nixos =
@@ -24,7 +25,7 @@
         };
 
         networking.firewall = {
-          trustedInterfaces = [ config.services.tailscale.interfaceName ];
+          trustedInterfaces = lib.optional settings.trustInterface config.services.tailscale.interfaceName;
           allowedUDPPorts = [ config.services.tailscale.port ];
         };
 

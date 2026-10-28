@@ -5,6 +5,7 @@
     requires.allOf = [
       "security/agenix"
       "virtualisation/podman"
+      "services/cloudflared"
     ];
 
     options.autoStart = lib.mkOption {
@@ -15,9 +16,10 @@
 
     nixos =
       settings:
-      { config, ... }:
+      { config, hostname, ... }:
       let
         inherit (config.virtualisation.quadlet) containers networks;
+        secretsDir = ../../../secrets + "/${hostname}";
         dependencies = [
           containers.new-api-postgres.ref
           containers.new-api-redis.ref
@@ -25,8 +27,8 @@
       in
       {
         age.secrets = {
-          new-api-env.file = ../../../secrets/new-api-env.age;
-          new-api-postgres-env.file = ../../../secrets/new-api-postgres-env.age;
+          new-api-env.file = secretsDir + "/new-api-env.age";
+          new-api-postgres-env.file = secretsDir + "/new-api-postgres-env.age";
         };
 
         systemd.tmpfiles.rules = [
@@ -37,12 +39,19 @@
           "d /var/lib/new-api/postgres 0755 root root - -"
         ];
 
-        networking.firewall.interfaces.br-new-api.allowedUDPPorts = [ 53 ];
+        networking.firewall.interfaces.br-new-api = {
+          allowedTCPPorts = [ 53 ];
+          allowedUDPPorts = [ 53 ];
+        };
 
         virtualisation.quadlet = {
           networks.new-api.networkConfig = {
             NetworkName = "new-api";
             InterfaceName = "br-new-api";
+            Options = [
+              "isolate=true"
+              "no_default_route=1"
+            ];
           };
 
           containers = {
@@ -59,8 +68,12 @@
               containerConfig = {
                 ContainerName = "new-api";
                 Image = "docker.io/calciumion/new-api:latest";
-                Network = [ networks.new-api.ref ];
-                PublishPort = [ "127.0.0.1:3000:3000" ];
+                Network = [
+                  networks.cloudflared.ref
+                  networks.new-api.ref
+                ];
+                NoNewPrivileges = true;
+                DropCapability = [ "ALL" ];
                 Volume = [
                   "/var/lib/new-api/data:/data"
                   "/var/lib/new-api/logs:/app/logs"
@@ -86,6 +99,7 @@
                 Image = "docker.io/library/postgres:latest";
                 Network = [ networks.new-api.ref ];
                 NetworkAlias = [ "postgres" ];
+                NoNewPrivileges = true;
                 Volume = [ "/var/lib/new-api/postgres:/var/lib/postgresql" ];
                 Environment = {
                   POSTGRES_USER = "root";
@@ -108,6 +122,7 @@
                 Image = "docker.io/library/redis:latest";
                 Network = [ networks.new-api.ref ];
                 NetworkAlias = [ "redis" ];
+                NoNewPrivileges = true;
                 Notify = "healthy";
                 HealthCmd = "redis-cli ping";
               };
