@@ -3,11 +3,16 @@
     nixos =
       _:
       {
+        inputs,
         pkgs,
         username,
         ...
       }:
       {
+        imports = [ inputs.quadlet-nix.nixosModules.default ];
+
+        virtualisation.quadlet.enable = true;
+
         virtualisation.podman = {
           enable = true;
           dockerCompat = true;

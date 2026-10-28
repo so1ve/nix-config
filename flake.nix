@@ -109,6 +109,10 @@
       url = "github:noctalia-dev/noctalia-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    quadlet-nix = {
+      url = "github:mirkolenz/quadlet-nix/v1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     relvi = {
       url = "github:so1ve/relvi";
       inputs.nixpkgs.follows = "nixpkgs";

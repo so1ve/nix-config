@@ -69,6 +69,11 @@ in
 
       nix-alien.url = "github:thiagokokada/nix-alien";
 
+      quadlet-nix = {
+        url = "github:mirkolenz/quadlet-nix/v1";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       agent-skills = {
         url = "github:Kyure-A/agent-skills-nix";
         inputs.nixpkgs.follows = "nixpkgs";

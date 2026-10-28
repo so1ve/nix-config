@@ -383,6 +383,27 @@
         "type": "github"
       }
     },
+    "flake-parts_5": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "quadlet-nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788450739,
+        "narHash": "sha256-glZLQlzIn1fXH6PazR2iUmTo7kzzyYSshrWhLS9TqCU=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "31729ca8cbdb4fa927b34e5f4353e6a83f39e993",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems_3"
@@ -852,6 +873,28 @@
         "type": "github"
       }
     },
+    "quadlet-nix": {
+      "inputs": {
+        "flake-parts": "flake-parts_5",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793020397,
+        "narHash": "sha256-uZsINR/pi51XH4nTNhPs7q6eU6Eb7FjRtdMeaUDui64=",
+        "owner": "mirkolenz",
+        "repo": "quadlet-nix",
+        "rev": "0fd1b1f5c491e11fc5cf44f6f16df9b05992ce79",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mirkolenz",
+        "ref": "v1",
+        "repo": "quadlet-nix",
+        "type": "github"
+      }
+    },
     "relvi": {
       "inputs": {
         "nixpkgs": [
@@ -897,6 +940,7 @@
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_7",
         "noctalia-greeter": "noctalia-greeter",
+        "quadlet-nix": "quadlet-nix",
         "relvi": "relvi",
         "smart-splits-nvim": "smart-splits-nvim",
         "so1ve": "so1ve",
