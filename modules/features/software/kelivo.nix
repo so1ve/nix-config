@@ -1,5 +1,6 @@
 {
   ray.features."software/kelivo".home =
+    _:
     { inputs, pkgs, ... }:
     {
       home.packages = [

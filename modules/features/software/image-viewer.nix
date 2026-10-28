@@ -1,6 +1,7 @@
 {
   ray.features = {
     "software/swayimg".home =
+      _:
       { pkgs, ... }:
       {
         home.packages = [ pkgs.swayimg ];
@@ -9,6 +10,7 @@
     "defaults/image-viewer/swayimg" = {
       requires.allOf = [ "software/swayimg" ];
       home =
+        _:
         { lib, ... }:
         {
           xdg.mimeApps = {
@@ -31,6 +33,7 @@
     };
 
     "software/gwenview".home =
+      _:
       { pkgs, ... }:
       {
         home.packages = [ pkgs.kdePackages.gwenview ];

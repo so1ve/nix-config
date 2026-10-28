@@ -1,6 +1,7 @@
 {
   ray.features."peripherals/mchose-mix-87" = {
     nixos =
+      _:
       { pkgs, ... }:
       let
         udevRules = pkgs.writeTextDir "lib/udev/rules.d/70-mchose-mix-87.rules" ''

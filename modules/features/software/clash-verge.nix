@@ -1,6 +1,7 @@
 {
   ray.features."software/clash-verge" = {
     nixos =
+      _:
       { pkgs, ... }:
       {
         programs.clash-verge = {

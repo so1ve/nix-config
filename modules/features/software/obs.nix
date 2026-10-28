@@ -1,6 +1,6 @@
 {
   ray.features."software/obs" = {
-    home = {
+    home = _: {
       programs.obs-studio.enable = true;
     };
   };

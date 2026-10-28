@@ -1,5 +1,6 @@
 {
   ray.features."software/yanhekt-autoslides".home =
+    _:
     { inputs, pkgs, ... }:
     {
       home.packages = [

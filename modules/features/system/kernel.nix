@@ -1,31 +1,42 @@
+{ lib, ... }:
 let
-  kernel = package: {
-    nixos =
-      { pkgs, ... }:
-      {
-        boot.kernelPackages = pkgs.${package};
-      };
+  kernels = {
+    lts = "linuxPackages";
+    latest = "linuxPackages_latest";
+    testing = "linuxPackages_testing";
+    zen = "linuxPackages_zen";
   };
-
-  cachyosKernel = package: {
-    nixos =
-      { inputs, pkgs, ... }:
-      {
-        nixpkgs.overlays = [ inputs.nix-cachyos-kernel.overlays.pinned ];
-        boot.kernelPackages = pkgs.cachyosKernels.${package};
-      };
+  cachyosKernels = {
+    cachyos = "linuxPackages-cachyos-latest";
+    cachyos-zen4 = "linuxPackages-cachyos-latest-zen4";
+    cachyos-lto-zen4 = "linuxPackages-cachyos-latest-lto-zen4";
+    cachyos-lts = "linuxPackages-cachyos-lts";
+    cachyos-lts-lto-zen4 = "linuxPackages-cachyos-lts-lto-zen4";
   };
 in
 {
-  ray.features = {
-    "system/kernel/cachyos" = cachyosKernel "linuxPackages-cachyos-latest";
-    "system/kernel/cachyos-zen4" = cachyosKernel "linuxPackages-cachyos-latest-zen4";
-    "system/kernel/cachyos-lto-zen4" = cachyosKernel "linuxPackages-cachyos-latest-lto-zen4";
-    "system/kernel/cachyos-lts" = cachyosKernel "linuxPackages-cachyos-lts";
-    "system/kernel/cachyos-lts-lto-zen4" = cachyosKernel "linuxPackages-cachyos-lts-lto-zen4";
-    "system/kernel/lts" = kernel "linuxPackages";
-    "system/kernel/latest" = kernel "linuxPackages_latest";
-    "system/kernel/testing" = kernel "linuxPackages_testing";
-    "system/kernel/zen" = kernel "linuxPackages_zen";
+  ray.features."system/kernel" = {
+    options.variant = lib.mkOption {
+      type = lib.types.enum (builtins.attrNames kernels ++ builtins.attrNames cachyosKernels);
+      default = "lts";
+      description = "Kernel variant to use on this host.";
+    };
+
+    nixos =
+      settings:
+      {
+        inputs,
+        pkgs,
+        ...
+      }:
+      let
+        variant = settings.variant;
+        useCachyos = builtins.hasAttr variant cachyosKernels;
+      in
+      {
+        nixpkgs.overlays = lib.optional useCachyos inputs.nix-cachyos-kernel.overlays.pinned;
+        boot.kernelPackages =
+          if useCachyos then pkgs.cachyosKernels.${cachyosKernels.${variant}} else pkgs.${kernels.${variant}};
+      };
   };
 }

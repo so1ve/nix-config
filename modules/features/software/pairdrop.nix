@@ -2,7 +2,7 @@
   ray.features."software/pairdrop" = {
     requires.allOf = [ "software/chrome" ];
 
-    nixos = {
+    nixos = _: {
       ray.chromeWebApps = [
         {
           url = "https://pairdrop.net/";

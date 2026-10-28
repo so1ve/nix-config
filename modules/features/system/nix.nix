@@ -8,6 +8,7 @@
 {
   ray.features."system/nix" = {
     nixos =
+      _:
       { pkgs, ... }:
       {
         programs = {

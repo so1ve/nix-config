@@ -1,6 +1,7 @@
 {
   ray.features."peripherals/atk-f1-ultimate" = {
     nixos =
+      _:
       { pkgs, ... }:
       let
         udevRules = pkgs.writeTextDir "lib/udev/rules.d/70-atk-f1-ultimate.rules" ''

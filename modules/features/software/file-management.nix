@@ -1,12 +1,15 @@
 {
   ray.features = {
     "software/nautilus" = {
-      nixos.services = {
-        gvfs.enable = true;
-        udisks2.enable = true;
+      nixos = _: {
+        services = {
+          gvfs.enable = true;
+          udisks2.enable = true;
+        };
       };
 
       home =
+        _:
         { pkgs, ... }:
         {
           home.packages = [ pkgs.nautilus ];
@@ -15,13 +18,16 @@
 
     "defaults/file-manager/nautilus" = {
       requires.allOf = [ "software/nautilus" ];
-      home.xdg.mimeApps = {
-        enable = true;
-        defaultApplications."inode/directory" = "org.gnome.Nautilus.desktop";
+      home = _: {
+        xdg.mimeApps = {
+          enable = true;
+          defaultApplications."inode/directory" = "org.gnome.Nautilus.desktop";
+        };
       };
     };
 
     "software/peazip".home =
+      _:
       {
         lib,
         pkgs,
@@ -65,6 +71,7 @@
     "defaults/archive-manager/peazip" = {
       requires.allOf = [ "software/peazip" ];
       home =
+        _:
         { lib, ... }:
         {
           xdg.mimeApps = {

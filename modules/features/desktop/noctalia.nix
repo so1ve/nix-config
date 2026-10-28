@@ -6,6 +6,7 @@
     ];
 
     nixos =
+      _:
       { pkgs, ... }:
       {
         programs.noctalia = {
@@ -26,6 +27,7 @@
       };
 
     home =
+      _:
       {
         config,
         mkDotfilesSymlink,
@@ -43,6 +45,7 @@
     requires.allOf = [ "desktop/niri" ];
 
     nixos =
+      _:
       { inputs, ... }:
       {
         imports = [ inputs.noctalia-greeter.nixosModules.default ];

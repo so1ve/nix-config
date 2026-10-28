@@ -22,6 +22,11 @@ boot:
 switch:
     nh os switch . -H {{ host }} --accept-flake-config
 
+# Build locally and deploy over SSH; target defaults to the configuration name.
+[positional-arguments]
+deploy hostname target="":
+    nixos-rebuild switch --flake ".#$1" --target-host "${2:-$1}" --sudo --ask-sudo-password --accept-flake-config
+
 # Format all Nix files with the formatter exported by the flake.
 fmt:
     nix fmt --accept-flake-config

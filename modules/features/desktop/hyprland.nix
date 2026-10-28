@@ -1,10 +1,11 @@
 {
   ray.features."desktop/hyprland" = {
-    nixos = {
+    nixos = _: {
       programs.hyprland.enable = true;
     };
 
     home =
+      _:
       {
         config,
         mkDotfilesSymlink,

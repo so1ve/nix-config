@@ -1,6 +1,6 @@
 {
   ray.features."software/thunderbird" = {
-    home = { pkgs, ... }: {
+    home = _: { pkgs, ... }: {
       home.packages = [ pkgs.thunderbird ];
     };
   };

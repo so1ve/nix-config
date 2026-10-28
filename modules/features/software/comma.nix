@@ -1,5 +1,6 @@
 {
   ray.features."software/comma".home =
+    _:
     { inputs, ... }:
     {
       imports = [ inputs.nix-index-database.homeModules.default ];

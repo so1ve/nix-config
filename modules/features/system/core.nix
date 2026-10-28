@@ -1,6 +1,7 @@
 {
   ray.features."system/core" = {
     nixos =
+      _:
       {
         hostname,
         stateVersion,

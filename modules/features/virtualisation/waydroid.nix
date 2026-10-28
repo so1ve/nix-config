@@ -1,6 +1,7 @@
 {
   ray.features."virtualisation/waydroid" = {
     nixos =
+      _:
       {
         config,
         inputs,

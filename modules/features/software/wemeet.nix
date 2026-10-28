@@ -1,6 +1,7 @@
 {
   ray.features."software/wemeet" = {
     home =
+      _:
       { pkgs, ... }:
       let
         wemeet = pkgs.wemeet.overrideAttrs (old: {

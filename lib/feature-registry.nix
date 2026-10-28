@@ -9,15 +9,15 @@ let
   availableFeatures = builtins.attrNames features;
   featureExists = name: builtins.hasAttr name features;
   unknownFeature =
-    name: "Unknown feature '${name}'. Available features: ${lib.concatStringsSep ", " availableFeatures}";
-
-  featureByName =
     name:
-    features.${name} or (throw (unknownFeature name));
+    "Unknown feature '${name}'. Available features: ${lib.concatStringsSep ", " availableFeatures}";
+
+  featureByName = name: features.${name} or (throw (unknownFeature name));
 
   select =
     host:
     let
+      enabledFeatures = builtins.attrNames host.features;
       missingRequirements = lib.concatMap (
         name:
         let
@@ -25,19 +25,19 @@ let
           requirements = feature.requires.allOf ++ feature.requires.anyOf;
           unknownRequirements = filter (required: !featureExists required) requirements;
           missingAll = filter (
-            required: featureExists required && !lib.elem required host.features
+            required: featureExists required && !builtins.hasAttr required host.features
           ) feature.requires.allOf;
           missingAny =
             feature.requires.anyOf != [ ]
-            && !lib.any (required: lib.elem required host.features) feature.requires.anyOf;
+            && !lib.any (required: builtins.hasAttr required host.features) feature.requires.anyOf;
         in
         map (required: "${name} references unknown feature ${required}") unknownRequirements
         ++ map (required: "${name} requires ${required}") missingAll
         ++ optional missingAny "${name} requires any of: ${lib.concatStringsSep ", " feature.requires.anyOf}"
-      ) host.features;
+      ) enabledFeatures;
     in
     if missingRequirements == [ ] then
-      map featureByName host.features
+      lib.genAttrs enabledFeatures featureByName
     else
       throw ''
         Missing feature dependencies for host '${host.hostname}':
@@ -47,10 +47,7 @@ in
 {
   enabled =
     enabledFeatures: name:
-    if featureExists name then
-      lib.elem name enabledFeatures
-    else
-      throw (unknownFeature name);
+    if featureExists name then builtins.hasAttr name enabledFeatures else throw (unknownFeature name);
 
   inherit select;
 }

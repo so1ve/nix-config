@@ -3,6 +3,7 @@
     requires.allOf = [ "system/core" ];
 
     nixos =
+      _:
       { username, ... }:
       {
         networking = {

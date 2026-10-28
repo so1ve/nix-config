@@ -1,6 +1,6 @@
 {
   ray.features."software/yazi" = {
-    home = {
+    home = _: {
       programs.yazi.enable = true;
     };
   };

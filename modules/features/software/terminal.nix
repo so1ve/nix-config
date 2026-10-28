@@ -2,6 +2,7 @@
   ray.features = {
     "software/ghostty" = {
       home =
+        _:
         { inputs, pkgs, ... }:
         let
           cursorShader = pkgs.writeText "ghostty-cursor-warp-long.glsl" (
@@ -45,7 +46,7 @@
     };
 
     "software/kitty" = {
-      home = {
+      home = _: {
         programs.kitty = {
           enable = true;
           keybindings = {
@@ -68,16 +69,17 @@
 
     "defaults/terminal/kitty" = {
       requires.allOf = [ "software/kitty" ];
-      home.home.sessionVariables.TERMINAL = "kitty";
+      home = _: { home.sessionVariables.TERMINAL = "kitty"; };
     };
 
     "defaults/terminal/ghostty" = {
       requires.allOf = [ "software/ghostty" ];
-      home.home.sessionVariables.TERMINAL = "ghostty";
+      home = _: { home.sessionVariables.TERMINAL = "ghostty"; };
     };
 
     "software/herdr" = {
       home =
+        _:
         {
           config,
           featureEnabled,

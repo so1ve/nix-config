@@ -1,6 +1,7 @@
 {
   ray.features = {
     "software/wps".home =
+      _:
       { pkgs, ... }:
       let
         wpsScaled = pkgs.symlinkJoin {
@@ -21,6 +22,7 @@
       };
 
     "software/onlyoffice".home =
+      _:
       { pkgs, ... }:
       {
         home.packages = [ pkgs.onlyoffice-desktopeditors ];

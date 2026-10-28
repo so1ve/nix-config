@@ -6,6 +6,7 @@
     ];
 
     nixos =
+      _:
       {
         config,
         inputs,
@@ -56,6 +57,7 @@
       };
 
     home =
+      _:
       {
         config,
         lib,

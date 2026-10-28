@@ -1,6 +1,7 @@
 {
   ray.features."software/development" = {
     nixos =
+      _:
       { pkgs, ... }:
       {
         documentation = {
@@ -18,6 +19,7 @@
       };
 
     home =
+      _:
       {
         config,
         inputs,

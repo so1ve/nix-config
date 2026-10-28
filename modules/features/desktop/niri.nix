@@ -1,6 +1,7 @@
 {
   ray.features."desktop/niri" = {
     nixos =
+      _:
       { inputs, pkgs, ... }:
       let
         personalPackages = import inputs.so1ve { inherit pkgs; };
@@ -30,6 +31,7 @@
       };
 
     home =
+      _:
       {
         config,
         inputs,

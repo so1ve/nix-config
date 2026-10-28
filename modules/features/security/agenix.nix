@@ -1,6 +1,7 @@
 {
   ray.features."security/agenix" = {
     nixos =
+      _:
       {
         inputs,
         username,
@@ -13,6 +14,7 @@
       };
 
     home =
+      _:
       {
         config,
         featureEnabled,

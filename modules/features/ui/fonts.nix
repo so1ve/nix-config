@@ -1,6 +1,7 @@
 {
   ray.features."ui/fonts" = {
     nixos =
+      _:
       {
         inputs,
         lib,

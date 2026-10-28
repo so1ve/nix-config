@@ -1,6 +1,7 @@
 {
   ray.features."software/git" = {
     home =
+      _:
       { user, ... }:
       {
         programs.git = {

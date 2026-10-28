@@ -1,6 +1,7 @@
 {
   ray.features."software/sunloginclient" = {
     nixos =
+      _:
       { inputs, username, ... }:
       {
         imports = [ inputs.so1ve.nixosModules.sunloginclient ];

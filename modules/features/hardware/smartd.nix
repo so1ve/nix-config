@@ -1,5 +1,5 @@
 {
   ray.features."hardware/smartd" = {
-    nixos.services.smartd.enable = true;
+    nixos = _: { services.smartd.enable = true; };
   };
 }

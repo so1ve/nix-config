@@ -2,6 +2,7 @@
 {
   ray.features = {
     "software/agent-skills".home =
+      _:
       { inputs, pkgs, ... }:
       {
         imports = [ inputs.agent-skills.homeManagerModules.default ];
@@ -31,6 +32,7 @@
       };
 
     "software/codex".home =
+      _:
       {
         config,
         inputs,
@@ -50,6 +52,7 @@
 
     "software/codex-desktop" = {
       nixos =
+        _:
         { config, username, ... }:
         {
           services.gnome.at-spi2-core.enable = true;
@@ -64,6 +67,7 @@
         };
 
       home =
+        _:
         {
           inputs,
           lib,
@@ -140,6 +144,7 @@
     };
 
     "software/pi".home =
+      _:
       {
         config,
         mkDotfilesSymlink,
@@ -217,6 +222,7 @@
       requires.allOf = [ "security/agenix" ];
 
       home =
+        _:
         {
           config,
           inputs,
@@ -243,6 +249,7 @@
     };
 
     "software/opencode".home =
+      _:
       {
         config,
         mkDotfilesSymlink,
@@ -264,6 +271,7 @@
       requires.allOf = [ "security/agenix" ];
 
       home =
+        _:
         {
           config,
           inputs,

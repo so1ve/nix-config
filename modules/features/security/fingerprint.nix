@@ -1,6 +1,6 @@
 {
   ray.features."security/fingerprint" = {
-    nixos = {
+    nixos = _: {
       services.fprintd.enable = true;
 
       security.pam.services = {

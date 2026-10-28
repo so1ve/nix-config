@@ -2,6 +2,7 @@
   ray.features = {
     "software/neovim" = {
       home =
+        _:
         {
           config,
           inputs,
@@ -37,7 +38,7 @@
 
     "defaults/editor/neovim" = {
       requires.allOf = [ "software/neovim" ];
-      home = {
+      home = _: {
         home.sessionVariables = {
           EDITOR = "nvim";
           MANPAGER = "nvim +Man!";
@@ -62,7 +63,7 @@
     };
 
     "software/zed" = {
-      home.programs.zed-editor.enable = true;
+      home = _: { programs.zed-editor.enable = true; };
     };
   };
 }

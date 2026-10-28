@@ -1,6 +1,6 @@
 {
   ray.features."boot/systemd-boot" = {
-    nixos = {
+    nixos = _: {
       boot.loader = {
         timeout = 1;
         systemd-boot = {

@@ -1,5 +1,6 @@
 {
   ray.features."ui/core".home =
+    _:
     { pkgs, ... }:
     {
       home.packages = [ pkgs.qt6.qtsvg ];

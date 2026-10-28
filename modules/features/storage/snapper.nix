@@ -1,6 +1,7 @@
 {
   ray.features."storage/snapper" = {
     nixos =
+      _:
       { username, ... }:
       let
         mkSnapperConfig =

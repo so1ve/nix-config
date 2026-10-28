@@ -20,6 +20,7 @@ in
 {
   ray.features."input/fcitx-rime" = {
     nixos =
+      _:
       { inputs, pkgs, ... }:
       let
         personalPackages = import inputs.so1ve { inherit pkgs; };
@@ -56,6 +57,7 @@ in
       };
 
     home =
+      _:
       {
         config,
         inputs,

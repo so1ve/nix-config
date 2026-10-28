@@ -7,6 +7,7 @@
     ];
 
     nixos =
+      _:
       {
         inputs,
         username,

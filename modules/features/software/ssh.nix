@@ -1,3 +1,3 @@
 {
-  ray.features."software/ssh".home.programs.ssh.enable = true;
+  ray.features."software/ssh".home = _: { programs.ssh.enable = true; };
 }

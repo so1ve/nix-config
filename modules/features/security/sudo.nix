@@ -1,6 +1,7 @@
 {
   ray.features."security/sudo" = {
     nixos =
+      _:
       { username, ... }:
       {
         security.sudo-rs = {

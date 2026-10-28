@@ -2,6 +2,7 @@
   ray.features = {
     "software/gaming" = {
       nixos =
+        _:
         { pkgs, ... }:
         {
           programs = {
@@ -15,14 +16,14 @@
           };
         };
 
-      home = {
+      home = _: {
         programs.mangohud.enable = true;
       };
     };
 
     "software/netease-cloud-game" = {
       requires.allOf = [ "software/chrome" ];
-      nixos = {
+      nixos = _: {
         ray.chromeWebApps = [
           {
             url = "https://cg.163.com/";
@@ -35,7 +36,7 @@
 
     "software/endfield-cloud-game" = {
       requires.allOf = [ "software/chrome" ];
-      nixos = {
+      nixos = _: {
         ray.chromeWebApps = [
           {
             url = "https://endfield.hypergryph.com/cloud";
@@ -47,6 +48,7 @@
     };
 
     "software/hmcl".home =
+      _:
       { pkgs, ... }:
       let
         hmclScaled = pkgs.symlinkJoin {

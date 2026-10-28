@@ -1,6 +1,7 @@
 {
   ray.features."virtualisation/podman" = {
     nixos =
+      _:
       {
         pkgs,
         username,
@@ -30,6 +31,7 @@
       };
 
     home =
+      _:
       { username, ... }:
       {
         xdg.configFile."containers/storage.conf".text = ''

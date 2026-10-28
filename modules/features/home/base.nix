@@ -1,6 +1,7 @@
 {
   ray.features."home/base" = {
     home =
+      _:
       {
         homeStateVersion,
         username,

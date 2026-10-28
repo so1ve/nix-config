@@ -1,6 +1,6 @@
 {
   ray.features."hardware/battery" = {
-    nixos = {
+    nixos = _: {
       systemd.services.battery-charge-thresholds = {
         description = "Configure battery charge thresholds";
         wantedBy = [ "multi-user.target" ];

@@ -6,6 +6,7 @@
     ];
 
     home =
+      _:
       {
         inputs,
         lib,

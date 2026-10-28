@@ -1,6 +1,7 @@
 {
   ray.features."system/performance" = {
     nixos =
+      _:
       { pkgs, ... }:
       {
         boot.kernel.sysctl = {

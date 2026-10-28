@@ -1,10 +1,11 @@
 {
   ray.features."software/shell" = {
-    nixos = {
+    nixos = _: {
       programs.fish.enable = true;
     };
 
     home =
+      _:
       {
         config,
         mkDotfilesSymlink,

@@ -1,6 +1,7 @@
 {
   ray.features."virtualisation/libvirt" = {
     nixos =
+      _:
       {
         pkgs,
         username,

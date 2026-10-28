@@ -1,6 +1,7 @@
 {
   ray.features."software/wine" = {
     home =
+      _:
       { pkgs, ... }:
       {
         home.packages = [

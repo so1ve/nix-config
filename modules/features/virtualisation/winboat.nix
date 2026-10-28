@@ -3,6 +3,7 @@
     requires.allOf = [ "virtualisation/podman" ];
 
     nixos =
+      _:
       { username, ... }:
       {
         systemd.tmpfiles.rules = [
@@ -15,6 +16,7 @@
       };
 
     home =
+      _:
       { inputs, pkgs, ... }:
       {
         home.packages = [ (import inputs.so1ve { inherit pkgs; }).winboat-unstable ];

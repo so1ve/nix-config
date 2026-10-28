@@ -3,7 +3,7 @@ let
 in
 {
   ray.features."software/kde-connect" = {
-    nixos = {
+    nixos = _: {
       programs.kdeconnect = {
         enable = true;
         package = null;
@@ -11,6 +11,7 @@ in
     };
 
     home =
+      _:
       { pkgs, ... }:
       let
         commands = builtins.toJSON {

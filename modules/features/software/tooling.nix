@@ -1,6 +1,7 @@
 {
   ray.features."software/tooling" = {
     home =
+      _:
       {
         config,
         mkDotfilesSymlink,

@@ -1,5 +1,6 @@
 {
   ray.features."software/bitgateway".home =
+    _:
     { inputs, ... }:
     {
       imports = [ inputs.bitgateway.homeManagerModules.default ];

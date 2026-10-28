@@ -1,20 +1,26 @@
-{ lib, ... }:
+{ config, lib, ... }:
 
 let
   inherit (lib) mkOption types;
 
   featureType = types.submodule {
     options = {
+      options = mkOption {
+        type = types.attrsOf types.raw;
+        default = { };
+        description = "Native option declarations for this feature's per-host settings.";
+      };
+
       nixos = mkOption {
-        type = types.nullOr types.deferredModule;
+        type = types.nullOr (types.functionTo types.deferredModule);
         default = null;
-        description = "Optional NixOS module provided by this feature.";
+        description = "Function from this feature's settings to a NixOS module.";
       };
 
       home = mkOption {
-        type = types.nullOr types.deferredModule;
+        type = types.nullOr (types.functionTo types.deferredModule);
         default = null;
-        description = "Optional Home Manager module provided by this feature.";
+        description = "Function from this feature's settings to a Home Manager module.";
       };
 
       requires = mkOption {
@@ -66,8 +72,19 @@ let
         };
 
         features = mkOption {
-          type = types.listOf types.str;
-          default = [ ];
+          type = types.submodule {
+            options = lib.mapAttrs (
+              name: feature:
+              mkOption {
+                type = types.nullOr (types.submodule { options = feature.options; });
+                default = null;
+                description = "Enable ${name} and configure its settings.";
+              }
+            ) config.ray.features;
+          };
+          default = { };
+          apply = lib.filterAttrs (_: settings: settings != null);
+          description = "Enabled features and their typed settings. An empty set uses defaults.";
         };
 
         modules = mkOption {

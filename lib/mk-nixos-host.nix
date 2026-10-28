@@ -5,15 +5,12 @@
 }:
 
 let
-  inherit (lib) filter optional;
+  inherit (lib) optional;
 
   featureRegistry = import ./feature-registry.nix {
     features = config.ray.features;
     inherit lib;
   };
-
-  modulesFor =
-    kind: features: map (feature: feature.${kind}) (filter (feature: feature.${kind} != null) features);
 
   mkDotfilesSymlink = import "${inputs.self}/lib/mk-dotfiles-symlink.nix";
   mkFocusOrLaunch = import "${inputs.self}/lib/mk-focus-or-launch.nix" { inherit inputs; };
@@ -48,8 +45,13 @@ in
 host:
 let
   features = featureRegistry.select host;
-  nixosModules = modulesFor "nixos" features;
-  homeModules = modulesFor "home" features;
+  modulesFor =
+    kind:
+    lib.mapAttrsToList (name: feature: feature.${kind} host.features.${name}) (
+      lib.filterAttrs (_: feature: feature.${kind} != null) features
+    );
+  nixosModules = modulesFor "nixos";
+  homeModules = modulesFor "home";
 in
 inputs.nixpkgs.lib.nixosSystem {
   inherit (host) system;

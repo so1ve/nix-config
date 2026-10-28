@@ -1,6 +1,7 @@
 {
   ray.features = {
     "software/mpv".home =
+      _:
       {
         pkgs,
         ...
@@ -29,6 +30,7 @@
     "defaults/media-player/mpv" = {
       requires.allOf = [ "software/mpv" ];
       home =
+        _:
         { lib, ... }:
         {
           xdg.mimeApps = {
@@ -62,18 +64,21 @@
     };
 
     "software/haruna".home =
+      _:
       { pkgs, ... }:
       {
         home.packages = [ pkgs.haruna ];
       };
 
     "software/celluloid".home =
+      _:
       { pkgs, ... }:
       {
         home.packages = [ pkgs.celluloid ];
       };
 
     "software/vlc".home =
+      _:
       { pkgs, ... }:
       {
         home.packages = [ pkgs.vlc ];

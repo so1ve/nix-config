@@ -1,6 +1,6 @@
 {
   ray.features."hardware/graphics" = {
-    nixos = {
+    nixos = _: {
       hardware.graphics = {
         enable = true;
         enable32Bit = true;

@@ -3,6 +3,7 @@
     requires.allOf = [ "virtualisation/podman" ];
 
     nixos =
+      _:
       {
         username,
         ...
@@ -18,6 +19,7 @@
       };
 
     home =
+      _:
       {
         config,
         inputs,

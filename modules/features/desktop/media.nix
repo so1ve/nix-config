@@ -1,6 +1,7 @@
 {
   ray.features."desktop/media" = {
     nixos =
+      _:
       { inputs, pkgs, ... }:
       {
         # FIXME: Remove this pin once the Bluetooth reconnect/A2DP regression is fixed upstream:

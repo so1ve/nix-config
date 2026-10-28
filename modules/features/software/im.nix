@@ -1,6 +1,7 @@
 {
   ray.features = {
     "software/dingtalk".home =
+      _:
       { inputs, pkgs, ... }:
       let
         dingtalk = (import inputs.so1ve { inherit pkgs; }).dingtalk;
@@ -10,6 +11,7 @@
       };
 
     "software/qq".nixos =
+      _:
       { inputs, ... }:
       {
         imports = [ inputs.linuxqq-wayland-fix.nixosModules.default ];
@@ -18,6 +20,7 @@
       };
 
     "software/qq".home =
+      _:
       { osConfig, ... }:
       {
         xdg.desktopEntries.qq = {
@@ -39,7 +42,7 @@
 
     "software/telegram-web" = {
       requires.allOf = [ "software/chrome" ];
-      nixos = {
+      nixos = _: {
         ray.chromeWebApps = [
           {
             url = "https://web.telegram.org/k/";
@@ -52,7 +55,7 @@
 
     "software/cinny" = {
       requires.allOf = [ "software/chrome" ];
-      nixos = {
+      nixos = _: {
         ray.chromeWebApps = [
           {
             url = "https://app.cinny.in/";
@@ -65,7 +68,7 @@
 
     "software/discord" = {
       requires.allOf = [ "software/chrome" ];
-      nixos = {
+      nixos = _: {
         ray.chromeWebApps = [
           {
             url = "https://discord.com/app";
@@ -78,7 +81,7 @@
 
     "software/oopz" = {
       requires.allOf = [ "software/chrome" ];
-      nixos = {
+      nixos = _: {
         ray.chromeWebApps = [
           {
             url = "https://web.oopz.cn/";
@@ -91,7 +94,7 @@
 
     "software/rust-zulip" = {
       requires.allOf = [ "software/chrome" ];
-      nixos = {
+      nixos = _: {
         ray.chromeWebApps = [
           {
             url = "https://rust-lang.zulipchat.com/";

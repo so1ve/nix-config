@@ -7,6 +7,7 @@
     ];
 
     home =
+      _:
       {
         config,
         inputs,

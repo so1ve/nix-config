@@ -1,6 +1,7 @@
 {
   ray.features."software/chrome" = {
     nixos =
+      _:
       { config, lib, ... }:
       {
         options.ray.chromeWebApps = lib.mkOption {
@@ -44,6 +45,7 @@
       };
 
     home =
+      _:
       {
         config,
         inputs,
@@ -145,6 +147,7 @@
   ray.features."defaults/browser/chrome" = {
     requires.allOf = [ "software/chrome" ];
     home =
+      _:
       { lib, ... }:
       {
         home.sessionVariables.BROWSER = "google-chrome-stable";

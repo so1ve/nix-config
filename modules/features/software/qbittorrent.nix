@@ -1,6 +1,6 @@
 {
   ray.features."software/qbittorrent" = {
-    home = { pkgs, ... }: {
+    home = _: { pkgs, ... }: {
       home.packages = [ pkgs.qbittorrent ];
     };
   };
