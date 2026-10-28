@@ -143,24 +143,4 @@
         };
       };
   };
-
-  ray.features."defaults/browser/chrome" = {
-    requires.allOf = [ "software/chrome" ];
-    home =
-      _:
-      { lib, ... }:
-      {
-        home.sessionVariables.BROWSER = "google-chrome-stable";
-
-        xdg.mimeApps = {
-          enable = true;
-          defaultApplications = lib.genAttrs [
-            "application/xhtml+xml"
-            "text/html"
-            "x-scheme-handler/http"
-            "x-scheme-handler/https"
-          ] (_: "open-in-google-chrome.desktop");
-        };
-      };
-  };
 }

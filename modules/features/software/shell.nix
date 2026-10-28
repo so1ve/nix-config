@@ -69,26 +69,4 @@
         };
       };
   };
-
-  ray.features."defaults/shell/fish" = {
-    requires.allOf = [ "software/shell" ];
-
-    nixos =
-      _:
-      { config, username, ... }:
-      {
-        users.users.${username}.shell = config.programs.fish.package;
-      };
-  };
-
-  ray.features."defaults/shell/bash" = {
-    requires.allOf = [ "software/shell" ];
-
-    nixos =
-      _:
-      { pkgs, username, ... }:
-      {
-        users.users.${username}.shell = pkgs.bashInteractive;
-      };
-  };
 }

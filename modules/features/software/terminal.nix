@@ -75,16 +75,6 @@
         };
     };
 
-    "defaults/terminal/kitty" = {
-      requires.allOf = [ "software/kitty" ];
-      home = _: { home.sessionVariables.TERMINAL = "kitty"; };
-    };
-
-    "defaults/terminal/ghostty" = {
-      requires.allOf = [ "software/ghostty" ];
-      home = _: { home.sessionVariables.TERMINAL = "ghostty"; };
-    };
-
     "software/herdr" = {
       home =
         _:

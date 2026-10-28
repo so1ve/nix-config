@@ -3,6 +3,22 @@
 let
   inherit (lib) mkOption types;
 
+  requirementsType = types.submodule {
+    options = {
+      allOf = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = "Features that must all be enabled alongside this feature.";
+      };
+
+      anyOf = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = "Alternative features, at least one of which must be enabled.";
+      };
+    };
+  };
+
   featureType = types.submodule {
     options = {
       options = mkOption {
@@ -24,23 +40,11 @@ let
       };
 
       requires = mkOption {
-        type = types.submodule {
-          options = {
-            allOf = mkOption {
-              type = types.listOf types.str;
-              default = [ ];
-              description = "Features that must all be enabled alongside this feature.";
-            };
-
-            anyOf = mkOption {
-              type = types.listOf types.str;
-              default = [ ];
-              description = "Alternative features, at least one of which must be enabled.";
-            };
-          };
-        };
+        type = types.coercedTo (types.attrsOf types.raw) (requirements: _: requirements) (
+          types.functionTo requirementsType
+        );
         default = { };
-        description = "Dependencies that must be satisfied when this feature is enabled.";
+        description = "Feature dependencies, either fixed or computed from this feature's settings.";
       };
     };
   };

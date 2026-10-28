@@ -22,18 +22,20 @@ let
         name:
         let
           feature = featureByName name;
-          requirements = feature.requires.allOf ++ feature.requires.anyOf;
-          unknownRequirements = filter (required: !featureExists required) requirements;
+          requirements = feature.requires host.features.${name};
+          unknownRequirements = filter (required: !featureExists required) (
+            requirements.allOf ++ requirements.anyOf
+          );
           missingAll = filter (
             required: featureExists required && !builtins.hasAttr required host.features
-          ) feature.requires.allOf;
+          ) requirements.allOf;
           missingAny =
-            feature.requires.anyOf != [ ]
-            && !lib.any (required: builtins.hasAttr required host.features) feature.requires.anyOf;
+            requirements.anyOf != [ ]
+            && !lib.any (required: builtins.hasAttr required host.features) requirements.anyOf;
         in
         map (required: "${name} references unknown feature ${required}") unknownRequirements
         ++ map (required: "${name} requires ${required}") missingAll
-        ++ optional missingAny "${name} requires any of: ${lib.concatStringsSep ", " feature.requires.anyOf}"
+        ++ optional missingAny "${name} requires any of: ${lib.concatStringsSep ", " requirements.anyOf}"
       ) enabledFeatures;
     in
     if missingRequirements == [ ] then

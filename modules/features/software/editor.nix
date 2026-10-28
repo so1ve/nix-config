@@ -36,32 +36,6 @@
         };
     };
 
-    "defaults/editor/neovim" = {
-      requires.allOf = [ "software/neovim" ];
-      home = _: {
-        home.sessionVariables = {
-          EDITOR = "nvim";
-          MANPAGER = "nvim +Man!";
-          SUDO_EDITOR = "nvim";
-          VISUAL = "nvim";
-        };
-
-        programs = {
-          git.settings = {
-            core.editor = "nvim";
-            diff.tool = "nvimdiff";
-            merge.tool = "nvimdiff";
-          };
-
-          neovim = {
-            defaultEditor = true;
-            viAlias = true;
-            vimAlias = true;
-          };
-        };
-      };
-    };
-
     "software/zed" = {
       home = _: { programs.zed-editor.enable = true; };
     };
