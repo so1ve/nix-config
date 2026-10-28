@@ -25,6 +25,8 @@
           path = "${config.home.homeDirectory}/.ssh/ssh-github";
         };
 
+        home.file.".ssh/ssh-github.pub".source = "${inputs.self}/keys/ssh-github.pub";
+
         programs = {
           gh = {
             enable = true;
