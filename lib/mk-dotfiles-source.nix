@@ -1,7 +1,7 @@
-{ config, dotfilesMode }:
+{ config, copy }:
 
 name:
-if dotfilesMode == "symlink" then
-  config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Develop/nix-config/dotfiles/${name}"
-else
+if copy then
   ../dotfiles + "/${name}"
+else
+  config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Develop/nix-config/dotfiles/${name}"

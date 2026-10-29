@@ -28,19 +28,13 @@ in
       {
         config,
         hostname,
-        inputs,
         ...
       }:
       let
         keyName = "ssh-admin-${hostname}";
       in
       {
-        age.secrets.${keyName} = {
-          file = "${inputs.self}/secrets/${keyName}.age";
-          path = "${config.home.homeDirectory}/.ssh/${keyName}";
-        };
-
-        home.file.".ssh/${keyName}.pub".source = "${inputs.self}/keys/${keyName}.pub";
+        age.secrets.${keyName}.path = "${config.home.homeDirectory}/.ssh/${keyName}";
 
         programs.ssh.settings."* !github.com !ssh.github.com" = {
           IdentityFile = config.age.secrets.${keyName}.path;

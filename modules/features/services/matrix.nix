@@ -18,26 +18,17 @@
       settings:
       {
         config,
-        hostname,
         pkgs,
         ...
       }:
       let
         inherit (config.virtualisation.quadlet) containers networks;
-        secretsDir = ../../../secrets + "/${hostname}";
         dependencies = [
           containers.tuwunel.ref
           containers.mautrix-postgres.ref
         ];
       in
       {
-        age.secrets = {
-          tuwunel-config.file = secretsDir + "/tuwunel-config.age";
-          mautrix-config.file = secretsDir + "/mautrix-config.age";
-          mautrix-registration.file = secretsDir + "/mautrix-registration.age";
-          mautrix-postgres-env.file = secretsDir + "/mautrix-postgres-env.age";
-        };
-
         systemd.tmpfiles.rules = [
           "d /var/lib/matrix 0700 root root - -"
           "d /var/lib/matrix/tuwunel 0700 root root - -"

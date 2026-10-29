@@ -1,43 +1,24 @@
 set unstable
 set lists
 
-host := "workstation"
-
 default:
     @just --list
 
 # Verify the generated flake before evaluating the remaining checks.
 check: check-flake-file
-    nix flake check . --no-build --show-trace --accept-flake-config
+    nix flake check path:. --no-build --show-trace --accept-flake-config
 
 # Check that flake.nix is up to date with flake-file.nix.
 check-flake-file:
-    nix build .#checks.x86_64-linux.check-flake-file --no-link --accept-flake-config
-
-# Build the system without activating it.
-build:
-    nh os build . -H {{ host }} --accept-flake-config
-
-boot:
-    nh os boot . -H {{ host }} --accept-flake-config
-
-# Activate the configuration immediately.
-switch:
-    nh os switch . -H {{ host }} --accept-flake-config
-
-# Evaluate checks, then build and deploy only the selected server.
-deploy node *args: check
-    nix run .#deploy-rs --accept-flake-config -- \
-      --skip-checks {{quote(".#" + node)}} {{quote(args)}} \
-      -- --accept-flake-config
+    nix build path:.#checks.x86_64-linux.check-flake-file --no-link --accept-flake-config
 
 # Format all Nix files with the formatter exported by the flake.
 fmt:
-    nix fmt --accept-flake-config
+    nix fmt path:. --accept-flake-config
 
 # Regenerate flake.nix from flake-file.nix.
 write-flake:
-    nix run .#write-flake --accept-flake-config
+    nix run path:.#write-flake --accept-flake-config
 
 # Update all flake inputs.
 update *input:

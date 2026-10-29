@@ -5,10 +5,10 @@
     },
     "options": {
       "nixos": {
-        "expr": "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.workstation.options"
+        "expr": "let f = builtins.getFlake (builtins.toString ./.); in (f.inputs.nixpkgs.lib.nixosSystem { system = \"x86_64-linux\"; modules = [ f.inputs.agenix.nixosModules.default f.inputs.home-manager.nixosModules.home-manager f.inputs.quadlet-nix.nixosModules.default ]; }).options"
       },
       "home-manager": {
-        "expr": "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.workstation.options.home-manager.users.type.getSubOptions []"
+        "expr": "let f = builtins.getFlake (builtins.toString ./.); in (f.inputs.nixpkgs.lib.nixosSystem { system = \"x86_64-linux\"; modules = [ f.inputs.home-manager.nixosModules.home-manager { home-manager.sharedModules = [ f.inputs.agenix.homeManagerModules.default ]; } ]; }).options.home-manager.users.type.getSubOptions []"
       }
     }
   }

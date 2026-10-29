@@ -15,10 +15,8 @@
 
     nixos =
       settings:
-      { config, hostname, ... }:
+      { config, ... }:
       {
-        age.secrets.cloudflared-env.file = ../../../secrets + "/${hostname}/cloudflared-env.age";
-
         networking.firewall.interfaces.br-cloudflared = {
           allowedTCPPorts = [ 53 ];
           allowedUDPPorts = [ 53 ];

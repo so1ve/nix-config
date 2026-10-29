@@ -224,10 +224,7 @@
           ...
         }:
         {
-          age.secrets.omp-models = {
-            file = "${inputs.self}/secrets/omp-models.age";
-            path = "${config.home.homeDirectory}/.omp/agent/models.yml";
-          };
+          age.secrets.omp-models.path = "${config.home.homeDirectory}/.omp/agent/models.yml";
 
           home = {
             packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp ];
@@ -266,20 +263,11 @@
         }:
         let
           rea = (import inputs.so1ve { inherit pkgs; }).rea;
-          tailscaleHosts = [
-            "100.64.0.1"
-            "[fd7a:115c:a1e0::1]"
-            "workstation"
-            "workstation.example.ts.net"
-          ];
         in
         {
           imports = [ inputs.so1ve.homeModules.deepseek-harness ];
 
-          age.secrets.dsh-env = {
-            file = "${inputs.self}/secrets/dsh-env.age";
-            path = "${config.home.homeDirectory}/.dsh/.env";
-          };
+          age.secrets.dsh-env.path = "${config.home.homeDirectory}/.dsh/.env";
 
           home = {
             packages = [ rea ];
@@ -304,10 +292,6 @@
               # The Web UI rewrites its profile patch when saving settings.
               # Keep declarative overrides in the separate home-level layer.
               cordisPatch = [
-                {
-                  id = "connection";
-                  config.trustedHosts.__jsExpr = "${builtins.toJSON tailscaleHosts}.concat(ctx.webRuntime.trustedHosts)";
-                }
                 {
                   insert = [
                     {

@@ -37,7 +37,7 @@ let
           _module.args = {
             mkDotfilesSource = import ./mk-dotfiles-source.nix {
               inherit config;
-              inherit (host) dotfilesMode;
+              copy = host.isServer;
             };
             focusOrLaunch = import ./mk-focus-or-launch.nix {
               inherit inputs pkgs;

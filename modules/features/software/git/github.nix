@@ -10,22 +10,16 @@
       _:
       {
         config,
-        inputs,
         user,
         ...
       }:
       let
         githubKey = config.age.secrets.ssh-github.path;
-        githubPublicKey = builtins.readFile "${inputs.self}/keys/ssh-github.pub";
+        githubPublicKey = builtins.readFile config.home.file.".ssh/ssh-github.pub".source;
         allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
       in
       {
-        age.secrets.ssh-github = {
-          file = "${inputs.self}/secrets/ssh-github.age";
-          path = "${config.home.homeDirectory}/.ssh/ssh-github";
-        };
-
-        home.file.".ssh/ssh-github.pub".source = "${inputs.self}/keys/ssh-github.pub";
+        age.secrets.ssh-github.path = "${config.home.homeDirectory}/.ssh/ssh-github";
 
         programs = {
           gh = {

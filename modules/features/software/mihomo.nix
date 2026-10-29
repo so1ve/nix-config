@@ -9,17 +9,13 @@
       _:
       {
         config,
-        inputs,
         lib,
         pkgs,
         username,
         ...
       }:
       {
-        age.secrets.mihomo-config = {
-          file = "${inputs.self}/secrets/mihomo-config.age";
-          owner = username;
-        };
+        age.secrets.mihomo-config.owner = username;
 
         services.mihomo = {
           enable = true;

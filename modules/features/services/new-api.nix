@@ -16,21 +16,15 @@
 
     nixos =
       settings:
-      { config, hostname, ... }:
+      { config, ... }:
       let
         inherit (config.virtualisation.quadlet) containers networks;
-        secretsDir = ../../../secrets + "/${hostname}";
         dependencies = [
           containers.new-api-postgres.ref
           containers.new-api-redis.ref
         ];
       in
       {
-        age.secrets = {
-          new-api-env.file = secretsDir + "/new-api-env.age";
-          new-api-postgres-env.file = secretsDir + "/new-api-postgres-env.age";
-        };
-
         systemd.tmpfiles.rules = [
           "d /var/lib/new-api 0700 root root - -"
           "d /var/lib/new-api/data 0700 root root - -"

@@ -10,10 +10,6 @@
       _:
       { username, ... }:
       {
-        users.users.${username}.openssh.authorizedKeys.keyFiles = [
-          ../../../keys/ssh-admin-workstation.pub
-        ];
-
         networking = {
           nftables.enable = true;
           firewall.enable = true;
