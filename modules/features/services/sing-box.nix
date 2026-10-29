@@ -94,11 +94,8 @@
                   }
                 ];
                 tls = {
-                  enabled = true;
-                  reality = {
-                    _secret = config.age.secrets.sing-box-reality.path;
-                    quote = false;
-                  };
+                  _secret = config.age.secrets.sing-box-reality.path;
+                  quote = false;
                 };
               }
             ];
