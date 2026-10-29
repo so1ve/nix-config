@@ -143,10 +143,51 @@
       _:
       {
         config,
+        lib,
         mkDotfilesSource,
         pkgs,
         ...
       }:
+      let
+        # Baseline for a machine that has no settings.json yet. magpie rewrites
+        # the live file whenever a model is picked for pi, so Home Manager seeds
+        # it once and then leaves it alone; a store symlink would make magpie
+        # fail with "read-only file system".
+        seedSettings = {
+          defaultModel = "gpt-5.6-sol";
+          defaultProvider = "openai-codex";
+          defaultThinkingLevel = "max";
+          retry = {
+            enabled = true;
+            maxRetries = 3;
+          };
+          theme = "dark";
+          packages = [
+            "npm:@czottmann/pi-automode"
+            "npm:@ff-labs/pi-fff"
+            "npm:@gotgenes/pi-subagents"
+            "npm:@gotgenes/pi-subagents-worktrees"
+            "npm:@juicesharp/rpiv-ask-user-question"
+            "npm:@narumitw/pi-btw"
+            "npm:@narumitw/pi-plan-mode"
+            "npm:@narumitw/pi-usage"
+            "npm:@upstash/context7-pi"
+            "npm:pi-codex-goal"
+            "npm:pi-draft-history"
+            "npm:pi-workspace-sessions"
+            "npm:pi-markdown-preview"
+            "npm:pi-mcp-adapter"
+            "npm:pi-nano-context"
+            "npm:pi-openai-api-models-sync"
+            "npm:pi-simplify"
+            "npm:pi-smart-fetch"
+            "npm:pi-tool-display"
+            "npm:pi-web-access"
+            "npm:pi-workspace-history"
+            "npm:pi-wtf"
+          ];
+        };
+      in
       {
         # pi-workspace-history creates internal Git commits. Do not sign these
         # snapshots with the user's normal signing key.
@@ -174,66 +215,36 @@
             "tui.editor.historyNext" = [ "ctrl+n" ];
             "tui.editor.historyPrevious" = [ "ctrl+p" ];
           };
-          settings = {
-            defaultModel = "gpt-5.6-sol";
-            defaultProvider = "openai-codex";
-            defaultThinkingLevel = "max";
-            retry = {
-              enabled = true;
-              maxRetries = 3;
-            };
-            theme = "dark";
-            packages = [
-              "npm:@czottmann/pi-automode"
-              "npm:@ff-labs/pi-fff"
-              "npm:@gotgenes/pi-subagents"
-              "npm:@gotgenes/pi-subagents-worktrees"
-              "npm:@juicesharp/rpiv-ask-user-question"
-              "npm:@narumitw/pi-btw"
-              "npm:@narumitw/pi-plan-mode"
-              "npm:@narumitw/pi-usage"
-              "npm:@upstash/context7-pi"
-              "npm:pi-codex-goal"
-              "npm:pi-draft-history"
-              "npm:pi-workspace-sessions"
-              "npm:pi-markdown-preview"
-              "npm:pi-mcp-adapter"
-              "npm:pi-nano-context"
-              "npm:pi-openai-api-models-sync"
-              "npm:pi-simplify"
-              "npm:pi-smart-fetch"
-              "npm:pi-tool-display"
-              "npm:pi-web-access"
-              "npm:pi-workspace-history"
-              "npm:pi-wtf"
-            ];
+          # settings.json itself stays out of Home Manager: see seedSettings.
+        };
+
+        home.activation.piSettingsSeed = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          settings="$HOME/.pi/agent/settings.json"
+          if [ ! -e "$settings" ]; then
+            run install -m 0600 ${pkgs.writeText "pi-settings-seed.json" (builtins.toJSON seedSettings)} "$settings"
+          fi
+        '';
+      };
+
+    "software/omp".home =
+      _:
+      {
+        inputs,
+        mkDotfilesSource,
+        pkgs,
+        ...
+      }:
+      {
+        home = {
+          packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp ];
+          file = {
+            # models.yml is deliberately unmanaged: magpie appends its own
+            # provider and model list there, which an agenix-decrypted symlink
+            # loses on every activation.
+            ".omp/agent/AGENTS.md".source = mkDotfilesSource "agents/AGENTS.md";
           };
         };
       };
-
-    "software/omp" = {
-      requires.allOf = [ "security/agenix" ];
-
-      home =
-        _:
-        {
-          config,
-          inputs,
-          mkDotfilesSource,
-          pkgs,
-          ...
-        }:
-        {
-          age.secrets.omp-models.path = "${config.home.homeDirectory}/.omp/agent/models.yml";
-
-          home = {
-            packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp ];
-            file = {
-              ".omp/agent/AGENTS.md".source = mkDotfilesSource "agents/AGENTS.md";
-            };
-          };
-        };
-    };
 
     "software/opencode".home =
       _:
