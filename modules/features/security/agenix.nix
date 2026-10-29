@@ -30,7 +30,10 @@
           inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
 
-        home.shellAliases.ae = "agenix -i ~/.config/agenix/identity -e";
+        home.shellAliases = {
+          age = "agenix -i ~/.config/agenix/identity";
+          ae = "age -e";
+        };
       };
   };
 }
