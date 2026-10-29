@@ -25,6 +25,7 @@
       settings:
       {
         config,
+        inputs,
         pkgs,
         ...
       }:
@@ -39,7 +40,7 @@
 
         services.caddy = {
           enable = true;
-          package = pkgs.callPackage ../../../packages/caddy-naive.nix { };
+          package = (import inputs.so1ve { inherit pkgs; }).caddy-naive;
           globalConfig = ''
             servers {
               protocols h1 h2
