@@ -17,6 +17,8 @@
         type = lib.types.addCheck lib.types.port (port: port >= 1024 && port != 10000);
         description = "VLESS REALITY TCP port. Must be unprivileged and different from the internal VMess port 10000.";
       };
+
+      naive.ipv4Only = lib.mkEnableOption "IPv4-only destination connections for NaïveProxy";
     };
 
     requires.allOf = [ "security/agenix" ];
@@ -58,6 +60,11 @@
                   hide_ip
                   hide_via
                   probe_resistance
+                  ${lib.optionalString settings.naive.ipv4Only ''
+                    acl {
+                      deny ::/0
+                    }
+                  ''}
                 }
                 @vmess path ${builtins.toJSON settings.vmess.path}
                 reverse_proxy @vmess 127.0.0.1:10000
