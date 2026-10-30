@@ -438,6 +438,28 @@ autocmd("BufWritePost", {
 -- # Completion                #
 -- #############################
 
+-- ssh.github.com is GitHub's port-443 SSH endpoint, not an API host.
+local function github_com_command_args(feature)
+  return function(command, token)
+    local args = require("blink-cmp-git.default.common").github_repo_get_command_args(command, token, feature)
+
+    if command == "gh" then
+      for index = 1, #args - 1 do
+        if args[index] == "--hostname" and args[index + 1] == "ssh.github.com" then
+          args[index + 1] = "github.com"
+          break
+        end
+      end
+    else
+      for index, arg in ipairs(args) do
+        args[index] = arg:gsub("^https://ssh%.github%.com/api/v3/", "https://api.github.com/")
+      end
+    end
+
+    return args
+  end
+end
+
 load_plugins("now", { "render-markdown.nvim", "tiny-md.nvim" }, function()
   require("render-markdown").setup({
     file_types = {},
@@ -598,7 +620,14 @@ load_plugins("now", { "blink-cmp-git", "blink.cmp" }, function()
 
             return false
           end,
-          opts = {},
+          opts = {
+            git_centers = {
+              github = {
+                issue = { get_command_args = github_com_command_args("issues") },
+                pull_request = { get_command_args = github_com_command_args("pulls") },
+              },
+            },
+          },
         },
         lsp = {
           transform_items = function(ctx, items)
