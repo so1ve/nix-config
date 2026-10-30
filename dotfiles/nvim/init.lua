@@ -439,25 +439,78 @@ autocmd("BufWritePost", {
 -- #############################
 
 -- ssh.github.com is GitHub's port-443 SSH endpoint, not an API host.
+local function github_com_args(command, args)
+  if command == "gh" then
+    for index = 1, #args - 1 do
+      if args[index] == "--hostname" and args[index + 1] == "ssh.github.com" then
+        args[index + 1] = "github.com"
+        break
+      end
+    end
+  else
+    for index, arg in ipairs(args) do
+      args[index] = arg:gsub("^https://ssh%.github%.com/api/v3/", "https://api.github.com/")
+    end
+  end
+
+  return args
+end
+
 local function github_com_command_args(feature)
   return function(command, token)
     local args = require("blink-cmp-git.default.common").github_repo_get_command_args(command, token, feature)
-
-    if command == "gh" then
-      for index = 1, #args - 1 do
-        if args[index] == "--hostname" and args[index + 1] == "ssh.github.com" then
-          args[index + 1] = "github.com"
-          break
-        end
-      end
-    else
-      for index, arg in ipairs(args) do
-        args[index] = arg:gsub("^https://ssh%.github%.com/api/v3/", "https://api.github.com/")
-      end
-    end
-
-    return args
+    return github_com_args(command, args)
   end
+end
+
+local function github_com_mention_documentation(item)
+  local documentation = require("blink-cmp-git.default.github").mention.get_documentation(item)
+  local get_command_args = documentation.get_command_args
+  documentation.get_command_args = function(command, token)
+    return github_com_args(command, get_command_args(command, token))
+  end
+  return documentation
+end
+
+local function has_comment_capture(row, column)
+  local ok, captures = pcall(vim.treesitter.get_captures, 0, { row, column })
+  if not ok then
+    return false
+  end
+
+  for _, capture in ipairs(captures) do
+    if capture.capture == "comment" then
+      return true
+    end
+  end
+
+  return false
+end
+
+local function starts_with_comment_marker(column)
+  local marker = vim.bo.commentstring:match("^(.-)%%s")
+  if not marker then
+    return false
+  end
+
+  marker = vim.trim(marker)
+  if marker == "" then
+    return false
+  end
+
+  local before_cursor = vim.api.nvim_get_current_line():sub(1, column)
+  return before_cursor:match("^%s*" .. vim.pesc(marker)) ~= nil
+end
+
+local function is_git_completion_position()
+  if vim.tbl_contains({ "gitcommit", "markdown", "octo" }, vim.bo.filetype) then
+    return true
+  end
+
+  local row, column = unpack(vim.api.nvim_win_get_cursor(0))
+  return has_comment_capture(row - 1, column)
+    or column > 0 and has_comment_capture(row - 1, column - 1)
+    or starts_with_comment_marker(column)
 end
 
 load_plugins("now", { "render-markdown.nvim", "tiny-md.nvim" }, function()
@@ -601,30 +654,16 @@ load_plugins("now", { "blink-cmp-git", "blink.cmp" }, function()
         git = {
           module = "blink-cmp-git",
           name = "Git",
-          enabled = function()
-            if vim.tbl_contains({ "gitcommit", "markdown", "octo" }, vim.bo.filetype) then
-              return true
-            end
-
-            local row, column = unpack(vim.api.nvim_win_get_cursor(0))
-            local ok, captures = pcall(vim.treesitter.get_captures, 0, { row - 1, column })
-            if not ok then
-              return false
-            end
-
-            for _, capture in ipairs(captures) do
-              if capture.capture == "comment" then
-                return true
-              end
-            end
-
-            return false
-          end,
+          should_show_items = is_git_completion_position,
           opts = {
             git_centers = {
               github = {
                 issue = { get_command_args = github_com_command_args("issues") },
                 pull_request = { get_command_args = github_com_command_args("pulls") },
+                mention = {
+                  get_command_args = github_com_command_args("contributors"),
+                  get_documentation = github_com_mention_documentation,
+                },
               },
             },
           },
@@ -659,6 +698,11 @@ load_plugins("now", { "blink-cmp-git", "blink.cmp" }, function()
       enabled = true,
     },
   })
+
+  vim.schedule(function()
+    -- Blink initializes providers lazily; preload so `#` is ready on first insert.
+    require("blink.cmp.sources.lib").get_provider_by_id("git")
+  end)
 end)
 
 -- #############################
