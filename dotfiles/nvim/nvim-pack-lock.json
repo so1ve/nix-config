@@ -8,10 +8,6 @@
       "rev": "179da7aaacce7c52874af636255ede72dd6fe796",
       "src": "https://github.com/FabijanZulj/blame.nvim"
     },
-    "blink-cmp-git": {
-      "rev": "52fae6028287b5c2663f26e60a9db00ff647c4d3",
-      "src": "https://github.com/Kaiser-Yang/blink-cmp-git"
-    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/saghen/blink.cmp",
@@ -125,6 +121,10 @@
     "tiny-comment.nvim": {
       "rev": "9466b3b95dbc517956f32a943223bf3cfa572c37",
       "src": "https://github.com/so1ve/tiny-comment.nvim"
+    },
+    "tiny-gitref.nvim": {
+      "rev": "16343a4abcf6b3d06f14c0e95a4d191a764ad02c",
+      "src": "https://github.com/so1ve/tiny-gitref.nvim"
     },
     "tiny-md.nvim": {
       "rev": "3c992edb6270d85600619fdf02c12762b0f731a0",
