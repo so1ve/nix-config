@@ -8,6 +8,10 @@
       "rev": "179da7aaacce7c52874af636255ede72dd6fe796",
       "src": "https://github.com/FabijanZulj/blame.nvim"
     },
+    "blink-cmp-git": {
+      "rev": "52fae6028287b5c2663f26e60a9db00ff647c4d3",
+      "src": "https://github.com/Kaiser-Yang/blink-cmp-git"
+    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/saghen/blink.cmp",

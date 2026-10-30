@@ -201,6 +201,7 @@ vim.pack.add({
 
 vim.pack.add({
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
+  gh("Kaiser-Yang/blink-cmp-git"),
   gh("stevearc/conform.nvim"),
   gh("folke/persistence.nvim"),
   gh("nvim-lualine/lualine.nvim"),
@@ -451,7 +452,7 @@ load_plugins("now", { "render-markdown.nvim", "tiny-md.nvim" }, function()
   })
 end)
 
-load_plugins("now", "blink.cmp", function()
+load_plugins("now", { "blink-cmp-git", "blink.cmp" }, function()
   require("blink.cmp").setup({
     appearance = {
       kind_icons = {
@@ -573,7 +574,32 @@ load_plugins("now", "blink.cmp", function()
       },
     },
     sources = {
+      default = { "git", "lsp", "path", "snippets", "buffer" },
       providers = {
+        git = {
+          module = "blink-cmp-git",
+          name = "Git",
+          enabled = function()
+            if vim.tbl_contains({ "gitcommit", "markdown", "octo" }, vim.bo.filetype) then
+              return true
+            end
+
+            local row, column = unpack(vim.api.nvim_win_get_cursor(0))
+            local ok, captures = pcall(vim.treesitter.get_captures, 0, { row - 1, column })
+            if not ok then
+              return false
+            end
+
+            for _, capture in ipairs(captures) do
+              if capture.capture == "comment" then
+                return true
+              end
+            end
+
+            return false
+          end,
+          opts = {},
+        },
         lsp = {
           transform_items = function(ctx, items)
             if
