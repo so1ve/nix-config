@@ -42,6 +42,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      biternet-go = {
+        url = "github:bitoolkit/biternet-go";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       chrome-url-router = {
         url = "github:so1ve/chrome-url-router";
         inputs.nixpkgs.follows = "nixpkgs";

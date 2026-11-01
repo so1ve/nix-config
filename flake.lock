@@ -69,6 +69,26 @@
         "type": "github"
       }
     },
+    "biternet-go": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793554578,
+        "narHash": "sha256-KycgE65l5y+iyKKlHieXan89pHGiUTeaqnF4hbUsjvE=",
+        "owner": "bitoolkit",
+        "repo": "biternet-go",
+        "rev": "50c509e144848517b5d3028bac42617ecf8c18f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bitoolkit",
+        "repo": "biternet-go",
+        "type": "github"
+      }
+    },
     "blueprint": {
       "inputs": {
         "nixpkgs": [
@@ -958,6 +978,7 @@
         "agenix": "agenix",
         "agent-skills": "agent-skills",
         "biternet": "biternet",
+        "biternet-go": "biternet-go",
         "chrome-url-router": "chrome-url-router",
         "cloudflare-skills": "cloudflare-skills",
         "codex-desktop": "codex-desktop",
