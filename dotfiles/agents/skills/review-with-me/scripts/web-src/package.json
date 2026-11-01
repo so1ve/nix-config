@@ -1,0 +1,21 @@
+{
+  "name": "review-with-me-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:dev": "rm -rf ../web/assets && esbuild src/review.jsx --bundle --format=esm --splitting --outdir=../web/assets --entry-names=review --chunk-names=chunks/[name]-[hash] --asset-names=fonts/[name]-[hash] --loader:.woff2=file --alias:@pierre/highlights/themes/loader=./src/highlighter-stub.js --alias:@pierre/theming/themes=./src/highlighter-stub.js --alias:shiki/core=./src/highlighter-stub.js --alias:shiki/langs=./src/highlighter-stub.js --alias:shiki/engine/javascript=./src/highlighter-stub.js --alias:shiki/engine/oniguruma=./src/highlighter-stub.js --alias:shiki/wasm=./src/highlighter-stub.js --jsx=automatic --target=es2022 --sourcemap --log-level=info"
+  },
+  "dependencies": {
+    "@fontsource-variable/ibm-plex-sans": "5.3.0",
+    "@mantine/core": "8.3.18",
+    "@mantine/hooks": "8.3.18",
+    "@mantine/notifications": "8.3.18",
+    "@pierre/diffs": "1.6.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}
