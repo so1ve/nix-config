@@ -1,11 +1,11 @@
 {
-  ray.features."software/bitgateway".home =
+  ray.features."software/biternet".home =
     _:
     { inputs, ... }:
     {
-      imports = [ inputs.bitgateway.homeManagerModules.default ];
+      imports = [ inputs.biternet.homeManagerModules.default ];
 
-      services.bitgateway = {
+      services.biternet = {
         enable = true;
         autoStart = true;
         silentStart = true;

@@ -49,23 +49,23 @@
         "type": "github"
       }
     },
-    "bitgateway": {
+    "biternet": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1793173372,
-        "narHash": "sha256-F8LDDN/a8wIeSNcmSSZU0z0BRkquoLfXtOoCVpDxw5g=",
-        "owner": "so1ve",
-        "repo": "bitgateway",
-        "rev": "1b489b40a3cfd3f9821c3b56c085753d1bc3020e",
+        "lastModified": 1793390809,
+        "narHash": "sha256-Ht9aDoI772ET/61t41mLKrHEHI0qlv+qmRGfez59bfQ=",
+        "owner": "bitoolkit",
+        "repo": "biternet",
+        "rev": "3ad50bb6ecf930b1453cc4f347a88b2ad46ab66a",
         "type": "github"
       },
       "original": {
-        "owner": "so1ve",
-        "repo": "bitgateway",
+        "owner": "bitoolkit",
+        "repo": "biternet",
         "type": "github"
       }
     },
@@ -957,7 +957,7 @@
       "inputs": {
         "agenix": "agenix",
         "agent-skills": "agent-skills",
-        "bitgateway": "bitgateway",
+        "biternet": "biternet",
         "chrome-url-router": "chrome-url-router",
         "cloudflare-skills": "cloudflare-skills",
         "codex-desktop": "codex-desktop",

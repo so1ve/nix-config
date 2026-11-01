@@ -37,8 +37,8 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-      bitgateway = {
-        url = "github:so1ve/bitgateway";
+      biternet = {
+        url = "github:bitoolkit/biternet";
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
