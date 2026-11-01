@@ -74,11 +74,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1793554578,
-        "narHash": "sha256-KycgE65l5y+iyKKlHieXan89pHGiUTeaqnF4hbUsjvE=",
+        "lastModified": 1793559895,
+        "narHash": "sha256-kHMOGy0ydT5iz121/7ZFaVG4caMIHtQ3b/z6Djt/tTk=",
         "owner": "bitoolkit",
         "repo": "biternet-go",
-        "rev": "50c509e144848517b5d3028bac42617ecf8c18f9",
+        "rev": "36c998b78fb9babee107f96464683a5d8fa3819a",
         "type": "github"
       },
       "original": {
