@@ -1,6 +1,6 @@
 interface:
   display_name: "Review With Me"
-  short_description: "Review AI changes with stable diffs and live Agent feedback"
-  default_prompt: "Use $review-with-me to organize these AI-generated changes into semantic review units, preserve each reviewed state, connect the local review UI to this Agent with live feedback delivery and a fallback heartbeat, automatically start and verify the frontend, and give me its working URL. Never ask me to run or restart the server myself. After I stop listening, do not resume it until I explicitly ask you to."
+  short_description: "自由标注代码、实时反馈给 Agent，并按用户要求逐步完成审阅"
+  default_prompt: "使用 $review-with-me 带我审查这次修改，打开可选区和圈画的差异界面，将反馈实时连接到当前聊天，并按我的要求维护审阅范围与通过进度。"
 policy:
   allow_implicit_invocation: true

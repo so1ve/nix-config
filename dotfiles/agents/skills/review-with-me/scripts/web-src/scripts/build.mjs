@@ -1,11 +1,19 @@
-import { rm, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
+import {
+  rm,
+  readdir,
+  readFile,
+  stat,
+  unlink,
+  writeFile,
+} from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { build } from "esbuild";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
-const assets = join(root, "..", "web", "assets");
+process.chdir(root);
+const assets = "../web/assets";
 const aliases = {
   "@pierre/highlights/themes/loader": "./src/highlighter-stub.js",
   "@pierre/theming/themes": "./src/highlighter-stub.js",

@@ -1,430 +1,146 @@
 ---
 name: review-with-me
-description: Maintain a semantic, resumable AI code review with stable revisions, agent-owned review boundaries, inline user feedback, and a local diff frontend. Use for guided walkthroughs, "带我审查", reviewing AI-generated changes, responding to review feedback, and continuing a bounded review over several rounds.
+description: 带用户审查代码修改：在本地差异界面自由选区、圈画、跨文件评论，把反馈实时送回当前 Agent，保留版本与审阅进度。用于“带我审查”、交互式代码审阅、处理界面反馈和继续上次审阅。
 ---
 
 # Review With Me
 
-Maintain a review the user can understand and drive. Default to Chinese. Treat
-the review record as the durable product of the conversation, not as a cache
-derived from commits or the working tree.
+把用户选中的代码、反馈和 Agent 的修改连成一个可继续的审阅过程。
+默认使用中文。审什么、哪些内容需要通过、通过到哪里，以用户要求为准。
 
-The helper is `<state-tool>` below. Replace it with the installed
-`scripts/review_state.py` path. Run it from the repository being reviewed and
-keep records at workspace-relative paths such as `.review/auth.json`.
+入口是本技能的 `scripts/review.py`，下面用 `<review>` 代替其路径。
+从被审仓库的根目录运行，记录使用相对路径，如 `.review/auth.json`。
+Python 标准库即可运行；前端已打包，使用时不安装 npm 依赖。
 
-## Review model
+## 开始与继续
 
-- A **change** is one semantic review unit. It is a behavior or idea the user
-  can accept, question, or reject. It is not a commit, file, or fixed line
-  range.
-- A change owns an ordered list of **revisions**. Each revision points to
-  immutable Git commits and explains what changed in that round and why.
-- A change owns **annotations**: agent explanations, user questions, bugs,
-  requested changes, suggestions, replies, and resolution state. Line
-  annotations are bound to one revision, so later refactors cannot silently
-  move old feedback onto unrelated code.
-- A change also owns revision-bound **review decisions** for whole files and
-  individual changed blocks. The user can accept items in the frontend, while
-  the Agent can exclude low-signal support files such as fixtures or generated
-  tests with a visible reason. Pending items are not inferred from commits.
-- The Agent decides semantic boundaries and when a region is `unreviewed`,
-  `reviewing`, `revisit`, `feedback`, or `superseded`. The frontend must not
-  infer those states from commit counts.
-- Only the user decides that work is `accepted`. Never mark a change accepted
-  merely because tests pass, code looks correct, or the Agent finished editing.
-
-Use these statuses:
-
-- `unreviewed`: the user has not examined this unit yet.
-- `reviewing`: it is being actively explained or discussed.
-- `feedback`: actionable user feedback is open.
-- `revisit`: earlier judgment no longer covers the current revision.
-- `accepted`: the user explicitly accepted this unit.
-- `superseded`: a later semantic unit replaced it. Preserve it for history.
-
-## Start or resume
-
-Read repository instructions first. Find the bounded branch, commit range,
-feature, or working-tree work the user named. Do not silently widen the review.
-
-When a record exists, run:
+先读仓库指令，确认用户指定的基线和范围。不要把整个仓库自动当成审阅范围。
+检查是否已有对应记录；继续已有审阅时先 `show`，不要重建或覆盖记录。
 
 ```sh
-python3 <state-tool> show --state .review/auth.json
-python3 <state-tool> listen --state .review/auth.json --action status --json
+python3 <review> init --state .review/auth.json \
+  --title '登录身份与调用路径' --base origin/main --paths src/auth tests/auth
+python3 <review> capture --state .review/auth.json --label '首次实现'
+python3 <review> show --state .review/auth.json
 ```
 
-If the listener is `paused`, do not process review feedback or restart the
-listener unless the current user request explicitly asks to resume. If it is
-`listening`, claim pending feedback before editing code:
+`--base` 在初始化时解析为固定 commit；`capture` 默认读取当前工作区，
+包括范围内未被忽略的新文件。`--head <commit>` 可登记已提交版本。
+需要讨论未修改的上下文文件时，用 `capture --include path/to/file` 加入。
+范围内所有改动始终可见；分组只是导航，不会把未分组文件藏起来。
+
+按用户要判断的行为分组，说明实际调用路径、改了什么、为什么需要这样改。
+不要为每个文件机械建一个组。只有用户关心的验收条件才放进 `checks`。
 
 ```sh
-python3 <state-tool> inbox --state .review/auth.json --claim --json
+python3 <review> apply --state .review/auth.json --input - <<'JSON'
+{
+  "op": "group", "id": "identity", "title": "登录返回身份",
+  "summary": "authenticate 返回身份；login 和服务调用方据此处理成功与失败。",
+  "paths": ["src/auth/identity.py", "src/auth/login.py"],
+  "checks": [{"id": "empty-token", "text": "空令牌保持未授权响应"}]
+}
+JSON
 ```
 
-Re-read the relevant source and current revision because an old explanation may
-no longer be true. Do not repeat a previous walkthrough when the record already
-contains it.
+## 实时连接
 
-For a new record, anchor the base commit explicitly:
+每份记录绑定当前聊天。优先使用 `CODEX_THREAD_ID`；缺失时用可用的聊天工具
+确认当前聊天，不要猜另一个聊天的 ID。不要新建聊天代替当前审阅。
 
 ```sh
-python3 <state-tool> init --state .review/auth.json \
-  --goal 'Review the authentication rewrite' \
-  --scope 'Commits from origin/main through the current worktree' \
-  --base origin/main
+python3 <review> apply --state .review/auth.json --input - <<JSON
+{"op":"listen","thread_id":"$CODEX_THREAD_ID","enabled":true}
+JSON
+python3 <review> serve --state .review/auth.json --port 0
 ```
 
-`init` resolves the base to a full immutable commit. Do not use `WORKTREE` as
-the base.
+由 Agent 用独立后台进程或持久终端会话启动服务；若工具会清理终端子进程，使用
+`nohup` 或 `subprocess.Popen(start_new_session=True)` 并将输出写入审阅目录的服务日志。
+读取输出的 `Review frontend: http://127.0.0.1:…`，
+验证 `/api/state`，再把可点击链接给用户。不要只给启动命令让用户操作。
+同一记录通过进程锁限制为一个服务；重复 `serve` 返回现有地址。
+地址失效时先恢复服务，再给链接。需要本机网络访问权限时申请具体权限。
 
-Build the smallest set of review units that still covers all AI changes. Group
-code that supports one behavior, including its callers, configuration, and
-tests. Split unrelated behavior rather than creating one unit per file. Leave
-nothing hidden: paths missing from every unit appear in the UI as
-“未归类改动”, and the user can adopt them, but the Agent should normally map
-its own changes first.
+界面提交后先持久保存，再立即用本机 `codex queue --thread … --message …` 投递。
+Agent 正在执行任务时，消息进入同一聊天的队列；不能把“已投递”说成“已经处理”。
+页面通过事件流接收回复、审阅决定和新版本，不依赖定时自动化。
+投递失败展示原因并保留反馈；修复连接后用 `retry` 或界面的“重新投递”。
 
-For every unit, provide:
+用户暂停反馈后不再投递新消息，也不认领新工作。重启服务不自动恢复。
+只有用户点击“恢复反馈”或明确要求继续时才能恢复。迁移旧记录时，如果存在旧版
+心跳自动化，通过自动化工具停用对应那一条，避免继续调用已移除的旧入口。
 
-- a concrete title using the user's vocabulary;
-- all current paths, including old paths for renames;
-- what changed and who exercises it;
-- why this design is needed, including a constraint, failing behavior, or
-  supported caller. If intent is unknown, say so instead of inventing a reason.
+## 处理用户反馈
+
+收到界面消息后先检查 `show` 的 `listener.enabled`，再认领一次：
 
 ```sh
-python3 <state-tool> add --state .review/auth.json \
-  --id auth-identity --title 'Authentication returns an identity' \
-  --paths src/auth.py src/session.py tests/test_auth.py \
-  --summary 'Login now carries the identity returned by authentication.' \
-  --rationale 'The old boolean check discarded the user identity needed by session callers.' \
-  --head WORKTREE --label 'Initial implementation'
+python3 <review> inbox --state .review/auth.json --claim
 ```
 
-`--head WORKTREE` is snapshotted immediately. The helper writes the snapshot as
-a hidden ref under `refs/review-with-me/snapshots/` and does not change the Git
-index, branch, or visible history. This is what preserves the first diff when
-the Agent later commits or keeps editing.
+事件给出讨论 ID、版本、对比基线、全部选区、原文、圈画点、建议代码和对话。
+反馈可关联多个文件、旧侧/新侧、多行或部分文字。一起阅读这些位置，不要只处理
+第一个选区。`targets: []` 是本次审阅的整体反馈。
 
-After registering a unit, list its concrete file and hunk items:
+1. 用 `diff --revision … --against … --path …` 读取用户当时看到的代码，
+   同时查看当前源码。旧标注不会自动挪到新代码上。
+2. 回答问题，或按要求修改代码。审阅不额外授权提交、发布、重建系统等行为。
+3. 代码变化后先 `capture --label '这轮改了什么'`。新版本只重置变化文件的
+   审阅决定；未变文件保持进度，旧版本与讨论继续可读。
+4. `reply` 解释处理结果。确实处理完才 `resolve`，不要用关闭讨论代替回答。
 
 ```sh
-python3 <state-tool> items --state .review/auth.json \
-  --change auth-identity --json
+python3 <review> apply --state .review/auth.json --input - <<'JSON'
+{"op":"reply","id":"讨论 ID","body":"空令牌仍返回 None；调用方在新版本中返回 401。","resolve":true}
+JSON
 ```
 
-Each item is bound to the current revision and can be `pending`, `accepted`, or
-`excluded`. The frontend computes the same view directly from these decisions.
+回复只确认当前回合认领过的反馈，新到的消息等待下一轮。
+中断后的 `processing` 反馈用 `retry` 明确重投，再认领；不要无限重复修改。
 
-## Explain the change
+## 调整范围和通过要求
 
-Use `overview` for the cross-unit call path, not a restatement of titles:
+CLI 与界面共用 `apply` 操作；支持单条对象和原子批量数组。
+具体字段和例子见 [references/api.md](references/api.md)，操作前按需阅读。
+
+- `group` / `ungroup`：调整行为分组、路径、验收条件；不删除文件和评论。
+- `comment`：添加 Agent 解释、行内说明、跨文件标注或建议代码。
+- `decide`：逐文件、逐块或任意行选区设为 `pending`、`accepted`、`excluded`。
+- `check`：登记用户要求的验收条件及结果。
+- `reply` / `resolve`：回复、解决、重新打开讨论。
+- `listen` / `retry`：暂停、恢复、重投反馈。
+
+通过由用户决定。用户明确说“这几个通过”时，可登记对应范围，在 `reason` 写清
+该指示；不能因为 Agent 写完代码或测试通过就替用户全量通过。验收条件若是
+可执行的检查，可按实际结果登记并说明。排除必须给原因，始终可见且可撤销，
+不等于通过。未解决的问题阻止对应文件通过。不要为进度数字排除生产代码或关闭评论。
+
+## 界面与迁移
+
+使用 Mantine 控件和 Pierre Diffs。左侧文件导航，中间差异，右侧按需讨论：
+拖选行号、Shift 扩展、文字选择、圈画、多处/跨文件标注、建议代码、回复和解决；
+可筛选文件、对比已登记版本、展开上下文、逐文件/块审阅和查看通过条件。
+草稿与阅读位置保存在浏览器；已提交内容保存在仓库内记录中。
+
+旧 v2/v3 JSON 不自动覆盖。需要继续旧记录时：
 
 ```sh
-python3 <state-tool> overview --state .review/auth.json \
-  --text 'session.login -> auth.authenticate -> identity -> session response'
+python3 <review> import --from .review/old.json --state .review/current.json
 ```
 
-Use `update` when the summary or rationale becomes clearer:
+导入读取旧记录引用的 Git 对象，保留历史代码、评论和有效的文件/块决定。
+旧记录及其 Git refs 不删除。导入后检查版本与未解决反馈，再绑定当前聊天；
+旧投递队列不自动重发。不可用的历史引用直接报错，不能伪造旧代码。
 
-```sh
-python3 <state-tool> update --state .review/auth.json \
-  --change auth-identity \
-  --rationale 'Callers need the identity, so authentication cannot return a boolean.'
-```
+## 维护验证
 
-Use agent annotations for local explanations that belong beside code:
-
-```sh
-python3 <state-tool> annotate --state .review/auth.json \
-  --change auth-identity --revision r1 \
-  --kind note --path src/auth.py --side new --start 8 --end 14 \
-  --body 'This branch preserves the caller contract while replacing the boolean result.'
-```
-
-`--side old` addresses the pre-change side, `--side new` the post-change side,
-and `--side file` creates a file-level note. A file-level note may omit
-`--path`; then it belongs to the whole review unit.
-
-Read the implementation behind names before explaining it. Distinguish a
-verified design reason from an inference. Do not defend generated code with
-generic statements such as “better separation” unless a real caller or
-constraint requires that separation.
-
-## Reduce low-signal review noise
-
-Tests and fixtures should support a review, not bury the production behavior.
-After the semantic units are registered, inspect `items` and exclude a support
-file or changed block only when its purpose is already explained by another
-unit and line-by-line review would add no decision:
-
-```sh
-python3 <state-tool> item --state .review/auth.json \
-  --change auth-identity --path tests/test_auth_snapshot.py \
-  --scope file --status excluded \
-  --reason '自动生成的行为快照测试，覆盖范围已在 auth-identity 的说明中交代。'
-```
-
-Use `--scope hunk --old-start … --old-count … --new-start … --new-count …`
-for one block. Exclusion is visible and reversible in the frontend; it never
-counts as user acceptance. Do not exclude production behavior, a failing test,
-a test that defines the contract, or a test whose purpose is not explained
-elsewhere. Prefer grouping tests with their behavior over silently hiding them.
-
-## Continue after more AI work
-
-When a coherent implementation batch changes an existing unit, append a
-revision immediately:
-
-```sh
-python3 <state-tool> revise --state .review/auth.json \
-  --change auth-identity \
-  --head WORKTREE \
-  --label 'Audience-aware identity' \
-  --summary 'Authentication now records the token audience.' \
-  --reason 'The API needs to distinguish browser and service identities.'
-```
-
-The previous revision is the new base, so the UI can show either that round or
-the cumulative change. Never edit an old revision's refs or pretend a new diff
-is the old one.
-
-If the user lets the Agent make large changes before reviewing, keep working,
-but register the new batch before handing control back. The UI reports worktree
-files changed after the newest snapshot and warns that an unrecorded follow-up
-exists. Do not leave that warning as the permanent representation of a large
-refactor.
-
-For a structural refactor:
-
-- Preserve earlier units and their annotations.
-- Create new semantic units for the resulting behavior when old boundaries no
-  longer describe the code.
-- Mark replaced units `superseded` and set `--superseded-by` to the new unit.
-- If the behavior remains the same and only its implementation changed, append
-  a revision and mark the unit `revisit` when the old acceptance no longer
-  applies.
-- Never delete a review record, clear feedback, or rewrite old revisions just
-  to make progress look clean.
-
-```sh
-python3 <state-tool> status --state .review/auth.json \
-  --change old-auth-layer --status superseded \
-  --superseded-by auth-identity
-```
-
-## Respond to review feedback
-
-At the start of every review turn initiated by the UI bridge or the fallback
-heartbeat, claim `inbox`. Claiming is idempotent: each feedback event moves from
-`queued`/`delivered`/`failed` to `processing` once. Do not call `--claim` again
-for the same turn. For each claimed event:
-
-1. Read its revision, path, line range, excerpt, and suggestion.
-2. Inspect the current source and the code at that revision.
-3. Answer the actual question or make the requested change.
-4. Add a revision if the code changed.
-5. Reply with the outcome, then resolve only when the item is genuinely handled.
-
-```sh
-python3 <state-tool> respond --state .review/auth.json \
-  --change auth-identity --annotation a-1234567890 \
-  --body 'I changed the empty-token path to return None and added the branching caller test.' \
-  --resolve
-```
-
-Do not resolve a user question without an answer. Do not resolve a requested
-change until the current revision contains the change or the user explicitly
-agreed to defer it. A deferred decision must remain open or be recorded through
-a reply that states the agreed outcome.
-
-The frontend writes user feedback directly into the same record. It sets an
-actionable item to open and moves the change to `feedback`. The helper refuses
-`accepted` while actionable user feedback remains open.
-
-User feedback carries a delivery record shown in the UI: `queued`, `delivered`,
-`processing`, `answered`, or `failed`. A reply from the Agent marks the related
-delivery records `answered`. If an Agent turn is interrupted after claiming,
-`inbox --claim` can reclaim stale `processing` events after one hour;
-`--retry-processing` forces that recovery explicitly.
-
-File and hunk acceptance belongs to the revision that was reviewed. When code
-changes materially, append a new revision; old decisions remain visible on the
-old revision but do not mark the new code reviewed.
-
-## Keep the Agent listener connected
-
-The UI talks back to the Agent. The local review server first persists the
-feedback, then enqueues a wake message for this same Codex thread with the
-supported `codex queue --thread <id> --message <text>` command. A heartbeat
-automation is the fallback when the app-server is restarting or a queued wake is
-missed.
-
-The Agent owns both sides. Never ask the user to start, restart, or repair the
-listener. For every new or resumed review:
-
-1. Resolve the current thread from `CODEX_THREAD_ID`, or use `list_threads` and
-   select the active Codex thread whose `cwd` is this repository. Do not guess
-   between multiple active threads.
-2. Inspect the persisted bridge:
-
-   ```sh
-   python3 <state-tool> listen --state .review/auth.json --action status --json
-   ```
-
-3. Create or reactivate the heartbeat with the `automation_update` tool. When
-   creating it, pass `mode: create`, `kind: heartbeat`, `destination: thread`,
-   `targetThreadId: <current-thread>`, `status: ACTIVE`, and a stable name such
-   as `Review With Me · .review/auth.json`. Use
-   `rrule: FREQ=MINUTELY;INTERVAL=10`; direct feedback is delivered immediately,
-   so this is only the fallback cadence. The prompt must tell the heartbeat to:
-
-   - read `listen --action status --json` first;
-   - if paused, use its stored `automation_id` with `automation_update` to pause
-     that heartbeat, then stop silently;
-   - run `inbox --claim --json` and stop silently when no events exist;
-   - otherwise follow this skill, answer each claimed event, and stay quiet
-     unless feedback was handled or the heartbeat failed.
-
-   If the listener already records an `automation_id`, update that automation
-   with `mode: update` and the same `name`, `prompt`, `rrule`, `status`,
-   `targetThreadId`, and `id` instead of creating a duplicate. If the tool does
-   not return an id, identify the newly created entry under
-   `~/.codex/automations` by its stable name and target thread. Never invent an
-   id.
-
-4. Activate the local listener and persist the automation identity:
-
-   ```sh
-   python3 <state-tool> listen --state .review/auth.json --action resume \
-     --thread-id "$CODEX_THREAD_ID" \
-     --automation-id '<automation-id>' \
-     --automation-name 'Review With Me · .review/auth.json'
-   ```
-
-5. Start the frontend as described below and give the user its URL.
-
-When the reviewer presses **停止监听**, the UI sets the listener to `paused`.
-This stops new UI wake messages without killing the local diff server. Do not
-auto-resume after a server restart. If the user later asks to continue in the
-Agent, reactivate the automation, run `listen --action resume` with its stored
-thread/automation identity, then claim any feedback that accumulated while
-paused.
-
-If `automation_update` is unavailable, still configure the direct queue bridge
-and state plainly that only the fallback schedule is unavailable. Never invent a
-successful heartbeat. When an immediate queue attempt fails but a heartbeat is
-registered, the listener becomes `degraded`; the heartbeat must claim queued or
-failed events and try to restore direct delivery on a later Agent turn.
-
-## Open the frontend automatically
-
-The Agent owns the frontend lifecycle. Never ask the user to run, restart, or
-troubleshoot it. As soon as the listener is configured, and again after a batch
-of edits, start the server yourself in a reusable background or long-running PTY
-session:
-
-```sh
-python3 <state-tool> serve --state .review/auth.json --port 0
-```
-
-Use `--port 0` so the helper chooses an available loopback port. Read the printed
-`Review frontend: http://127.0.0.1:<port>` line, verify
-`curl -fsS http://127.0.0.1:<port>/api/state` succeeds, then give the user the
-working URL as part of the review update. Do not merely print the launch command
-and stop.
-
-The persistent server must be able to bind loopback and let its `codex queue`
-subprocess reach the local Codex app state. If the sandbox blocks either
-operation, request the needed approval and launch it yourself; do not ask the
-user to run or nurse the process.
-
-On every later review turn, check the saved session or probe the URL again. If
-the server exited, restart it automatically and send the new URL. Keep one
-review server per record rather than leaving duplicate servers running.
-Restarting the server preserves a paused listener; agent-side resume remains an
-explicit action.
-
-The shipped React bundle is fully offline and precompressed: no npm install or
-network request is needed at review time. It is under 0.5 MiB on disk. The page
-embeds a random mutation token in a meta tag; do not share the URL or token.
-
-The interface provides:
-
-- a code-first canvas that gives the diff the full workspace width without
-  requiring fullscreen, with review progress and the current semantic unit in
-  one compact header;
-- a semantic change map and a rationale/annotation inspector as on-demand side
-  sheets, opened with `M` and `C`, so neither panel permanently narrows the
-  diff; both remain usable as drawers at tablet and mobile widths;
-- Pierre Diffs rendering, syntax highlighting, split/unified modes, context
-  expansion, previous/next hunk navigation with `K` and `J`, and previous/next
-  semantic-unit navigation in the canvas header;
-- per-round and cumulative diffs across revisions;
-- inline line/range annotations and file-level annotations;
-- per-file and per-hunk acceptance controls, with pending files disappearing
-  from the default review path and filtered items kept for review under “全部”;
-- suggested code, replies, resolve, dismiss, and reopen actions;
-- live Agent-listener status, immediate feedback delivery, and a stop control;
-- per-message delivery state from queued through answered or failed;
-- summaries, rationale, revision history, and warnings about newer worktree
-  changes;
-
-The UI is intentionally not a commit browser. If an Agent wants to show an
-earlier state, it must retain the revision or snapshot that state.
-
-## Helper reference
-
-```sh
-python3 <state-tool> show --state .review/auth.json --change auth-identity
-python3 <state-tool> show --state .review/auth.json --json
-python3 <state-tool> annotate --help
-python3 <state-tool> items --state .review/auth.json --change auth-identity --json
-python3 <state-tool> item --help
-python3 <state-tool> revise --help
-python3 <state-tool> serve --help
-python3 <state-tool> listen --state .review/auth.json --action status --json
-python3 <state-tool> inbox --state .review/auth.json --claim --json
-python3 <state-tool> inbox --state .review/auth.json --claim --retry-processing --json
-```
-
-Useful mutation commands:
-
-- `init`: create one record and fix its base commit.
-- `add`: create a semantic unit and its first stable revision.
-- `revise`: append a stable follow-up revision.
-- `update`: change title, summary, rationale, or paths without losing history.
-- `status`: set the review state, optionally recording `superseded_by`.
-- `annotate`: add an agent explanation at a revision, file, or line range.
-- `items`: list revision-bound files and changed blocks with their review state.
-- `item`: accept, exclude, or reopen a file or changed block; exclusions need a
-  reason and remain visible.
-- `respond`: append an agent reply and optionally resolve an item.
-- `resolve`: change an annotation between `open`, `resolved`, and `dismissed`.
-
-The state file is schema v3. The helper migrates schema v2 records, old per-file
-`feedback` records, and missing annotation revision ids on load. The record
-stays local by default; do not commit it or its snapshot refs unless the user
-explicitly asks.
-
-## Maintainer checks
-
-The frontend source is in `scripts/web-src`, and the shipped bundle is in
-`scripts/web/assets`. Rebuild only after source changes:
-
-```sh
-npm --prefix scripts/web-src run build
-```
-
-Run the helper tests without a NixOS rebuild or repository-wide build:
+从技能目录运行：
 
 ```sh
 python3 -m unittest discover -s scripts/tests -v
+npm --prefix scripts/web-src run build
 ```
 
-## Related work
-
-- [xdg: review-walkthrough](https://github.com/xdg/xdg-claude/blob/main/review-walkthrough/skills/review-walkthrough/SKILL.md): interactive pacing and resumable scope.
-- [Trail of Bits: audit-context-building](https://github.com/trailofbits/skills/blob/main/plugins/audit-context-building/skills/audit-context-building/SKILL.md): understanding dependencies and assumptions before judging them.
+仅在前端源码变化后打包。测试使用既有 Git 历史的临时克隆，不创建 commit。
+界面改动还须实测选区、圈画、发送、Agent 回复、新版本、窄屏和键盘操作。
