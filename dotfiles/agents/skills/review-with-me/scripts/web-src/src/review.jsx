@@ -20,8 +20,6 @@ import "@mantine/core/styles/Overlay.css";
 import "@mantine/core/styles/Paper.css";
 import "@mantine/core/styles/Popover.css";
 import "@mantine/core/styles/Progress.css";
-import "@mantine/core/styles/Radio.css";
-import "@mantine/core/styles/RadioIndicator.css";
 import "@mantine/core/styles/ScrollArea.css";
 import "@mantine/core/styles/SegmentedControl.css";
 import "@mantine/core/styles/Stack.css";
@@ -42,7 +40,6 @@ import {
   MantineProvider,
   Paper,
   Progress,
-  Radio,
   ScrollArea,
   SegmentedControl,
   Select,
@@ -54,7 +51,7 @@ import {
   UnstyledButton,
   createTheme,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useLocalStorage } from "@mantine/hooks";
 import { Notifications, notifications } from "@mantine/notifications";
 import {
   diffAcceptRejectHunk,
@@ -132,6 +129,12 @@ const KIND_LABELS = {
   note: "备注",
   answer: "回答",
 };
+const ANNOTATION_KIND_OPTIONS = [
+  { value: "change", label: "要修改" },
+  { value: "bug", label: "有缺陷" },
+  { value: "question", label: "想问" },
+  { value: "note", label: "只备注" },
+];
 const FILE_STATUS_LABELS = {
   added: "新增",
   deleted: "删除",
@@ -172,6 +175,7 @@ const REVIEW_ITEM_LABELS = {
   accepted: "已通过",
   excluded: "已过滤",
 };
+const MAP_VISIBILITY_KEY = "review-with-me:map-visible";
 const DIFF_CSS = `
 [data-diffs-header] {
   font-family: var(--review-sans);
@@ -514,20 +518,26 @@ function App() {
   const [focusedNote, setFocusedNote] = useState(null);
   const [hunkIndex, setHunkIndex] = useState(-1);
   const [reviewItemBusy, setReviewItemBusy] = useState("");
-  const [mapOpened, mapControls] = useDisclosure(false);
+  const [mapVisible, setMapVisible] = useLocalStorage({
+    key: MAP_VISIBILITY_KEY,
+    defaultValue: true,
+    getInitialValueInEffect: false,
+  });
   const [notesOpened, notesControls] = useDisclosure(false);
   const signatureRef = useRef("");
   const viewportRef = useRef(null);
 
   const openMap = useCallback(() => {
-    notesControls.close();
-    mapControls.open();
-  }, [mapControls, notesControls]);
+    setMapVisible(true);
+  }, [setMapVisible]);
 
   const openNotes = useCallback(() => {
-    mapControls.close();
     notesControls.open();
-  }, [mapControls, notesControls]);
+  }, [notesControls]);
+
+  const toggleMap = useCallback(() => {
+    setMapVisible((visible) => !visible);
+  }, [setMapVisible]);
 
   const loadState = useCallback(
     async ({ forceDiff = false, quiet = false } = {}) => {
@@ -699,9 +709,8 @@ function App() {
       setFocusedNote(null);
       setHunkIndex(-1);
       setFileFilter("pending");
-      mapControls.close();
     },
-    [snapshot, mapControls],
+    [snapshot],
   );
 
   const selectRevision = useCallback((revisionId) => {
@@ -753,9 +762,8 @@ function App() {
       });
       setReplyTo(null);
       setFocusedNote(null);
-      openNotes();
     },
-    [file, openNotes, selection.revisionId],
+    [file, selection.revisionId],
   );
 
   const openFileComposer = useCallback(
@@ -960,7 +968,6 @@ function App() {
           changeId: result.change,
           revisionId: nextChange?.revisions.at(-1)?.id || null,
         });
-        mapControls.close();
         notifications.show({
           color: "teal",
           message: "已加入审阅单元，请让 Agent 补充原因。",
@@ -969,7 +976,7 @@ function App() {
         reportError(error);
       }
     },
-    [loadState, mapControls],
+    [loadState],
   );
 
   const annotations = useMemo(() => {
@@ -986,6 +993,22 @@ function App() {
         lineNumber: note.side === "file" ? 0 : note.start_line,
         metadata: note,
       }));
+    const addInlineComposer = () => {
+      if (
+        !composer ||
+        composer.revision !== revision.id ||
+        composer.path !== file.path ||
+        composer.side === "file"
+      ) {
+        return;
+      }
+      notes.push({
+        type: "composer",
+        side: composer.side === "old" ? "deletions" : "additions",
+        lineNumber: composer.end,
+        metadata: { type: "composer", composer },
+      });
+    };
     if (!fileState) return notes;
     if (fileState.decision?.scope === "file") {
       notes.unshift({
@@ -998,6 +1021,7 @@ function App() {
           decision: fileState.decision,
         },
       });
+      addInlineComposer();
       return notes;
     }
     const reviewNotes = fileState.hunks
@@ -1022,11 +1046,24 @@ function App() {
           },
         };
       });
+    addInlineComposer();
     return [...reviewNotes, ...notes];
-  }, [change, diff, file, fileFilter, fileState, revision]);
+  }, [change, composer, diff, file, fileFilter, fileState, revision]);
 
   const renderAnnotation = useCallback(
     (annotation) => {
+      if (annotation.metadata?.type === "composer") {
+        return (
+          <Composer
+            key={annotation.metadata.composer.key}
+            composer={annotation.metadata.composer}
+            listener={snapshot?.listener}
+            inline
+            onCancel={() => setComposer(null)}
+            onSubmit={submitAnnotation}
+          />
+        );
+      }
       if (annotation.metadata?.type === "hunk-decision") {
         const item = annotation.metadata;
         const busy = reviewItemBusy === `${file.path}:${hunkKey(item.hunk)}`;
@@ -1070,7 +1107,14 @@ function App() {
         />
       );
     },
-    [decideReviewItem, file, focusNote, reviewItemBusy],
+    [
+      decideReviewItem,
+      file,
+      focusNote,
+      reviewItemBusy,
+      snapshot?.listener,
+      submitAnnotation,
+    ],
   );
 
   const diffOptions = useMemo(() => {
@@ -1091,12 +1135,12 @@ function App() {
         : 999999,
       expandUnchanged: context === "all",
       lineHoverHighlight: "both",
-      enableGutterUtility: true,
+      enableGutterUtility: !composer,
       overflow: "scroll",
       unsafeCSS: DIFF_CSS,
       onGutterUtilityClick: openLineComposer,
     };
-  }, [context, openLineComposer, view]);
+  }, [composer, context, openLineComposer, view]);
 
   const oldFile = useMemo(() => {
     if (!file || file.status === "added") return null;
@@ -1174,8 +1218,7 @@ function App() {
       if (event.key === "Escape") {
         if (composer) {
           setComposer(null);
-        } else {
-          mapControls.close();
+        } else if (notesOpened) {
           notesControls.close();
         }
         return;
@@ -1192,10 +1235,7 @@ function App() {
       }
       if (event.key.toLowerCase() === "j") goToHunk(1);
       if (event.key.toLowerCase() === "k") goToHunk(-1);
-      if (event.key.toLowerCase() === "m") {
-        if (mapOpened) mapControls.close();
-        else openMap();
-      }
+      if (event.key.toLowerCase() === "m") toggleMap();
       if (event.key.toLowerCase() === "c") {
         if (notesOpened) notesControls.close();
         else openNotes();
@@ -1206,12 +1246,10 @@ function App() {
   }, [
     composer,
     goToHunk,
-    mapControls,
-    mapOpened,
     notesControls,
     notesOpened,
-    openMap,
     openNotes,
+    toggleMap,
   ]);
 
   return (
@@ -1221,10 +1259,37 @@ function App() {
         connection={connection}
         listener={snapshot?.listener}
         onRefresh={() => loadState({ forceDiff: true })}
-        onOpenMap={openMap}
+        mapVisible={mapVisible}
+        onToggleMap={toggleMap}
         onStopListening={stopListening}
       />
-      <main className="workspace">
+      <main className={`workspace ${mapVisible ? "is-map-open" : "is-map-collapsed"}`}>
+        <aside className="review-map-pane" aria-label="审阅单元地图">
+          {mapVisible ? (
+            <ReviewRail
+              snapshot={snapshot}
+              filter={filter}
+              setFilter={setFilter}
+              selection={selection}
+              onSelect={selectChange}
+              onAdopt={adoptPath}
+              onCollapse={() => setMapVisible(false)}
+            />
+          ) : (
+            <UnstyledButton
+              className="map-rail-toggle"
+              onClick={openMap}
+              aria-label="展开变更地图"
+              aria-expanded="false"
+            >
+              <span className="map-rail-count">{reviewChanges.length}</span>
+              <span className="map-rail-label">变更地图</span>
+              <span className="map-rail-chevron" aria-hidden="true">
+                ›
+              </span>
+            </UnstyledButton>
+          )}
+        </aside>
         <section className="review-main" aria-label="代码差异">
           <ChangeHeader
             change={change}
@@ -1330,28 +1395,6 @@ function App() {
       </main>
 
       <Drawer
-        opened={mapOpened}
-        onClose={mapControls.close}
-        position="left"
-        size="min(420px, 94vw)"
-        padding={0}
-        title="变更地图"
-        closeButtonProps={{ "aria-label": "关闭变更地图" }}
-        overlayProps={{ backgroundOpacity: 0.12, blur: 0 }}
-        transitionProps={{ duration: 160 }}
-      >
-        <ReviewRail
-          snapshot={snapshot}
-          filter={filter}
-          setFilter={setFilter}
-          selection={selection}
-          onSelect={selectChange}
-          onAdopt={adoptPath}
-          inDrawer
-        />
-      </Drawer>
-
-      <Drawer
         opened={notesOpened}
         onClose={notesControls.close}
         position="right"
@@ -1392,7 +1435,8 @@ function Header({
   connection,
   listener,
   onRefresh,
-  onOpenMap,
+  mapVisible,
+  onToggleMap,
   onStopListening,
 }) {
   const changes =
@@ -1430,15 +1474,18 @@ function Header({
         />
       </div>
       <div className="topbar-actions">
-        <button
-          type="button"
-          className="topbar-action"
-          onClick={onOpenMap}
-          aria-keyshortcuts="M"
-        >
-          变更地图
-          <span className="topbar-count">{changes.length}</span>
-        </button>
+        <Tooltip label={mapVisible ? "收起变更地图 (M)" : "展开变更地图 (M)"}>
+          <button
+            type="button"
+            className={`topbar-action ${mapVisible ? "is-active" : ""}`}
+            onClick={onToggleMap}
+            aria-keyshortcuts="M"
+            aria-pressed={mapVisible}
+          >
+            变更地图
+            <span className="topbar-count">{changes.length}</span>
+          </button>
+        </Tooltip>
         <ListenerStatus
           listener={listener}
           onStop={onStopListening}
@@ -1521,11 +1568,11 @@ function ReviewRail({
   selection,
   onSelect,
   onAdopt,
-  inDrawer = false,
+  onCollapse,
 }) {
   if (!snapshot) {
     return (
-      <Box className={`review-map ${inDrawer ? "in-drawer" : ""}`}>
+      <Box className="review-map">
         <div className="rail-loading">
           <Loader size="sm" />
           <Text>正在载入变更地图</Text>
@@ -1541,7 +1588,7 @@ function ReviewRail({
     (change) => change.status !== "superseded",
   ).length;
   return (
-    <div className={`review-map ${inDrawer ? "in-drawer" : ""}`}>
+    <div className="review-map">
       <div className="rail-heading">
         <div>
           <Text className="eyebrow">变更地图</Text>
@@ -1549,16 +1596,29 @@ function ReviewRail({
             {activeCount} 个审阅单元
           </Text>
         </div>
-        <SegmentedControl
-          value={filter}
-          onChange={setFilter}
-          size="xs"
-          aria-label="筛选变更"
-          data={[
-            { value: "open", label: "待处理" },
-            { value: "all", label: "全部" },
-          ]}
-        />
+        <div className="rail-heading-actions">
+          <SegmentedControl
+            value={filter}
+            onChange={setFilter}
+            size="xs"
+            aria-label="筛选变更"
+            data={[
+              { value: "open", label: "待处理" },
+              { value: "all", label: "全部" },
+            ]}
+          />
+          <Tooltip label="收起地图 (M)">
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="sm"
+              aria-label="收起变更地图"
+              onClick={onCollapse}
+            >
+              ‹
+            </ActionIcon>
+          </Tooltip>
+        </div>
       </div>
       <ScrollArea className="change-list" type="auto" offsetScrollbars>
         {!changes.length && (
@@ -2440,18 +2500,55 @@ function ReplyForm({ onCancel, onReply }) {
   );
 }
 
-function Composer({ composer, listener, onCancel, onSubmit }) {
+function Composer({
+  composer,
+  listener,
+  inline = false,
+  onCancel,
+  onSubmit,
+}) {
   const [kind, setKind] = useState("change");
   const [body, setBody] = useState("");
   const [suggestion, setSuggestion] = useState("");
   const [withSuggestion, setWithSuggestion] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const bodyRef = useRef(null);
   const deliveryHint = composerDeliveryHint(listener);
+
+  useEffect(() => {
+    if (inline) bodyRef.current?.focus();
+  }, [inline]);
+
+  const submit = async () => {
+    if (!body.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        kind,
+        body,
+        suggestion: withSuggestion ? suggestion : "",
+      });
+    } catch (error) {
+      reportError(error);
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <Paper className="composer" withBorder>
+    <Paper
+      component="form"
+      className={`composer ${inline ? "is-inline" : ""}`}
+      withBorder
+      onSubmit={(event) => {
+        event.preventDefault();
+        submit();
+      }}
+    >
       <div className="composer-heading">
         <div>
-          <Title order={3}>写下你的判断</Title>
+          <Title order={3}>
+            {inline ? "添加行批注" : "写下你的判断"}
+          </Title>
           <p className="composer-location">{composer.label}</p>
         </div>
         <ActionIcon
@@ -2464,33 +2561,37 @@ function Composer({ composer, listener, onCancel, onSubmit }) {
           ×
         </ActionIcon>
       </div>
-      <Radio.Group
+      <SegmentedControl
+        fullWidth
+        size="xs"
         value={kind}
         onChange={setKind}
         aria-label="批注类型"
-        className="kind-picker"
-      >
-        <Group gap={4}>
-          {[
-            ["change", "要修改"],
-            ["bug", "有缺陷"],
-            ["question", "想问"],
-            ["note", "只备注"],
-          ].map(([value, label]) => (
-            <Radio key={value} value={value} label={label} size="xs" />
-          ))}
-        </Group>
-      </Radio.Group>
+        className="composer-kind-picker"
+        data={ANNOTATION_KIND_OPTIONS}
+      />
       <Textarea
+        ref={bodyRef}
+        className="composer-body"
         autosize
-        minRows={4}
+        minRows={inline ? 3 : 4}
+        maxRows={10}
         placeholder="具体哪里不对？希望怎么改？"
         aria-label="批注内容"
         value={body}
         onChange={(event) => setBody(event.currentTarget.value)}
+        onKeyDown={(event) => {
+          if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+            event.preventDefault();
+            event.currentTarget.form?.requestSubmit();
+          }
+        }}
       />
       {composer.excerpt && (
-        <pre className="composer-excerpt">{composer.excerpt}</pre>
+        <div className="composer-context">
+          <span className="composer-context-label">选中代码</span>
+          <pre className="composer-excerpt">{composer.excerpt}</pre>
+        </div>
       )}
       <Checkbox
         className="suggestion-toggle"
@@ -2510,32 +2611,29 @@ function Composer({ composer, listener, onCancel, onSubmit }) {
           onChange={(event) => setSuggestion(event.currentTarget.value)}
         />
       )}
-      <Group className="composer-actions" justify="space-between">
-        <Text className="composer-hint">
-          {deliveryHint}
-        </Text>
-        <Button
-          size="xs"
-          loading={submitting}
-          disabled={!body.trim()}
-          onClick={async () => {
-            if (!body.trim()) return;
-            setSubmitting(true);
-            try {
-              await onSubmit({
-                kind,
-                body,
-                suggestion: withSuggestion ? suggestion : "",
-              });
-            } catch (error) {
-              reportError(error);
-              setSubmitting(false);
-            }
-          }}
-        >
-          提交批注
-        </Button>
-      </Group>
+      <div className="composer-actions">
+        <Text className="composer-hint">{deliveryHint}</Text>
+        <Group gap="xs" wrap="nowrap">
+          <Button
+            type="button"
+            variant="subtle"
+            color="gray"
+            size="xs"
+            onClick={onCancel}
+          >
+            取消
+          </Button>
+          <Button
+            type="submit"
+            size="xs"
+            loading={submitting}
+            disabled={!body.trim()}
+            title="提交 (Ctrl/Cmd + Enter)"
+          >
+            提交批注
+          </Button>
+        </Group>
+      </div>
     </Paper>
   );
 }
