@@ -2,9 +2,9 @@ import "./fonts-latin.css";
 import "@mantine/core/styles/baseline.css";
 import "@mantine/core/styles/default-css-variables.css";
 import "@mantine/core/styles/global.css";
+import "@mantine/core/styles/UnstyledButton.css";
 import "@mantine/core/styles/ActionIcon.css";
 import "@mantine/core/styles/Alert.css";
-import "@mantine/core/styles/Badge.css";
 import "@mantine/core/styles/Button.css";
 import "@mantine/core/styles/Checkbox.css";
 import "@mantine/core/styles/CheckboxIndicator.css";
@@ -28,12 +28,10 @@ import "@mantine/core/styles/Stack.css";
 import "@mantine/core/styles/Text.css";
 import "@mantine/core/styles/Title.css";
 import "@mantine/core/styles/Tooltip.css";
-import "@mantine/core/styles/UnstyledButton.css";
 import "@mantine/notifications/styles.css";
 import {
   ActionIcon,
   Alert,
-  Badge,
   Box,
   Button,
   Checkbox,
@@ -56,10 +54,14 @@ import {
   UnstyledButton,
   createTheme,
 } from "@mantine/core";
-import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import { Notifications, notifications } from "@mantine/notifications";
-import { registerCustomTheme } from "@pierre/diffs";
-import { MultiFileDiff } from "@pierre/diffs/react";
+import {
+  diffAcceptRejectHunk,
+  parseDiffFromFile,
+  registerCustomTheme,
+} from "@pierre/diffs";
+import { FileDiff } from "@pierre/diffs/react";
 import pierreLight from "@pierre/highlights/themes/pierre-light";
 import {
   Component,
@@ -144,6 +146,32 @@ const ANNOTATION_STATUS_LABELS = {
   dismissed: "已忽略",
 };
 const ACTIONABLE_KINDS = new Set(["question", "bug", "change"]);
+const DELIVERY_LABELS = {
+  queued: "等待送达",
+  delivered: "已送达 Agent",
+  processing: "Agent 处理中",
+  answered: "已回应",
+  failed: "送达失败",
+};
+const LISTENER_LABELS = {
+  unconfigured: "未启用实时反馈",
+  listening: "实时监听中",
+  degraded: "定时接收中",
+  paused: "监听已暂停",
+  error: "Agent 连接异常",
+};
+const LISTENER_SHORT_LABELS = {
+  unconfigured: "未连接",
+  listening: "实时",
+  degraded: "定时",
+  paused: "暂停",
+  error: "异常",
+};
+const REVIEW_ITEM_LABELS = {
+  pending: "待审",
+  accepted: "已通过",
+  excluded: "已过滤",
+};
 const DIFF_CSS = `
 [data-diffs-header] {
   font-family: var(--review-sans);
@@ -198,9 +226,6 @@ const theme = createTheme({
     Button: {
       defaultProps: { radius: "sm" },
     },
-    Badge: {
-      defaultProps: { radius: "sm" },
-    },
     Paper: {
       defaultProps: { radius: "sm" },
     },
@@ -221,13 +246,210 @@ function shortRef(value) {
   return value === "WORKTREE" ? "工作区" : value.slice(0, 9);
 }
 
-function signatureFor(state, runtime) {
+function listenerDetail(listener) {
+  const status = listener?.status || "unconfigured";
+  if (status === "error") {
+    return "无法把反馈送到当前 Agent；请在 Agent 中继续审阅并检查连接。";
+  }
+  if (status === "degraded") {
+    return "即时通知失败，Agent 会定时检查新反馈。";
+  }
+  if (status === "paused") {
+    return "需要继续时，请在 Agent 中恢复审阅。";
+  }
+  if (listener?.automation_id) {
+    return "即时通知和定时兜底均已启用。";
+  }
+  return "反馈会直接送达当前审阅会话。";
+}
+
+function composerDeliveryHint(listener) {
+  const status = listener?.status || "unconfigured";
+  if (status === "listening") return "提交后会直接通知当前 Agent";
+  if (status === "degraded") {
+    return "即时通知异常；批注会保存，由 Agent 定时接收";
+  }
+  if (status === "paused") {
+    return "监听已暂停；批注会保存，等你让 Agent 恢复后再处理";
+  }
+  return "实时通知不可用；批注会保存，由 Agent 定时检查";
+}
+
+function reviewDecisions(change, revision) {
+  if (!change || !revision) return [];
+  return (change.decisions || []).filter(
+    (decision) =>
+      decision.revision_id === revision.id &&
+      decision.status !== "pending",
+  );
+}
+
+function hunkKey(hunk) {
+  return [
+    hunk.old_start,
+    hunk.old_count,
+    hunk.new_start,
+    hunk.new_count,
+  ].join(":");
+}
+
+function findChangeContent(fileDiff, target) {
+  for (const [hunkIndex, hunk] of fileDiff.hunks.entries()) {
+    let oldLine = hunk.deletionStart;
+    let newLine = hunk.additionStart;
+    for (const [contentIndex, content] of hunk.hunkContent.entries()) {
+      if (content.type === "context") {
+        oldLine += content.lines;
+        newLine += content.lines;
+        continue;
+      }
+      const oldMatches =
+        target.old_count === 0 ||
+        (oldLine === target.old_start &&
+          content.deletions === target.old_count);
+      const newMatches =
+        target.new_count === 0 ||
+        (newLine === target.new_start &&
+          content.additions === target.new_count);
+      if (oldMatches && newMatches) {
+        return { hunkIndex, contentIndex };
+      }
+      oldLine += content.deletions;
+      newLine += content.additions;
+    }
+  }
+  return null;
+}
+
+function decisionForHunk(decisions, path, hunk) {
+  return decisions.find(
+    (decision) =>
+      decision.path === path &&
+      decision.scope === "hunk" &&
+      decision.hunk &&
+      hunkKey(decision.hunk) === hunkKey(hunk),
+  );
+}
+
+function decisionForFile(decisions, path) {
+  return decisions.find(
+    (decision) => decision.path === path && decision.scope === "file",
+  );
+}
+
+function fileReviewState(file, decisions) {
+  const fileDecision = decisionForFile(decisions, file.path);
+  if (
+    fileDecision &&
+    ["accepted", "excluded"].includes(fileDecision.status)
+  ) {
+    return {
+      status: fileDecision.status,
+      decision: fileDecision,
+      pendingHunks: [],
+      hunks: file.hunks.map((hunk) => ({
+        hunk,
+        decision: fileDecision,
+        status: fileDecision.status,
+        inherited: true,
+      })),
+    };
+  }
+  const hunks = file.hunks.map((hunk) => {
+    const decision = decisionForHunk(decisions, file.path, hunk);
+    return {
+      hunk,
+      decision,
+      status: decision?.status || "pending",
+      inherited: false,
+    };
+  });
+  const pendingHunks = hunks.filter((item) => item.status === "pending");
+  if (!file.hunks.length) {
+    return {
+      status:
+        fileDecision && fileDecision.status !== "pending"
+          ? fileDecision.status
+          : "pending",
+      decision: fileDecision,
+      pendingHunks: fileDecision ? [] : [null],
+      hunks,
+    };
+  }
+  if (pendingHunks.length) {
+    return { status: "pending", decision: null, pendingHunks, hunks };
+  }
+  const accepted = hunks.some((item) => item.status === "accepted");
+  return {
+    status: accepted ? "accepted" : "excluded",
+    decision: null,
+    pendingHunks,
+    hunks,
+  };
+}
+
+function fileIsPending(file, decisions) {
+  return fileReviewState(file, decisions).pendingHunks.length > 0;
+}
+
+function pendingFilesFor(diff, change, revision) {
+  if (!diff || !change || !revision) return [];
+  const decisions = reviewDecisions(change, revision);
+  return diff.files.filter((file) => fileIsPending(file, decisions));
+}
+
+function reviewTargets(change) {
+  return change?.review || {
+    pending: 0,
+    pending_files: 0,
+    complete: false,
+  };
+}
+
+function changeNeedsAttention(change) {
+  if (change.status === "superseded") return false;
+  const review = reviewTargets(change);
+  if (review.error) return true;
+  return review.pending > 0 || openFeedback(change).length > 0;
+}
+
+function deliveryNotification(delivery, noun) {
+  const state = delivery?.state || "none";
+  if (state === "delivered") {
+    return {
+      color: "teal",
+      message: `${noun}已提交，并已通知 Agent。`,
+    };
+  }
+  if (state === "failed") {
+    return {
+      color: "orange",
+      message: `${noun}已保存；即时通知失败，Agent 会定时检查。`,
+    };
+  }
+  if (state === "paused") {
+    return {
+      color: "orange",
+      message: `${noun}已保存；监听恢复后由 Agent 处理。`,
+    };
+  }
+  if (state === "none") {
+    return { color: "teal", message: `${noun}已保存。` };
+  }
+  return {
+    color: "orange",
+    message: `${noun}已保存，等待 Agent 处理。`,
+  };
+}
+
+function signatureFor(state, runtime, listener) {
   return [
     runtime.worktree_fingerprint,
     runtime.branch,
     runtime.head,
     JSON.stringify(runtime.unmapped),
     JSON.stringify(runtime.newer_worktree),
+    JSON.stringify(listener),
     JSON.stringify(state),
   ].join("|");
 }
@@ -281,6 +503,7 @@ function App() {
   const [view, setView] = useState("unified");
   const [context, setContext] = useState("3");
   const [filePath, setFilePath] = useState(null);
+  const [fileFilter, setFileFilter] = useState("pending");
   const [diff, setDiff] = useState(null);
   const [diffLoading, setDiffLoading] = useState(false);
   const [diffError, setDiffError] = useState("");
@@ -290,19 +513,32 @@ function App() {
   const [replyTo, setReplyTo] = useState(null);
   const [focusedNote, setFocusedNote] = useState(null);
   const [hunkIndex, setHunkIndex] = useState(-1);
+  const [reviewItemBusy, setReviewItemBusy] = useState("");
   const [mapOpened, mapControls] = useDisclosure(false);
   const [notesOpened, notesControls] = useDisclosure(false);
-  const compactInspector = useMediaQuery("(max-width: 1240px)");
-  const compactMap = useMediaQuery("(max-width: 900px)");
   const signatureRef = useRef("");
   const viewportRef = useRef(null);
+
+  const openMap = useCallback(() => {
+    notesControls.close();
+    mapControls.open();
+  }, [mapControls, notesControls]);
+
+  const openNotes = useCallback(() => {
+    mapControls.close();
+    notesControls.open();
+  }, [mapControls, notesControls]);
 
   const loadState = useCallback(
     async ({ forceDiff = false, quiet = false } = {}) => {
       try {
         const payload = await getJSON("/api/state");
         setConnection("live");
-        const signature = signatureFor(payload.state, payload.runtime);
+        const signature = signatureFor(
+          payload.state,
+          payload.runtime,
+          payload.listener,
+        );
         if (signature !== signatureRef.current) {
           signatureRef.current = signature;
           setSnapshot(payload);
@@ -318,6 +554,7 @@ function App() {
               return previous;
             }
             const first =
+              payload.state.changes.find(changeNeedsAttention) ||
               payload.state.changes.find(
                 (change) =>
                   !["accepted", "superseded"].includes(change.status),
@@ -364,10 +601,39 @@ function App() {
     ) ||
     change?.revisions.at(-1) ||
     null;
+  const decisions = useMemo(
+    () => reviewDecisions(change, revision),
+    [change, revision],
+  );
+  const pendingFiles = useMemo(
+    () => pendingFilesFor(diff, change, revision),
+    [change, decisions, diff, revision],
+  );
+  const visibleFiles =
+    fileFilter === "all" ? diff?.files || [] : pendingFiles;
   const file =
-    diff?.files.find((item) => item.path === filePath) ||
-    diff?.files[0] ||
+    visibleFiles.find((item) => item.path === filePath) ||
+    visibleFiles[0] ||
     null;
+  const fileState = file ? fileReviewState(file, decisions) : null;
+  const navigableHunks = fileState?.pendingHunks || [];
+  const reviewChanges =
+    snapshot?.state.changes.filter(
+      (item) => item.status !== "superseded",
+    ) || [];
+  const changePosition = reviewChanges.findIndex(
+    (item) => item.id === change?.id,
+  );
+  const previousChange =
+    reviewChanges.length > 1
+      ? reviewChanges[
+          (changePosition - 1 + reviewChanges.length) % reviewChanges.length
+        ]
+      : null;
+  const nextChange =
+    reviewChanges.length > 1
+      ? reviewChanges[(changePosition + 1) % reviewChanges.length]
+      : null;
 
   useEffect(() => {
     if (!selection.changeId || !selection.revisionId) {
@@ -407,6 +673,17 @@ function App() {
     diffEpoch,
   ]);
 
+  useEffect(() => {
+    if (!visibleFiles.length) {
+      if (filePath !== null) setFilePath(null);
+      return;
+    }
+    if (!visibleFiles.some((item) => item.path === filePath)) {
+      setFilePath(visibleFiles[0].path);
+      setHunkIndex(-1);
+    }
+  }, [filePath, visibleFiles]);
+
   const selectChange = useCallback(
     (changeId, revisionId = null) => {
       const nextChange = snapshot?.state.changes.find(
@@ -421,6 +698,7 @@ function App() {
       setReplyTo(null);
       setFocusedNote(null);
       setHunkIndex(-1);
+      setFileFilter("pending");
       mapControls.close();
     },
     [snapshot, mapControls],
@@ -435,9 +713,9 @@ function App() {
     (note) => {
       setFocusedNote(note.id);
       setReplyTo(null);
-      if (compactInspector) notesControls.open();
+      openNotes();
     },
-    [compactInspector, notesControls],
+    [openNotes],
   );
 
   const openLineComposer = useCallback(
@@ -475,9 +753,9 @@ function App() {
       });
       setReplyTo(null);
       setFocusedNote(null);
-      if (compactInspector) notesControls.open();
+      openNotes();
     },
-    [compactInspector, file, notesControls, selection.revisionId],
+    [file, openNotes, selection.revisionId],
   );
 
   const openFileComposer = useCallback(
@@ -496,14 +774,14 @@ function App() {
       });
       setReplyTo(null);
       setFocusedNote(null);
-      if (compactInspector) notesControls.open();
+      openNotes();
     },
-    [compactInspector, file, notesControls, selection.revisionId],
+    [file, openNotes, selection.revisionId],
   );
 
   const submitAnnotation = useCallback(
     async (draft) => {
-      await mutate("/api/annotations", {
+      const result = await mutate("/api/annotations", {
         change: selection.changeId,
         revision: composer.revision,
         kind: draft.kind,
@@ -518,10 +796,7 @@ function App() {
       setComposer(null);
       setFocusedNote(null);
       await loadState();
-      notifications.show({
-        color: "teal",
-        message: "批注已提交，Agent 下次读取时会看到。",
-      });
+      notifications.show(deliveryNotification(result.delivery, "批注"));
     },
     [composer, loadState, selection.changeId],
   );
@@ -549,15 +824,18 @@ function App() {
 
   const replyAnnotation = useCallback(
     async (note, body, resolve) => {
-      await mutate(`/api/annotations/${encodeURIComponent(note.id)}`, {
-        change: selection.changeId,
-        action: "reply",
-        body,
-        resolve,
-      });
+      const result = await mutate(
+        `/api/annotations/${encodeURIComponent(note.id)}`,
+        {
+          change: selection.changeId,
+          action: "reply",
+          body,
+          resolve,
+        },
+      );
       setReplyTo(null);
       await loadState();
-      notifications.show({ color: "teal", message: "回复已保存。" });
+      notifications.show(deliveryNotification(result.delivery, "回复"));
     },
     [loadState, selection.changeId],
   );
@@ -577,6 +855,95 @@ function App() {
     },
     [loadState, selection.changeId],
   );
+
+  const decideReviewItem = useCallback(
+    async ({ targetFile, hunk = null, status }) => {
+      if (!targetFile || !selection.changeId || !selection.revisionId) return;
+      const busyKey = `${targetFile.path}:${hunk ? hunkKey(hunk) : "file"}`;
+      setReviewItemBusy(busyKey);
+      try {
+        const result = await mutate("/api/review-item", {
+          change: selection.changeId,
+          revision: selection.revisionId,
+          path: targetFile.path,
+          scope: hunk ? "hunk" : "file",
+          hunk,
+          status,
+        });
+        const payload = await loadState({ forceDiff: true });
+        if (!payload) return;
+        const nextChange =
+          payload.state.changes.find(
+            (item) => item.id === selection.changeId,
+          ) || change;
+        const nextRevision =
+          nextChange?.revisions.find(
+            (item) => item.id === selection.revisionId,
+          ) || nextChange?.revisions.at(-1);
+        const nextPendingFiles =
+          nextChange && nextRevision && diff
+            ? pendingFilesFor(diff, nextChange, nextRevision)
+            : [];
+        if (nextPendingFiles.length) {
+          const retained = nextPendingFiles.find(
+            (item) => item.path === targetFile.path,
+          );
+          setFilePath((retained || nextPendingFiles[0]).path);
+          setFileFilter("pending");
+        } else {
+          const next = payload.state.changes.find(
+            (item) =>
+              item.id !== selection.changeId && changeNeedsAttention(item),
+          );
+          if (next) {
+            selectChange(next.id);
+          } else {
+            setFilePath(null);
+          }
+        }
+        const message =
+          status === "pending"
+            ? "已撤销通过状态。"
+            : hunk
+              ? "这个改动块已通过。"
+              : "这个文件已通过。";
+        notifications.show({
+          color: "teal",
+          message,
+        });
+        return result;
+      } catch (error) {
+        reportError(error);
+        return null;
+      } finally {
+        setReviewItemBusy("");
+      }
+    },
+    [
+      change,
+      diff,
+      loadState,
+      selectChange,
+      selection.changeId,
+      selection.revisionId,
+    ],
+  );
+
+  const stopListening = useCallback(async () => {
+    try {
+      await mutate("/api/listener/stop", {
+        reason: "Stopped by the reviewer in the UI",
+      });
+      await loadState();
+      notifications.show({
+        color: "orange",
+        message: "已停止监听。需要继续时，请在 Agent 中恢复审阅。",
+        autoClose: 6200,
+      });
+    } catch (error) {
+      reportError(error);
+    }
+  }, [loadState]);
 
   const adoptPath = useCallback(
     async (entry) => {
@@ -607,24 +974,103 @@ function App() {
 
   const annotations = useMemo(() => {
     if (!change || !file || !revision) return [];
-    return change.annotations
+    const notes = change.annotations
       .filter((note) => {
         if (note.revision_id !== revision.id) return false;
         if (!note.path) return diff.files[0]?.path === file.path;
         return note.path === file.path || note.path === file.old_path;
       })
       .map((note) => ({
+        type: "annotation",
         side: note.side === "old" ? "deletions" : "additions",
         lineNumber: note.side === "file" ? 0 : note.start_line,
         metadata: note,
       }));
-  }, [change, diff, file, revision]);
+    if (!fileState) return notes;
+    if (fileState.decision?.scope === "file") {
+      notes.unshift({
+        type: "review",
+        side: "additions",
+        lineNumber: 0,
+        metadata: {
+          type: "file-decision",
+          file,
+          decision: fileState.decision,
+        },
+      });
+      return notes;
+    }
+    const reviewNotes = fileState.hunks
+      .filter(
+        (item) =>
+          fileFilter === "all" ||
+          item.status === "pending",
+      )
+      .map((item) => {
+        const hunk = item.hunk;
+        return {
+          type: "review",
+          side: hunk.new_count > 0 ? "additions" : "deletions",
+          lineNumber:
+            hunk.new_count > 0 ? hunk.new_start : hunk.old_start,
+          metadata: {
+            type: "hunk-decision",
+            file,
+            hunk,
+            decision: item.decision,
+            status: item.status,
+          },
+        };
+      });
+    return [...reviewNotes, ...notes];
+  }, [change, diff, file, fileFilter, fileState, revision]);
 
   const renderAnnotation = useCallback(
-    (annotation) => (
-      <InlineNote note={annotation.metadata} onOpen={focusNote} />
-    ),
-    [focusNote],
+    (annotation) => {
+      if (annotation.metadata?.type === "hunk-decision") {
+        const item = annotation.metadata;
+        const busy = reviewItemBusy === `${file.path}:${hunkKey(item.hunk)}`;
+        return (
+          <HunkDecision
+            status={item.status}
+            decision={item.decision}
+            busy={busy}
+            onDecide={(status) =>
+              decideReviewItem({
+                targetFile: file,
+                hunk: item.hunk,
+                status,
+              })
+            }
+          />
+        );
+      }
+      if (annotation.metadata?.type === "file-decision") {
+        const item = annotation.metadata;
+        const busy = reviewItemBusy === `${item.file.path}:file`;
+        return (
+          <HunkDecision
+            fileLevel
+            status={item.decision.status}
+            decision={item.decision}
+            busy={busy}
+            onDecide={(status) =>
+              decideReviewItem({
+                targetFile: item.file,
+                status,
+              })
+            }
+          />
+        );
+      }
+      return (
+        <InlineNote
+          note={annotation.metadata}
+          onOpen={focusNote}
+        />
+      );
+    },
+    [decideReviewItem, file, focusNote, reviewItemBusy],
   );
 
   const diffOptions = useMemo(() => {
@@ -670,15 +1116,45 @@ function App() {
     };
   }, [file, revision?.id]);
 
+  const parsedFileDiff = useMemo(() => {
+    if (!oldFile && !newFile) return null;
+    try {
+      return parseDiffFromFile(oldFile, newFile);
+    } catch (error) {
+      console.error("Could not parse the current file diff", error);
+      return null;
+    }
+  }, [newFile, oldFile]);
+
+  const renderedFileDiff = useMemo(() => {
+    if (!parsedFileDiff || !fileState || fileFilter === "all") {
+      return parsedFileDiff;
+    }
+    let nextDiff = parsedFileDiff;
+    const completed = fileState.hunks.filter(
+      (item) => item.status !== "pending",
+    );
+    if (!completed.length) return nextDiff;
+    for (const item of completed) {
+      const match = findChangeContent(nextDiff, item.hunk);
+      if (!match) continue;
+      nextDiff = diffAcceptRejectHunk(nextDiff, match.hunkIndex, {
+        type: "accept",
+        changeIndex: match.contentIndex,
+      });
+    }
+    return nextDiff;
+  }, [fileFilter, fileState, parsedFileDiff]);
+
   const goToHunk = useCallback(
     (direction) => {
-      if (!file?.hunks.length || !viewportRef.current) return;
+      if (!navigableHunks.length || !viewportRef.current) return;
       const nextIndex =
         direction > 0
-          ? (hunkIndex + 1) % file.hunks.length
-          : (hunkIndex - 1 + file.hunks.length) % file.hunks.length;
+          ? (hunkIndex + 1) % navigableHunks.length
+          : (hunkIndex - 1 + navigableHunks.length) % navigableHunks.length;
       setHunkIndex(nextIndex);
-      const hunk = file.hunks[nextIndex];
+      const hunk = navigableHunks[nextIndex].hunk;
       const addition = hunk.new_count > 0;
       const line = Math.max(1, addition ? hunk.new_start : hunk.old_start);
       const side = addition ? "additions" : "deletions";
@@ -690,21 +1166,25 @@ function App() {
         ?.querySelector(`[data-column-number="${line}"]`);
       target?.scrollIntoView({ block: "center", behavior: "smooth" });
     },
-    [file, hunkIndex],
+    [hunkIndex, navigableHunks],
   );
 
   useEffect(() => {
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
-        mapControls.close();
-        notesControls.close();
-        setComposer(null);
+        if (composer) {
+          setComposer(null);
+        } else {
+          mapControls.close();
+          notesControls.close();
+        }
         return;
       }
       if (
         ["INPUT", "TEXTAREA", "SELECT"].includes(
           document.activeElement?.tagName,
         ) ||
+        document.activeElement?.isContentEditable ||
         event.metaKey ||
         event.ctrlKey
       ) {
@@ -712,34 +1192,39 @@ function App() {
       }
       if (event.key.toLowerCase() === "j") goToHunk(1);
       if (event.key.toLowerCase() === "k") goToHunk(-1);
+      if (event.key.toLowerCase() === "m") {
+        if (mapOpened) mapControls.close();
+        else openMap();
+      }
+      if (event.key.toLowerCase() === "c") {
+        if (notesOpened) notesControls.close();
+        else openNotes();
+      }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [goToHunk, mapControls, notesControls]);
+  }, [
+    composer,
+    goToHunk,
+    mapControls,
+    mapOpened,
+    notesControls,
+    notesOpened,
+    openMap,
+    openNotes,
+  ]);
 
   return (
     <div className="app-shell">
       <Header
         snapshot={snapshot}
         connection={connection}
+        listener={snapshot?.listener}
         onRefresh={() => loadState({ forceDiff: true })}
-        onOpenMap={mapControls.open}
-        onOpenNotes={notesControls.open}
+        onOpenMap={openMap}
+        onStopListening={stopListening}
       />
       <main className="workspace">
-        {!compactMap && (
-          <aside className="review-map-shell" aria-label="变更地图">
-            <ReviewRail
-              snapshot={snapshot}
-              filter={filter}
-              setFilter={setFilter}
-              selection={selection}
-              onSelect={selectChange}
-              onAdopt={adoptPath}
-            />
-          </aside>
-        )}
-
         <section className="review-main" aria-label="代码差异">
           <ChangeHeader
             change={change}
@@ -748,6 +1233,11 @@ function App() {
             loading={!snapshot}
             onStatus={setStatus}
             onSelectChange={selectChange}
+            onPreviousChange={() => previousChange && selectChange(previousChange.id)}
+            onNextChange={() => nextChange && selectChange(nextChange.id)}
+            canNavigate={reviewChanges.length > 1}
+            onOpenNotes={openNotes}
+            feedbackCount={change ? openFeedback(change).length : 0}
             onUseLatest={() => {
               setMode("cumulative");
               selectRevision(change.revisions.at(-1).id);
@@ -758,6 +1248,10 @@ function App() {
               change={change}
               revision={revision}
               diff={diff}
+              file={file}
+              files={visibleFiles}
+              pendingFiles={pendingFiles}
+              fileState={fileState}
               mode={mode}
               setMode={setMode}
               view={view}
@@ -766,10 +1260,23 @@ function App() {
               setContext={setContext}
               filePath={filePath}
               setFilePath={setFilePath}
+              fileFilter={fileFilter}
+              setFileFilter={setFileFilter}
               onRevision={selectRevision}
               onPreviousHunk={() => goToHunk(-1)}
               onNextHunk={() => goToHunk(1)}
               onFileNote={() => openFileComposer(false)}
+              onAcceptFile={() =>
+                decideReviewItem({
+                  targetFile: file,
+                  status:
+                    fileState?.decision &&
+                    fileState.decision.status !== "pending"
+                      ? "pending"
+                      : "accepted",
+                })
+              }
+              reviewItemBusy={reviewItemBusy}
             />
           )}
           <Box className="diff-viewport" ref={viewportRef}>
@@ -796,6 +1303,11 @@ function App() {
                 title="这个比较范围没有文件差异"
                 detail="可以切换修订，或切到累计模式查看整个变更。"
               />
+            ) : fileFilter === "pending" && !visibleFiles.length ? (
+              <EmptyDiff
+                title="这个修订没有待审内容"
+                detail="文件和改动块都已处理。切换到“全部文件”可以撤销或查看已过滤内容。"
+              />
             ) : !file ? (
               <EmptyDiff title="选择一个文件" />
             ) : file.binary ? (
@@ -804,10 +1316,9 @@ function App() {
                 detail={`${file.path} 在本次比较中发生变化，但不包含可显示的文本。`}
               />
             ) : (
-              <MultiFileDiff
-                key={`${revision?.id}:${file.path}:${view}:${context}`}
-                oldFile={oldFile}
-                newFile={newFile}
+              <FileDiff
+                key={`${revision?.id}:${file.path}:${view}:${context}:${fileFilter}`}
+                fileDiff={renderedFileDiff}
                 options={diffOptions}
                 lineAnnotations={annotations}
                 renderAnnotation={renderAnnotation}
@@ -816,40 +1327,18 @@ function App() {
             )}
           </Box>
         </section>
-
-        {!compactInspector && (
-          <aside className="inspector-shell" aria-label="改动原因与批注">
-            <Inspector
-              change={change}
-              revision={revision}
-              runtime={snapshot?.runtime}
-              loading={!snapshot}
-              composer={composer}
-              setComposer={setComposer}
-              focusedNote={focusedNote}
-              replyTo={replyTo}
-              setReplyTo={setReplyTo}
-              onFocusNote={focusNote}
-              onSelectRevision={selectRevision}
-              onSelectChange={selectChange}
-              onOpenFileComposer={openFileComposer}
-              onSubmitAnnotation={submitAnnotation}
-              onUpdateAnnotation={updateAnnotationStatus}
-              onReply={replyAnnotation}
-            />
-          </aside>
-        )}
       </main>
 
       <Drawer
-        opened={compactMap && mapOpened}
+        opened={mapOpened}
         onClose={mapControls.close}
         position="left"
-        size="min(330px, 90vw)"
+        size="min(420px, 94vw)"
         padding={0}
         title="变更地图"
         closeButtonProps={{ "aria-label": "关闭变更地图" }}
-        overlayProps={{ backgroundOpacity: 0.24, blur: 2 }}
+        overlayProps={{ backgroundOpacity: 0.12, blur: 0 }}
+        transitionProps={{ duration: 160 }}
       >
         <ReviewRail
           snapshot={snapshot}
@@ -863,19 +1352,21 @@ function App() {
       </Drawer>
 
       <Drawer
-        opened={compactInspector && notesOpened}
+        opened={notesOpened}
         onClose={notesControls.close}
         position="right"
-        size="min(400px, 95vw)"
+        size="min(500px, 96vw)"
         padding={0}
         title="原因与批注"
         closeButtonProps={{ "aria-label": "关闭原因与批注" }}
-        overlayProps={{ backgroundOpacity: 0.24, blur: 2 }}
+        overlayProps={{ backgroundOpacity: 0.12, blur: 0 }}
+        transitionProps={{ duration: 160 }}
       >
         <Inspector
           change={change}
           revision={revision}
           runtime={snapshot?.runtime}
+          listener={snapshot?.listener}
           loading={!snapshot}
           composer={composer}
           setComposer={setComposer}
@@ -899,9 +1390,10 @@ function App() {
 function Header({
   snapshot,
   connection,
+  listener,
   onRefresh,
   onOpenMap,
-  onOpenNotes,
+  onStopListening,
 }) {
   const changes =
     snapshot?.state.changes.filter(
@@ -938,44 +1430,41 @@ function Header({
         />
       </div>
       <div className="topbar-actions">
-        <Button
-          className="compact-map-only"
-          variant="subtle"
-          color="gray"
-          size="compact-sm"
+        <button
+          type="button"
+          className="topbar-action"
           onClick={onOpenMap}
+          aria-keyshortcuts="M"
         >
-          变更
-        </Button>
-        <Button
-          className="compact-inspector-only"
-          variant="subtle"
-          color="gray"
-          size="compact-sm"
-          onClick={onOpenNotes}
-        >
-          批注
-        </Button>
-        <Badge
-          className={`connection is-${connection}`}
-          variant="transparent"
-          color={
+          变更地图
+          <span className="topbar-count">{changes.length}</span>
+        </button>
+        <ListenerStatus
+          listener={listener}
+          onStop={onStopListening}
+        />
+        <span
+          className={`connection-state is-${connection}`}
+          title={
             connection === "live"
-              ? "teal"
+              ? "审阅服务已连接"
               : connection === "error"
-                ? "red"
-                : "yellow"
+                ? "审阅服务连接失败"
+                : "正在连接审阅服务"
           }
-          leftSection={<span className="connection-dot" />}
         >
-          {connection === "live"
-            ? "已连接"
-            : connection === "error"
-              ? "连接失败"
-              : "连接中"}
-        </Badge>
+          <span className="connection-dot" aria-hidden="true" />
+          <span className="connection-label">
+            {connection === "live"
+              ? "已连接"
+              : connection === "error"
+                ? "连接失败"
+                : "连接中"}
+          </span>
+        </span>
         <Tooltip label="刷新审阅状态">
           <ActionIcon
+            className="refresh-button"
             variant="subtle"
             color="gray"
             aria-label="刷新审阅状态"
@@ -986,6 +1475,42 @@ function Header({
         </Tooltip>
       </div>
     </header>
+  );
+}
+
+function ListenerStatus({ listener, onStop }) {
+  const status = listener?.status || "unconfigured";
+  const canStop = ["listening", "degraded", "error"].includes(status);
+  return (
+    <Tooltip
+      label={listenerDetail(listener)}
+      multiline
+      w={280}
+      position="bottom-end"
+      events={{ hover: true, focus: true, touch: true }}
+    >
+      <div
+        className={`listener-status is-${status}`}
+        aria-label={`Agent 监听状态：${LISTENER_LABELS[status] || status}`}
+      >
+        <span className="listener-status-dot" aria-hidden="true" />
+        <span className="listener-status-label">
+          {LISTENER_LABELS[status] || status}
+        </span>
+        <span className="listener-status-short">
+          {LISTENER_SHORT_LABELS[status] || "未连接"}
+        </span>
+        {canStop && (
+          <button
+            type="button"
+            className="listener-stop"
+            onClick={onStop}
+          >
+            停止
+          </button>
+        )}
+      </div>
+    </Tooltip>
   );
 }
 
@@ -1011,11 +1536,7 @@ function ReviewRail({
   const changes =
     filter === "all"
       ? snapshot.state.changes
-      : snapshot.state.changes.filter(
-          (change) =>
-            !["accepted", "superseded"].includes(change.status) ||
-            openFeedback(change).length > 0,
-        );
+      : snapshot.state.changes.filter(changeNeedsAttention);
   const activeCount = snapshot.state.changes.filter(
     (change) => change.status !== "superseded",
   ).length;
@@ -1049,6 +1570,7 @@ function ReviewRail({
         )}
         {changes.map((change, index) => {
           const pending = openFeedback(change).length;
+          const review = reviewTargets(change);
           const newer = snapshot.runtime.newer_worktree[change.id];
           return (
             <UnstyledButton
@@ -1068,7 +1590,11 @@ function ReviewRail({
               <span className="change-item-foot">
                 <span>
                   {STATUS_LABELS[change.status] || change.status} ·{" "}
-                  {change.revisions.length} 次
+                  {review.pending
+                    ? `${review.pending} 项待审`
+                    : review.excluded_items
+                      ? `${review.excluded_items} 项已过滤`
+                      : `${change.revisions.length} 次`}
                 </span>
                 <span className="change-item-badges">
                   {pending > 0 && (
@@ -1135,21 +1661,66 @@ function ChangeHeader({
   loading,
   onStatus,
   onSelectChange,
+  onPreviousChange,
+  onNextChange,
+  canNavigate,
+  onOpenNotes,
+  feedbackCount,
   onUseLatest,
 }) {
   const latestRevision = change?.revisions.at(-1);
   return (
     <header className="change-heading">
       <div className="change-title-row">
-        <Text className="eyebrow">
-          {loading
-            ? "正在载入变更"
-            : change
-            ? `${STATUS_LABELS[change.status] || change.status} · ${change.id}`
-            : "选择一项变更"}
-        </Text>
+        <div className="change-title-copy">
+          <Text className="eyebrow">
+            {loading
+              ? "正在载入变更"
+              : change
+                ? `${STATUS_LABELS[change.status] || change.status} · ${change.id}`
+                : "选择一项变更"}
+          </Text>
+          <Title order={2}>
+            {loading
+              ? "正在读取审阅记录"
+              : change?.title || "还没有可审阅的变更"}
+          </Title>
+        </div>
         {change && (
           <div className="change-actions">
+            <div className="change-pager" aria-label="审阅单元导航">
+              <Button
+                variant="subtle"
+                color="gray"
+                size="compact-xs"
+                disabled={!canNavigate}
+                onClick={onPreviousChange}
+              >
+                上一项
+              </Button>
+              <Button
+                variant="subtle"
+                color="gray"
+                size="compact-xs"
+                disabled={!canNavigate}
+                onClick={onNextChange}
+              >
+                下一项
+              </Button>
+            </div>
+            <Button
+              className="context-button"
+              variant="default"
+              color="gray"
+              size="compact-xs"
+              onClick={onOpenNotes}
+              aria-keyshortcuts="C"
+            >
+              原因与批注
+              {feedbackCount > 0 && (
+                <span className="context-count">{feedbackCount}</span>
+              )}
+            </Button>
             <Select
               aria-label="审阅状态"
               size="xs"
@@ -1165,11 +1736,6 @@ function ChangeHeader({
           </div>
         )}
       </div>
-      <Title order={2}>
-        {loading
-          ? "正在读取审阅记录"
-          : change?.title || "还没有可审阅的变更"}
-      </Title>
       {change && (
         <div className="change-meta">
           {change.paths.map((path) => (
@@ -1212,6 +1778,10 @@ function DiffToolbar({
   change,
   revision,
   diff,
+  file,
+  files,
+  pendingFiles,
+  fileState,
   mode,
   setMode,
   view,
@@ -1220,108 +1790,178 @@ function DiffToolbar({
   setContext,
   filePath,
   setFilePath,
+  fileFilter,
+  setFileFilter,
   onRevision,
   onPreviousHunk,
   onNextHunk,
   onFileNote,
+  onAcceptFile,
+  reviewItemBusy,
 }) {
+  const decisions = reviewDecisions(change, revision);
+  const pendingHunkCount = fileState?.pendingHunks.length || 0;
+  const fileDecision = fileState?.decision;
+  const fileBusy =
+    file && reviewItemBusy === `${file.path}:file`;
+  const fileActionLabel = fileDecision
+    ? fileDecision.status === "excluded"
+      ? "撤销过滤"
+      : "撤销通过"
+    : fileState?.status === "accepted"
+      ? "文件已通过"
+      : fileState?.status === "excluded"
+        ? "文件已过滤"
+        : "通过文件";
   return (
     <div className="diff-toolbar">
-      <Select
-        aria-label="修订"
-        className="revision-select"
-        size="xs"
-        w={190}
-        value={revision?.id}
-        onChange={onRevision}
-        allowDeselect={false}
-        data={change.revisions.map((item) => ({
-          value: item.id,
-          label: `${item.label} · ${shortRef(item.head)}`,
-        }))}
-      />
-      <SegmentedControl
-        size="xs"
-        value={mode}
-        onChange={setMode}
-        aria-label="比较范围"
-        data={[
-          { value: "round", label: "本轮" },
-          { value: "cumulative", label: "累计" },
-        ]}
-      />
-      <Select
-        aria-label="文件"
-        size="xs"
-        className="file-select-wrap"
-        w={260}
-        value={filePath}
-        onChange={setFilePath}
-        allowDeselect={false}
-        disabled={(diff?.files.length || 0) < 2}
-        data={(diff?.files || []).map((file) => ({
-          value: file.path,
-          label: `${file.old_path ? `${file.old_path} → ` : ""}${file.path}`,
-        }))}
-      />
-      <div className="toolbar-spacer" />
-      <Tooltip label="上一个改动块 (K)">
+      <div className="toolbar-row toolbar-row-primary">
+        <Select
+          aria-label="修订"
+          className="revision-select"
+          size="xs"
+          w={180}
+          value={revision?.id}
+          onChange={onRevision}
+          allowDeselect={false}
+          data={change.revisions.map((item) => ({
+            value: item.id,
+            label: `${item.label} · ${shortRef(item.head)}`,
+          }))}
+        />
+        <SegmentedControl
+          size="xs"
+          value={mode}
+          onChange={setMode}
+          aria-label="比较范围"
+          data={[
+            { value: "round", label: "本轮" },
+            { value: "cumulative", label: "累计" },
+          ]}
+        />
+        <SegmentedControl
+          size="xs"
+          value={fileFilter}
+          onChange={setFileFilter}
+          aria-label="文件范围"
+          data={[
+            {
+              value: "pending",
+              label: `待审 ${pendingFiles.length}`,
+            },
+            {
+              value: "all",
+              label: `全部 ${diff?.files.length || 0}`,
+            },
+          ]}
+        />
+        <Select
+          aria-label="文件"
+          size="xs"
+          className="file-select-wrap"
+          value={filePath}
+          onChange={setFilePath}
+          allowDeselect={false}
+          searchable={files.length > 8}
+          disabled={!files.length}
+          data={files.map((item) => {
+            const status = fileReviewState(item, decisions).status;
+            return {
+              value: item.path,
+              label: `${item.old_path ? `${item.old_path} → ` : ""}${item.path}${
+                status === "pending"
+                  ? ""
+                  : ` · ${REVIEW_ITEM_LABELS[status]}`
+              }`,
+            };
+          })}
+        />
+      </div>
+      <div className="toolbar-row toolbar-row-secondary">
+        <span className="hunk-progress">
+          {pendingHunkCount
+            ? `待审 ${pendingHunkCount} 个改动块`
+            : fileState?.status === "excluded"
+              ? "文件已过滤"
+              : "没有待审改动块"}
+        </span>
+        <Tooltip label="上一个待审改动块 (K)">
+          <Button
+            className="hunk-nav"
+            variant="subtle"
+            color="gray"
+            size="compact-xs"
+            disabled={!pendingHunkCount}
+            onClick={onPreviousHunk}
+          >
+            ↑ 改动
+          </Button>
+        </Tooltip>
+        <Tooltip label="下一个待审改动块 (J)">
+          <Button
+            className="hunk-nav"
+            variant="subtle"
+            color="gray"
+            size="compact-xs"
+            disabled={!pendingHunkCount}
+            onClick={onNextHunk}
+          >
+            ↓ 改动
+          </Button>
+        </Tooltip>
+        <SegmentedControl
+          size="xs"
+          value={view}
+          onChange={setView}
+          aria-label="差异视图"
+          data={[
+            { value: "unified", label: "统一" },
+            { value: "split", label: "并排" },
+          ]}
+        />
+        <Select
+          aria-label="上下文"
+          size="xs"
+          className="context-select"
+          w={82}
+          value={context}
+          onChange={setContext}
+          allowDeselect={false}
+          data={[
+            { value: "0", label: "0 行" },
+            { value: "3", label: "3 行" },
+            { value: "8", label: "8 行" },
+            { value: "20", label: "20 行" },
+            { value: "all", label: "全部" },
+          ]}
+        />
+        <div className="toolbar-spacer" />
         <Button
-          className="hunk-nav"
+          className="file-note-button"
           variant="subtle"
           color="gray"
           size="compact-xs"
-          onClick={onPreviousHunk}
+          disabled={!file}
+          onClick={onFileNote}
         >
-          ↑ 改动
+          文件批注
         </Button>
-      </Tooltip>
-      <Tooltip label="下一个改动块 (J)">
         <Button
-          className="hunk-nav"
-          variant="subtle"
-          color="gray"
+          className="file-accept-button"
+          variant={fileDecision ? "light" : "filled"}
+          color={fileDecision ? "gray" : "teal"}
           size="compact-xs"
-          onClick={onNextHunk}
+          disabled={
+            !file ||
+            (!fileDecision &&
+              ["accepted", "excluded"].includes(fileState?.status))
+          }
+          loading={fileBusy}
+          onClick={onAcceptFile}
         >
-          ↓ 改动
+          {fileActionLabel}
         </Button>
-      </Tooltip>
-      <SegmentedControl
-        size="xs"
-        value={view}
-        onChange={setView}
-        aria-label="差异视图"
-        data={[
-          { value: "unified", label: "统一" },
-          { value: "split", label: "并排" },
-        ]}
-      />
-      <Select
-        aria-label="上下文"
-        size="xs"
-        className="context-select"
-        w={88}
-        value={context}
-        onChange={setContext}
-        allowDeselect={false}
-        data={[
-          { value: "0", label: "0 行" },
-          { value: "3", label: "3 行" },
-          { value: "8", label: "8 行" },
-          { value: "20", label: "20 行" },
-          { value: "all", label: "全部" },
-        ]}
-      />
-      <Button
-        className="file-note-button"
-        variant="subtle"
-        color="gray"
-        size="compact-xs"
-        onClick={onFileNote}
-      >
-        文件批注
-      </Button>
+      </div>
     </div>
   );
 }
@@ -1368,10 +2008,49 @@ function InlineNote({ note, onOpen }) {
   );
 }
 
+function HunkDecision({
+  status,
+  decision,
+  busy,
+  onDecide,
+  fileLevel = false,
+}) {
+  const terminal = status !== "pending";
+  const label = REVIEW_ITEM_LABELS[status] || status;
+  return (
+    <div className={`hunk-decision is-${status}`}>
+      <span className="hunk-decision-copy">
+        <span className="hunk-decision-title">
+          {fileLevel ? "整个文件" : "改动块"}
+        </span>
+        <span className={`hunk-decision-state is-${status}`}>{label}</span>
+        {decision?.author && (
+          <span className="hunk-decision-author">
+            {decision.author === "user" ? "你" : "Agent"}
+          </span>
+        )}
+      </span>
+      {decision?.reason && (
+        <span className="hunk-decision-reason">{decision.reason}</span>
+      )}
+      <Button
+        variant={terminal ? "subtle" : "filled"}
+        color={terminal ? "gray" : "teal"}
+        size="compact-xs"
+        loading={busy}
+        onClick={() => onDecide(terminal ? "pending" : "accepted")}
+      >
+        {terminal ? "撤销" : fileLevel ? "通过文件" : "通过此块"}
+      </Button>
+    </div>
+  );
+}
+
 function Inspector({
   change,
   revision,
   runtime,
+  listener,
   loading,
   composer,
   setComposer,
@@ -1481,6 +2160,7 @@ function Inspector({
             <Composer
               key={composer.key}
               composer={composer}
+              listener={listener}
               onCancel={() => setComposer(null)}
               onSubmit={onSubmitAnnotation}
             />
@@ -1607,6 +2287,7 @@ function AnnotationCard({
   const revision = change.revisions.find(
     (item) => item.id === note.revision_id,
   );
+  const delivery = note.delivery;
   return (
     <article
       data-card-note={note.id}
@@ -1625,6 +2306,11 @@ function AnnotationCard({
         <span className="annotation-state">
           {ANNOTATION_STATUS_LABELS[note.status] || note.status}
         </span>
+        {delivery && (
+          <span className={`delivery-chip is-${delivery.state}`}>
+            {DELIVERY_LABELS[delivery.state] || delivery.state}
+          </span>
+        )}
       </div>
       <p className="annotation-location">
         {location} · {revision?.label || note.revision_id}
@@ -1640,6 +2326,12 @@ function AnnotationCard({
               <span className="reply-author">
                 {reply.author === "user" ? "你" : "Agent"}
               </span>
+              {reply.delivery && (
+                <span className={`delivery-chip is-${reply.delivery.state}`}>
+                  {DELIVERY_LABELS[reply.delivery.state] ||
+                    reply.delivery.state}
+                </span>
+              )}
               <div>{reply.body}</div>
             </div>
           ))}
@@ -1748,12 +2440,13 @@ function ReplyForm({ onCancel, onReply }) {
   );
 }
 
-function Composer({ composer, onCancel, onSubmit }) {
+function Composer({ composer, listener, onCancel, onSubmit }) {
   const [kind, setKind] = useState("change");
   const [body, setBody] = useState("");
   const [suggestion, setSuggestion] = useState("");
   const [withSuggestion, setWithSuggestion] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const deliveryHint = composerDeliveryHint(listener);
   return (
     <Paper className="composer" withBorder>
       <div className="composer-heading">
@@ -1819,7 +2512,7 @@ function Composer({ composer, onCancel, onSubmit }) {
       )}
       <Group className="composer-actions" justify="space-between">
         <Text className="composer-hint">
-          提交后会直接进入 Agent 的反馈收件箱
+          {deliveryHint}
         </Text>
         <Button
           size="xs"

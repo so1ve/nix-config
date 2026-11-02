@@ -24,6 +24,10 @@ keep records at workspace-relative paths such as `.review/auth.json`.
   requested changes, suggestions, replies, and resolution state. Line
   annotations are bound to one revision, so later refactors cannot silently
   move old feedback onto unrelated code.
+- A change also owns revision-bound **review decisions** for whole files and
+  individual changed blocks. The user can accept items in the frontend, while
+  the Agent can exclude low-signal support files such as fixtures or generated
+  tests with a visible reason. Pending items are not inferred from commits.
 - The Agent decides semantic boundaries and when a region is `unreviewed`,
   `reviewing`, `revisit`, `feedback`, or `superseded`. The frontend must not
   infer those states from commit counts.
@@ -48,12 +52,20 @@ When a record exists, run:
 
 ```sh
 python3 <state-tool> show --state .review/auth.json
-python3 <state-tool> inbox --state .review/auth.json
+python3 <state-tool> listen --state .review/auth.json --action status --json
 ```
 
-Read open feedback before editing code. Re-read the relevant source and current
-revision because an old explanation may no longer be true. Do not repeat a
-previous walkthrough when the record already contains it.
+If the listener is `paused`, do not process review feedback or restart the
+listener unless the current user request explicitly asks to resume. If it is
+`listening`, claim pending feedback before editing code:
+
+```sh
+python3 <state-tool> inbox --state .review/auth.json --claim --json
+```
+
+Re-read the relevant source and current revision because an old explanation may
+no longer be true. Do not repeat a previous walkthrough when the record already
+contains it.
 
 For a new record, anchor the base commit explicitly:
 
@@ -96,6 +108,16 @@ a hidden ref under `refs/review-with-me/snapshots/` and does not change the Git
 index, branch, or visible history. This is what preserves the first diff when
 the Agent later commits or keeps editing.
 
+After registering a unit, list its concrete file and hunk items:
+
+```sh
+python3 <state-tool> items --state .review/auth.json \
+  --change auth-identity --json
+```
+
+Each item is bound to the current revision and can be `pending`, `accepted`, or
+`excluded`. The frontend computes the same view directly from these decisions.
+
 ## Explain the change
 
 Use `overview` for the cross-unit call path, not a restatement of titles:
@@ -130,6 +152,26 @@ Read the implementation behind names before explaining it. Distinguish a
 verified design reason from an inference. Do not defend generated code with
 generic statements such as “better separation” unless a real caller or
 constraint requires that separation.
+
+## Reduce low-signal review noise
+
+Tests and fixtures should support a review, not bury the production behavior.
+After the semantic units are registered, inspect `items` and exclude a support
+file or changed block only when its purpose is already explained by another
+unit and line-by-line review would add no decision:
+
+```sh
+python3 <state-tool> item --state .review/auth.json \
+  --change auth-identity --path tests/test_auth_snapshot.py \
+  --scope file --status excluded \
+  --reason '自动生成的行为快照测试，覆盖范围已在 auth-identity 的说明中交代。'
+```
+
+Use `--scope hunk --old-start … --old-count … --new-start … --new-count …`
+for one block. Exclusion is visible and reversible in the frontend; it never
+counts as user acceptance. Do not exclude production behavior, a failing test,
+a test that defines the contract, or a test whose purpose is not explained
+elsewhere. Prefer grouping tests with their behavior over silently hiding them.
 
 ## Continue after more AI work
 
@@ -175,7 +217,10 @@ python3 <state-tool> status --state .review/auth.json \
 
 ## Respond to review feedback
 
-At the start of every review turn, read `inbox`. For each feedback item:
+At the start of every review turn initiated by the UI bridge or the fallback
+heartbeat, claim `inbox`. Claiming is idempotent: each feedback event moves from
+`queued`/`delivered`/`failed` to `processing` once. Do not call `--claim` again
+for the same turn. For each claimed event:
 
 1. Read its revision, path, line range, excerpt, and suggestion.
 2. Inspect the current source and the code at that revision.
@@ -199,12 +244,87 @@ The frontend writes user feedback directly into the same record. It sets an
 actionable item to open and moves the change to `feedback`. The helper refuses
 `accepted` while actionable user feedback remains open.
 
+User feedback carries a delivery record shown in the UI: `queued`, `delivered`,
+`processing`, `answered`, or `failed`. A reply from the Agent marks the related
+delivery records `answered`. If an Agent turn is interrupted after claiming,
+`inbox --claim` can reclaim stale `processing` events after one hour;
+`--retry-processing` forces that recovery explicitly.
+
+File and hunk acceptance belongs to the revision that was reviewed. When code
+changes materially, append a new revision; old decisions remain visible on the
+old revision but do not mark the new code reviewed.
+
+## Keep the Agent listener connected
+
+The UI talks back to the Agent. The local review server first persists the
+feedback, then enqueues a wake message for this same Codex thread with the
+supported `codex queue --thread <id> --message <text>` command. A heartbeat
+automation is the fallback when the app-server is restarting or a queued wake is
+missed.
+
+The Agent owns both sides. Never ask the user to start, restart, or repair the
+listener. For every new or resumed review:
+
+1. Resolve the current thread from `CODEX_THREAD_ID`, or use `list_threads` and
+   select the active Codex thread whose `cwd` is this repository. Do not guess
+   between multiple active threads.
+2. Inspect the persisted bridge:
+
+   ```sh
+   python3 <state-tool> listen --state .review/auth.json --action status --json
+   ```
+
+3. Create or reactivate the heartbeat with the `automation_update` tool. When
+   creating it, pass `mode: create`, `kind: heartbeat`, `destination: thread`,
+   `targetThreadId: <current-thread>`, `status: ACTIVE`, and a stable name such
+   as `Review With Me · .review/auth.json`. Use
+   `rrule: FREQ=MINUTELY;INTERVAL=10`; direct feedback is delivered immediately,
+   so this is only the fallback cadence. The prompt must tell the heartbeat to:
+
+   - read `listen --action status --json` first;
+   - if paused, use its stored `automation_id` with `automation_update` to pause
+     that heartbeat, then stop silently;
+   - run `inbox --claim --json` and stop silently when no events exist;
+   - otherwise follow this skill, answer each claimed event, and stay quiet
+     unless feedback was handled or the heartbeat failed.
+
+   If the listener already records an `automation_id`, update that automation
+   with `mode: update` and the same `name`, `prompt`, `rrule`, `status`,
+   `targetThreadId`, and `id` instead of creating a duplicate. If the tool does
+   not return an id, identify the newly created entry under
+   `~/.codex/automations` by its stable name and target thread. Never invent an
+   id.
+
+4. Activate the local listener and persist the automation identity:
+
+   ```sh
+   python3 <state-tool> listen --state .review/auth.json --action resume \
+     --thread-id "$CODEX_THREAD_ID" \
+     --automation-id '<automation-id>' \
+     --automation-name 'Review With Me · .review/auth.json'
+   ```
+
+5. Start the frontend as described below and give the user its URL.
+
+When the reviewer presses **停止监听**, the UI sets the listener to `paused`.
+This stops new UI wake messages without killing the local diff server. Do not
+auto-resume after a server restart. If the user later asks to continue in the
+Agent, reactivate the automation, run `listen --action resume` with its stored
+thread/automation identity, then claim any feedback that accumulated while
+paused.
+
+If `automation_update` is unavailable, still configure the direct queue bridge
+and state plainly that only the fallback schedule is unavailable. Never invent a
+successful heartbeat. When an immediate queue attempt fails but a heartbeat is
+registered, the listener becomes `degraded`; the heartbeat must claim queued or
+failed events and try to restore direct delivery on a later Agent turn.
+
 ## Open the frontend automatically
 
 The Agent owns the frontend lifecycle. Never ask the user to run, restart, or
-troubleshoot it. As soon as a review record is created or resumed, and again
-after a batch of edits, start the server yourself in a reusable background or
-long-running PTY session:
+troubleshoot it. As soon as the listener is configured, and again after a batch
+of edits, start the server yourself in a reusable background or long-running PTY
+session:
 
 ```sh
 python3 <state-tool> serve --state .review/auth.json --port 0
@@ -216,9 +336,16 @@ Use `--port 0` so the helper chooses an available loopback port. Read the printe
 working URL as part of the review update. Do not merely print the launch command
 and stop.
 
+The persistent server must be able to bind loopback and let its `codex queue`
+subprocess reach the local Codex app state. If the sandbox blocks either
+operation, request the needed approval and launch it yourself; do not ask the
+user to run or nurse the process.
+
 On every later review turn, check the saved session or probe the URL again. If
 the server exited, restart it automatically and send the new URL. Keep one
 review server per record rather than leaving duplicate servers running.
+Restarting the server preserves a paused listener; agent-side resume remains an
+explicit action.
 
 The shipped React bundle is fully offline and precompressed: no npm install or
 network request is needed at review time. It is under 0.5 MiB on disk. The page
@@ -226,15 +353,24 @@ embeds a random mutation token in a meta tag; do not share the URL or token.
 
 The interface provides:
 
-- a semantic change map with review progress and unmapped worktree changes;
+- a code-first canvas that gives the diff the full workspace width without
+  requiring fullscreen, with review progress and the current semantic unit in
+  one compact header;
+- a semantic change map and a rationale/annotation inspector as on-demand side
+  sheets, opened with `M` and `C`, so neither panel permanently narrows the
+  diff; both remain usable as drawers at tablet and mobile widths;
 - Pierre Diffs rendering, syntax highlighting, split/unified modes, context
-  expansion, and previous/next hunk navigation with `K` and `J`;
+  expansion, previous/next hunk navigation with `K` and `J`, and previous/next
+  semantic-unit navigation in the canvas header;
 - per-round and cumulative diffs across revisions;
 - inline line/range annotations and file-level annotations;
+- per-file and per-hunk acceptance controls, with pending files disappearing
+  from the default review path and filtered items kept for review under “全部”;
 - suggested code, replies, resolve, dismiss, and reopen actions;
+- live Agent-listener status, immediate feedback delivery, and a stop control;
+- per-message delivery state from queued through answered or failed;
 - summaries, rationale, revision history, and warnings about newer worktree
   changes;
-- compact drawers for tablet and mobile widths.
 
 The UI is intentionally not a commit browser. If an Agent wants to show an
 earlier state, it must retain the revision or snapshot that state.
@@ -245,8 +381,13 @@ earlier state, it must retain the revision or snapshot that state.
 python3 <state-tool> show --state .review/auth.json --change auth-identity
 python3 <state-tool> show --state .review/auth.json --json
 python3 <state-tool> annotate --help
+python3 <state-tool> items --state .review/auth.json --change auth-identity --json
+python3 <state-tool> item --help
 python3 <state-tool> revise --help
 python3 <state-tool> serve --help
+python3 <state-tool> listen --state .review/auth.json --action status --json
+python3 <state-tool> inbox --state .review/auth.json --claim --json
+python3 <state-tool> inbox --state .review/auth.json --claim --retry-processing --json
 ```
 
 Useful mutation commands:
@@ -257,12 +398,16 @@ Useful mutation commands:
 - `update`: change title, summary, rationale, or paths without losing history.
 - `status`: set the review state, optionally recording `superseded_by`.
 - `annotate`: add an agent explanation at a revision, file, or line range.
+- `items`: list revision-bound files and changed blocks with their review state.
+- `item`: accept, exclude, or reopen a file or changed block; exclusions need a
+  reason and remain visible.
 - `respond`: append an agent reply and optionally resolve an item.
 - `resolve`: change an annotation between `open`, `resolved`, and `dismissed`.
 
-The state file is schema v2. The helper migrates the old per-file `feedback`
-records and missing annotation revision ids on load. The record stays local by
-default; do not commit it or its snapshot refs unless the user explicitly asks.
+The state file is schema v3. The helper migrates schema v2 records, old per-file
+`feedback` records, and missing annotation revision ids on load. The record
+stays local by default; do not commit it or its snapshot refs unless the user
+explicitly asks.
 
 ## Maintainer checks
 

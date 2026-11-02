@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 STATUSES = (
     "unreviewed",
     "reviewing",
@@ -25,6 +25,9 @@ STATUSES = (
 ANNOTATION_STATUSES = ("open", "resolved", "dismissed")
 ANNOTATION_KINDS = ("question", "bug", "change", "note", "answer")
 ACTIONABLE_KINDS = ("question", "bug", "change")
+DELIVERY_STATES = ("queued", "delivered", "processing", "answered", "failed")
+REVIEW_SCOPES = ("file", "hunk")
+REVIEW_STATUSES = ("pending", "accepted", "excluded")
 CHANGE_ID = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
 COMMIT_ID = re.compile(r"^[0-9a-f]{40,64}$")
 
@@ -73,6 +76,20 @@ def normalize_change_id(value):
 
 def new_id(prefix):
     return f"{prefix}-{secrets.token_hex(5)}"
+
+
+def new_delivery():
+    stamp = now()
+    return {
+        "id": new_id("e"),
+        "state": "queued",
+        "attempts": 0,
+        "queued_at": stamp,
+        "delivered_at": "",
+        "claimed_at": "",
+        "answered_at": "",
+        "error": "",
+    }
 
 
 def normalize_paths(values):
@@ -259,13 +276,21 @@ def migrate_legacy(state):
 
 
 def migrate_annotations(state):
-    if state.get("version") != SCHEMA_VERSION:
+    if state.get("version") not in (2, SCHEMA_VERSION):
         return state
     for change in state.get("changes", []):
         revisions = change.get("revisions", [])
         revision_id = revisions[-1]["id"] if revisions else ""
         for note in change.get("annotations", []):
             note.setdefault("revision_id", revision_id)
+    return state
+
+
+def migrate_review_items(state):
+    if state.get("version") == 2:
+        state["version"] = SCHEMA_VERSION
+    for change in state.get("changes", []):
+        change.setdefault("decisions", [])
     return state
 
 
@@ -289,6 +314,39 @@ def migrate_refs(state):
                     if resolved:
                         revision[key] = resolved
     return state
+
+
+def migrate_deliveries(state):
+    for change in state.get("changes", []):
+        for note in change.get("annotations", []):
+            if (
+                note.get("author") == "user"
+                and note.get("kind") in ACTIONABLE_KINDS
+                and note.get("status") == "open"
+            ):
+                note.setdefault("delivery", new_delivery())
+            for reply in note.get("replies", []):
+                if reply.get("author") == "user":
+                    reply.setdefault("delivery", new_delivery())
+    return state
+
+
+def validate_delivery(delivery):
+    if not isinstance(delivery, dict):
+        raise TypeError("Annotation delivery must be an object")
+    require_text(delivery.get("id"), "Delivery id")
+    if delivery.get("state") not in DELIVERY_STATES:
+        raise ValueError(f"Unknown delivery state: {delivery.get('state')}")
+    if not isinstance(delivery.get("attempts"), int) or delivery["attempts"] < 0:
+        raise ValueError("Delivery attempts must be a non-negative integer")
+    for key in (
+        "queued_at",
+        "delivered_at",
+        "claimed_at",
+        "answered_at",
+        "error",
+    ):
+        require_text(delivery.get(key, ""), key, allow_empty=True)
 
 
 def validate_annotation(change, note, seen_ids, revision_ids):
@@ -341,6 +399,73 @@ def validate_annotation(change, note, seen_ids, revision_ids):
         if reply.get("author") not in ("user", "agent"):
             raise ValueError(f"Unknown reply author: {reply.get('author')}")
         require_text(reply.get("body"), "Reply body")
+        if "delivery" in reply:
+            validate_delivery(reply["delivery"])
+    if "delivery" in note:
+        validate_delivery(note["delivery"])
+
+
+def validate_hunk(hunk):
+    if not isinstance(hunk, dict):
+        raise TypeError("A hunk decision needs hunk coordinates")
+    for key in ("old_start", "new_start"):
+        if not isinstance(hunk.get(key), int) or hunk[key] < 1:
+            raise ValueError(f"hunk {key} must be a positive integer")
+    for key in ("old_count", "new_count"):
+        if not isinstance(hunk.get(key), int) or hunk[key] < 0:
+            raise ValueError(f"hunk {key} must be a non-negative integer")
+    return hunk
+
+
+def decision_key(revision_id, path, scope, hunk=None):
+    coordinates = None
+    if scope == "hunk":
+        hunk = validate_hunk(hunk)
+        coordinates = (
+            hunk["old_start"],
+            hunk["old_count"],
+            hunk["new_start"],
+            hunk["new_count"],
+        )
+    elif scope != "file":
+        raise ValueError(f"Unknown review scope: {scope}")
+    return revision_id, str(relative_path(path)), scope, coordinates
+
+
+def validate_decision(change, decision, seen_ids, revision_ids, seen_targets):
+    if not isinstance(decision, dict):
+        raise TypeError(f"Invalid review decision in {change['id']}")
+    require_text(decision.get("id"), "Review decision id")
+    if decision["id"] in seen_ids:
+        raise ValueError(f"Duplicate review decision id: {decision['id']}")
+    seen_ids.add(decision["id"])
+    if decision.get("revision_id") not in revision_ids:
+        raise ValueError(
+            f"Review decision revision is outside change {change['id']}: "
+            f"{decision.get('revision_id')}"
+        )
+    path = str(relative_path(decision.get("path")))
+    if path not in change["paths"]:
+        raise ValueError(f"Review decision path is outside {change['id']}: {path}")
+    scope = decision.get("scope")
+    hunk = decision.get("hunk")
+    key = decision_key(decision["revision_id"], path, scope, hunk)
+    if key in seen_targets:
+        raise ValueError(f"Duplicate review decision target: {path} ({scope})")
+    seen_targets.add(key)
+    if decision.get("status") not in REVIEW_STATUSES:
+        raise ValueError(f"Unknown review decision status: {decision.get('status')}")
+    if decision.get("author") not in ("user", "agent"):
+        raise ValueError(
+            f"Unknown review decision author: {decision.get('author')}"
+        )
+    reason = require_text(
+        decision.get("reason", ""), "Review decision reason", allow_empty=True
+    )
+    if decision["status"] == "excluded" and not reason.strip():
+        raise ValueError("Excluded review items need a reason")
+    require_text(decision.get("created_at"), "Review decision created_at")
+    require_text(decision.get("updated_at"), "Review decision updated_at")
 
 
 def validate_state(state):
@@ -363,6 +488,7 @@ def validate_state(state):
         raise TypeError("The review record needs a 'changes' list")
     seen_changes = set()
     seen_annotations = set()
+    seen_decisions = set()
     for change in changes:
         if not isinstance(change, dict):
             raise TypeError("Each change must be an object")
@@ -408,6 +534,18 @@ def validate_state(state):
             raise TypeError(f"Change {change_id} needs an annotations list")
         for note in annotations:
             validate_annotation(change, note, seen_annotations, revision_ids)
+        decisions = change.get("decisions")
+        if not isinstance(decisions, list):
+            raise TypeError(f"Change {change_id} needs a decisions list")
+        seen_targets = set()
+        for decision in decisions:
+            validate_decision(
+                change,
+                decision,
+                seen_decisions,
+                revision_ids,
+                seen_targets,
+            )
     return state
 
 
@@ -415,7 +553,9 @@ def load(path):
     state = json.loads(path.read_text(encoding="utf-8"))
     state = migrate_legacy(state)
     state = migrate_annotations(state)
+    state = migrate_review_items(state)
     state = migrate_refs(state)
+    state = migrate_deliveries(state)
     return validate_state(state)
 
 
@@ -476,7 +616,14 @@ def find_annotation(change, annotation_id):
 
 
 def is_actionable(note):
-    return note["author"] == "user" and note["kind"] in ACTIONABLE_KINDS
+    if note["author"] == "user" and note["kind"] in ACTIONABLE_KINDS:
+        return True
+    return any(
+        reply.get("author") == "user"
+        and reply.get("delivery", {}).get("state")
+        in ("queued", "delivered", "processing", "failed")
+        for reply in note.get("replies", [])
+    )
 
 
 def open_feedback(change):
@@ -558,6 +705,8 @@ def add_annotation(
         "created_at": stamp,
         "updated_at": stamp,
     }
+    if author == "user" and kind in ACTIONABLE_KINDS:
+        note["delivery"] = new_delivery()
     change["annotations"].append(note)
     if (
         author == "user"
@@ -574,14 +723,19 @@ def reply_to_annotation(change, note, *, author, body, resolve=False):
         raise ValueError(f"Unknown reply author: {author}")
     require_text(body, "Reply body")
     stamp = now()
-    note["replies"].append(
-        {
-            "id": new_id("m"),
-            "author": author,
-            "body": body,
-            "created_at": stamp,
-        }
-    )
+    reply = {
+        "id": new_id("m"),
+        "author": author,
+        "body": body,
+        "created_at": stamp,
+    }
+    if author == "user":
+        reply["delivery"] = new_delivery()
+    note["replies"].append(reply)
+    if author == "user" and not resolve:
+        note["status"] = "open"
+    elif author == "agent":
+        answer_deliveries(note)
     if resolve:
         note["status"] = "resolved"
     note["updated_at"] = stamp
@@ -591,7 +745,190 @@ def reply_to_annotation(change, note, *, author, body, resolve=False):
         and not open_feedback(change)
     ):
         change["status"] = "reviewing"
+    elif (
+        author == "user"
+        and not resolve
+        and change["status"] != "superseded"
+    ):
+        change["status"] = "feedback"
     touch(change)
+    return reply
+
+
+def delivery_records(note):
+    records = []
+    if "delivery" in note:
+        records.append(note["delivery"])
+    for reply in note.get("replies", []):
+        if "delivery" in reply:
+            records.append(reply["delivery"])
+    return records
+
+
+def latest_delivery(note):
+    records = delivery_records(note)
+    return max(
+        records,
+        key=lambda item: (item.get("queued_at", ""), item.get("id", "")),
+        default=None,
+    )
+
+
+def answer_deliveries(note):
+    stamp = now()
+    for delivery in delivery_records(note):
+        if delivery["state"] != "answered":
+            delivery["state"] = "answered"
+            delivery["answered_at"] = stamp
+            delivery["error"] = ""
+
+
+def processing_is_stale(delivery, after_seconds):
+    if not after_seconds:
+        return False
+    try:
+        claimed = datetime.fromisoformat(
+            delivery.get("claimed_at", "").replace("Z", "+00:00")
+        )
+    except ValueError:
+        return False
+    return (datetime.now(timezone.utc) - claimed).total_seconds() >= after_seconds
+
+
+def pending_delivery_events(
+    note, *, claim_processing=False, retry_processing_after=3600
+):
+    events = []
+
+    def eligible(delivery):
+        if delivery.get("state") in ("queued", "delivered", "failed"):
+            return True
+        return delivery.get("state") == "processing" and (
+            claim_processing
+            and (
+                not retry_processing_after
+                or processing_is_stale(delivery, retry_processing_after)
+            )
+        )
+
+    if (
+        note.get("author") == "user"
+        and note.get("kind") in ACTIONABLE_KINDS
+        and note.get("status") == "open"
+        and eligible(note.get("delivery", {}))
+    ):
+        events.append(
+            {
+                "delivery": note["delivery"],
+                "body": note["body"],
+                "note_body": note["body"],
+                "reply_id": "",
+            }
+        )
+    for reply in note.get("replies", []):
+        delivery = reply.get("delivery")
+        if (
+            reply.get("author") == "user"
+            and delivery
+            and eligible(delivery)
+        ):
+            events.append(
+                {
+                    "delivery": delivery,
+                    "body": reply["body"],
+                    "note_body": note["body"],
+                    "reply_id": reply["id"],
+                }
+            )
+    return events
+
+
+def pending_events_for_note(note):
+    return [
+        {
+            "id": event["delivery"]["id"],
+            "state": event["delivery"]["state"],
+        }
+        for event in pending_delivery_events(note)
+    ]
+
+
+def feedback_event(change, note, event):
+    delivery = event["delivery"]
+    return {
+        "id": delivery["id"],
+        "change": change["id"],
+        "change_title": change["title"],
+        "annotation": note["id"],
+        "reply": event["reply_id"],
+        "kind": note["kind"],
+        "revision": note["revision_id"],
+        "path": note.get("path") or "",
+        "side": note.get("side", "file"),
+        "start_line": note.get("start_line"),
+        "end_line": note.get("end_line"),
+        "body": event["body"],
+        "note_body": event["note_body"],
+        "suggestion": note.get("suggestion", ""),
+        "queued_at": delivery["queued_at"],
+    }
+
+
+def claim_feedback(state, *, retry_processing=False, retry_processing_after=3600):
+    claimed = []
+    stamp = now()
+    for change in state["changes"]:
+        for note in change["annotations"]:
+            for event in pending_delivery_events(
+                note,
+                claim_processing=True,
+                retry_processing_after=(
+                    0 if retry_processing else retry_processing_after
+                ),
+            ):
+                delivery = event["delivery"]
+                delivery["state"] = "processing"
+                delivery["claimed_at"] = stamp
+                delivery["attempts"] += 1
+                delivery["error"] = ""
+                claimed.append(feedback_event(change, note, event))
+                touch(change)
+    claimed.sort(key=lambda item: (item["queued_at"], item["id"]))
+    return claimed
+
+
+def set_delivery_states(state, event_ids, status, error=""):
+    wanted = set(event_ids)
+    if not wanted:
+        return 0
+    stamp = now()
+    changed = 0
+    for change in state["changes"]:
+        change_changed = False
+        for note in change["annotations"]:
+            for delivery in delivery_records(note):
+                if delivery["id"] not in wanted:
+                    continue
+                delivery["state"] = status
+                delivery["error"] = error
+                if status == "delivered":
+                    delivery["delivered_at"] = stamp
+                elif status == "answered":
+                    delivery["answered_at"] = stamp
+                changed += 1
+                change_changed = True
+        if change_changed:
+            touch(change)
+    return changed
+
+
+def has_waiting_delivery(state):
+    return any(
+        delivery["state"] == "delivered"
+        for change in state["changes"]
+        for note in change["annotations"]
+        for delivery in delivery_records(note)
+    )
 
 
 def add_change(
@@ -635,6 +972,7 @@ def add_change(
             }
         ],
         "annotations": [],
+        "decisions": [],
         "created_at": stamp,
         "updated_at": stamp,
     }
@@ -683,6 +1021,77 @@ def set_status(change, status):
     touch(change)
 
 
+def find_review_decision(change, revision_id, path, scope, hunk=None):
+    key = decision_key(revision_id, path, scope, hunk)
+    for decision in change["decisions"]:
+        if (
+            decision_key(
+                decision["revision_id"],
+                decision["path"],
+                decision["scope"],
+                decision.get("hunk"),
+            )
+            == key
+        ):
+            return decision
+    return None
+
+
+def set_review_decision(
+    change,
+    *,
+    revision_id,
+    path,
+    scope,
+    hunk,
+    status,
+    author,
+    reason="",
+):
+    if status not in REVIEW_STATUSES:
+        raise ValueError(f"Unknown review decision status: {status}")
+    if author not in ("user", "agent"):
+        raise ValueError(f"Unknown review decision author: {author}")
+    path = str(relative_path(path))
+    if path not in change["paths"]:
+        raise ValueError(f"Review decision path is outside this change: {path}")
+    if revision_id not in {revision["id"] for revision in change["revisions"]}:
+        raise ValueError(f"Unknown revision for review decision: {revision_id}")
+    reason = require_text(reason, "Review decision reason", allow_empty=True)
+    if status == "excluded" and not reason.strip():
+        raise ValueError("Excluded review items need a reason")
+    hunk = validate_hunk(hunk) if scope == "hunk" else None
+    if scope == "file" and hunk is not None:
+        raise ValueError("File review decisions cannot contain hunk coordinates")
+    decision = find_review_decision(change, revision_id, path, scope, hunk)
+    stamp = now()
+    if decision is None:
+        decision = {
+            "id": new_id("d"),
+            "revision_id": revision_id,
+            "path": path,
+            "scope": scope,
+            "hunk": hunk,
+            "status": status,
+            "author": author,
+            "reason": reason,
+            "created_at": stamp,
+            "updated_at": stamp,
+        }
+        change["decisions"].append(decision)
+    else:
+        decision.update(
+            {
+                "status": status,
+                "author": author,
+                "reason": reason,
+                "updated_at": stamp,
+            }
+        )
+    touch(change)
+    return decision
+
+
 def show(state, selected=None):
     changes = state["changes"]
     accepted = sum(change["status"] == "accepted" for change in changes)
@@ -725,6 +1134,27 @@ def show(state, selected=None):
             print(f"Why: {change['rationale']}")
         if change.get("superseded_by"):
             print(f"Superseded by: {change['superseded_by']}")
+        latest_revision_id = revision["id"]
+        decisions = [
+            decision
+            for decision in change.get("decisions", [])
+            if decision["revision_id"] == latest_revision_id
+        ]
+        if decisions:
+            print(f"Review decisions for {latest_revision_id}:")
+            for decision in decisions:
+                location = decision["path"]
+                if decision["scope"] == "hunk":
+                    hunk = decision["hunk"]
+                    location += (
+                        f":{hunk['old_start']},{hunk['old_count']}"
+                        f"->{hunk['new_start']},{hunk['new_count']}"
+                    )
+                reason = f" - {decision['reason']}" if decision["reason"] else ""
+                print(
+                    f"  [{decision['status']}] {decision['author']} "
+                    f"{location}{reason}"
+                )
         for note in change["annotations"]:
             location = "file"
             if note["side"] != "file":
@@ -737,6 +1167,9 @@ def show(state, selected=None):
                 f"{note['author']}/{note['kind']} @ {note['revision_id']} "
                 f"{location}"
             )
+            delivery = latest_delivery(note)
+            if delivery:
+                print(f"    Delivery: {delivery['state']} ({delivery['id']})")
             print(f"    {note['body']}")
             if note["suggestion"]:
                 print("    Suggestion: " + note["suggestion"].replace("\n", "\n      "))
@@ -825,6 +1258,21 @@ def parser():
     resolve.add_argument("--annotation", required=True)
     resolve.add_argument("--status", choices=ANNOTATION_STATUSES, required=True)
 
+    item = commands.add_parser(
+        "item", help="Accept, exclude, or reopen a file or changed block"
+    )
+    item.add_argument("--state", required=True)
+    item.add_argument("--change", required=True)
+    item.add_argument("--revision")
+    item.add_argument("--path", required=True)
+    item.add_argument("--scope", choices=REVIEW_SCOPES, default="file")
+    item.add_argument("--old-start", type=int)
+    item.add_argument("--old-count", type=int)
+    item.add_argument("--new-start", type=int)
+    item.add_argument("--new-count", type=int)
+    item.add_argument("--status", choices=REVIEW_STATUSES, required=True)
+    item.add_argument("--reason", default="")
+
     overview = commands.add_parser("overview", help="Set the cross-change overview")
     overview.add_argument("--state", required=True)
     overview.add_argument("--text", required=True)
@@ -834,10 +1282,42 @@ def parser():
     show_parser.add_argument("--change")
     show_parser.add_argument("--json", action="store_true")
 
+    items = commands.add_parser(
+        "items", help="List reviewable files and changed blocks"
+    )
+    items.add_argument("--state", required=True)
+    items.add_argument("--change")
+    items.add_argument("--revision")
+    items.add_argument("--all", action="store_true")
+    items.add_argument("--json", action="store_true")
+
     inbox = commands.add_parser(
         "inbox", help="Show actionable feedback that still needs an answer"
     )
     inbox.add_argument("--state", required=True)
+    inbox.add_argument(
+        "--claim",
+        action="store_true",
+        help="Atomically mark pending feedback as processing for this Agent turn",
+    )
+    inbox.add_argument(
+        "--retry-processing",
+        action="store_true",
+        help="Reclaim events left in processing by an interrupted Agent turn",
+    )
+    inbox.add_argument("--json", action="store_true")
+
+    listen = commands.add_parser(
+        "listen", help="Inspect or change the Agent feedback bridge"
+    )
+    listen.add_argument("--state", required=True)
+    listen.add_argument(
+        "--action", choices=("status", "resume", "pause"), default="status"
+    )
+    listen.add_argument("--thread-id", default=os.environ.get("CODEX_THREAD_ID", ""))
+    listen.add_argument("--automation-id", default="")
+    listen.add_argument("--automation-name", default="")
+    listen.add_argument("--json", action="store_true")
 
     serve = commands.add_parser("serve", help="Run the review frontend")
     serve.add_argument("--state", required=True)
@@ -862,30 +1342,120 @@ def run(args):
         else:
             show(state, find_change(state, args.change) if args.change else None)
         return
-    if args.command == "inbox":
+    if args.command == "items":
+        import review_server
+
         state = load(path)
-        pending = []
-        for change in state["changes"]:
-            for note in open_feedback(change):
-                pending.append((change, note))
-        print(f"Open actionable feedback: {len(pending)}")
-        for change, note in pending:
-            location = "change"
-            if note["side"] != "file":
-                location = (
-                    f"{note['path']}:{note['start_line']}-{note['end_line']} "
-                    f"({note['side']})"
-                )
-            elif note.get("path"):
-                location = note["path"]
-            print(
-                f"\n{change['id']} [{change['status']}] {change['title']}\n"
-                f"  {note['id']} {note['kind']} @ {note['revision_id']} {location}\n"
-                f"  {note['body']}"
+        changes = (
+            [find_change(state, args.change)]
+            if args.change
+            else state["changes"]
+        )
+        payload = [
+            review_server.review_items_for_change(
+                Path.cwd(),
+                change,
+                revision_id=args.revision,
+                pending_only=not args.all,
             )
-            if note["suggestion"]:
+            for change in changes
+        ]
+        if args.json:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+            return
+        for change_items in payload:
+            summary = change_items["summary"]
+            print(
+                f"\n{change_items['change']} [{change_items['change_status']}] "
+                f"@ {change_items['revision']} - {change_items['title']}"
+            )
+            print(
+                f"  pending items: {summary['pending']}; "
+                f"pending files: {summary['pending_files']}; "
+                f"excluded: {summary['excluded_items']}"
+            )
+            for item in change_items["items"]:
+                hunk = item["hunk"]
+                location = item["path"]
+                if hunk:
+                    location += (
+                        f":{hunk['old_start']},{hunk['old_count']}"
+                        f"->{hunk['new_start']},{hunk['new_count']}"
+                    )
+                print(f"  [{item['status']}] {item['scope']} {location}")
+        return
+    if args.command == "inbox":
+        import review_listener
+
+        listener = review_listener.load(path)
+        if args.claim and listener["status"] == "paused":
+            raise ValueError(
+                "The review listener is paused; wait until the user resumes it "
+                "from the Agent"
+            )
+        if args.claim:
+            with locked_state(path) as state:
+                events = claim_feedback(
+                    state, retry_processing=args.retry_processing
+                )
+            review_listener.claimed(path)
+        else:
+            state = load(path)
+            events = []
+            for change in state["changes"]:
+                for note in change["annotations"]:
+                    for event in pending_delivery_events(note):
+                        events.append(feedback_event(change, note, event))
+            events.sort(key=lambda item: (item["queued_at"], item["id"]))
+        if args.json:
+            print(json.dumps(events, ensure_ascii=False, indent=2))
+            return
+        print(f"Pending feedback events: {len(events)}")
+        for event in events:
+            location = "change"
+            if event["side"] != "file":
+                location = (
+                    f"{event['path']}:{event['start_line']}-{event['end_line']} "
+                    f"({event['side']})"
+                )
+            elif event["path"]:
+                location = event["path"]
+            print(
+                f"\n{event['id']} {event['change']} [{event['kind']}] "
+                f"{event['annotation']} @ {event['revision']} {location}\n"
+                f"  {event['body']}"
+            )
+            if event["reply"] and event["note_body"] != event["body"]:
+                print("  In reply to:")
+                print("    " + event["note_body"].replace("\n", "\n    "))
+            if event["suggestion"]:
                 print("  Suggestion:")
-                print("    " + note["suggestion"].replace("\n", "\n    "))
+                print("    " + event["suggestion"].replace("\n", "\n    "))
+        return
+    if args.command == "listen":
+        import review_listener
+
+        if args.action == "resume":
+            listener = review_listener.configure(
+                path,
+                thread_id=args.thread_id,
+                automation_id=args.automation_id,
+                automation_name=args.automation_name,
+            )
+        elif args.action == "pause":
+            listener = review_listener.stop(path, "Paused by the Agent")
+        else:
+            listener = review_listener.load(path)
+        if args.json:
+            print(json.dumps(listener, ensure_ascii=False, indent=2))
+        else:
+            print(
+                f"Listener: {listener['status']} -> {listener['thread_id'] or 'no thread'}"
+            )
+            if listener["automation_id"]:
+                print(f"Automation: {listener['automation_id']}")
+            if listener["last_error"]:
+                print(f"Last error: {listener['last_error']}")
         return
     if args.command == "init":
         base = resolve_git_commit(args.base)
@@ -998,6 +1568,8 @@ def run(args):
             note = find_annotation(selected, args.annotation)
             note["status"] = args.status
             note["updated_at"] = now()
+            if args.status != "open":
+                answer_deliveries(note)
             if (
                 args.status != "open"
                 and selected["status"] not in ("accepted", "superseded")
@@ -1005,6 +1577,42 @@ def run(args):
             ):
                 selected["status"] = "reviewing"
             touch(selected)
+        elif args.command == "item":
+            import review_server
+
+            selected = find_change(state, args.change)
+            revision_id = args.revision or selected["revisions"][-1]["id"]
+            hunk = None
+            if args.scope == "hunk":
+                coordinates = (
+                    args.old_start,
+                    args.old_count,
+                    args.new_start,
+                    args.new_count,
+                )
+                if any(value is None for value in coordinates):
+                    raise ValueError(
+                        "--old-start, --old-count, --new-start, and --new-count "
+                        "are required for a hunk decision"
+                    )
+                hunk = {
+                    "old_start": args.old_start,
+                    "old_count": args.old_count,
+                    "new_start": args.new_start,
+                    "new_count": args.new_count,
+                }
+            review_server.record_review_decision(
+                Path.cwd(),
+                state,
+                selected,
+                revision_id=revision_id,
+                path=args.path,
+                scope=args.scope,
+                hunk=hunk,
+                status=args.status,
+                author="agent",
+                reason=args.reason,
+            )
         elif args.command == "overview":
             state["overview"] = args.text
             selected = None

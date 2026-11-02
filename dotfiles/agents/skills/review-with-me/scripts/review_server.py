@@ -10,18 +10,21 @@ import secrets
 import subprocess
 import sys
 import tempfile
+import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 import review_state
+import review_listener
 
 
 WEB_ROOT = Path(__file__).with_name("web")
 MAX_BODY = 1_000_000
 MAX_FILE_BYTES = 4_000_000
 WORKTREE = "WORKTREE"
+WAKE_LOCK = threading.Lock()
 
 
 class ReviewError(Exception):
@@ -216,6 +219,292 @@ def build_diff(repo, base, head, paths):
     }
 
 
+def revision_for(change, revision_id=None):
+    if revision_id is None:
+        return change["revisions"][-1]
+    revision = next(
+        (item for item in change["revisions"] if item["id"] == revision_id),
+        None,
+    )
+    if revision is None:
+        raise ReviewError(f"Unknown revision: {revision_id}")
+    return revision
+
+
+def hunk_coordinates(hunk):
+    return {
+        "old_start": hunk["old_start"],
+        "old_count": hunk["old_count"],
+        "new_start": hunk["new_start"],
+        "new_count": hunk["new_count"],
+    }
+
+
+def decision_index(change):
+    def coordinates(hunk):
+        if not hunk:
+            return None
+        return (
+            hunk["old_start"],
+            hunk["old_count"],
+            hunk["new_start"],
+            hunk["new_count"],
+        )
+
+    return {
+        (
+            decision["revision_id"],
+            decision["path"],
+            decision["scope"],
+            coordinates(decision.get("hunk")),
+        ): decision
+        for decision in change.get("decisions", [])
+    }
+
+
+def decision_for(index, revision_id, path, scope, hunk=None):
+    coordinates = (
+        (
+            hunk["old_start"],
+            hunk["old_count"],
+            hunk["new_start"],
+            hunk["new_count"],
+        )
+        if hunk
+        else None
+    )
+    return index.get((revision_id, path, scope, coordinates))
+
+
+def review_summary_for_change(repo, change, *, revision_id=None, payload=None):
+    revision = revision_for(change, revision_id)
+    payload = payload or build_diff(
+        repo,
+        revision["base"],
+        revision["head"],
+        revision["paths"],
+    )
+    index = decision_index(change)
+    files = []
+    pending = 0
+    pending_files = 0
+    user_accepted = False
+    terminal_items = 0
+    excluded_items = 0
+    for file in payload["files"]:
+        path = file["path"]
+        file_decision = decision_for(
+            index, revision["id"], path, "file"
+        )
+        if file_decision and file_decision["status"] in (
+            "accepted",
+            "excluded",
+        ):
+            status = file_decision["status"]
+            file_pending = 0
+            terminal_items += 1
+            excluded_items += status == "excluded"
+            user_accepted = user_accepted or (
+                status == "accepted" and file_decision["author"] == "user"
+            )
+        elif not file["hunks"]:
+            status = "pending"
+            file_pending = 1
+            pending += file_pending
+            pending_files += 1
+        else:
+            hunk_pending = 0
+            hunk_accepted = 0
+            hunk_excluded = 0
+            for hunk in file["hunks"]:
+                decision = decision_for(
+                    index,
+                    revision["id"],
+                    path,
+                    "hunk",
+                    hunk,
+                )
+                if not decision or decision["status"] == "pending":
+                    hunk_pending += 1
+                    continue
+                terminal_items += 1
+                if decision["status"] == "excluded":
+                    hunk_excluded += 1
+                    excluded_items += 1
+                else:
+                    hunk_accepted += 1
+                    user_accepted = user_accepted or decision["author"] == "user"
+            file_pending = hunk_pending
+            pending += hunk_pending
+            if hunk_pending:
+                pending_files += 1
+            if not hunk_pending and hunk_excluded and not hunk_accepted:
+                status = "excluded"
+            elif not hunk_pending:
+                status = "accepted"
+            else:
+                status = "pending"
+        files.append(
+            {
+                "path": path,
+                "old_path": file["old_path"],
+                "status": status,
+                "pending": file_pending,
+            }
+        )
+    return {
+        "revision_id": revision["id"],
+        "pending": pending,
+        "pending_files": pending_files,
+        "terminal_items": terminal_items,
+        "excluded_items": excluded_items,
+        "user_accepted": user_accepted,
+        "complete": pending == 0,
+        "files": files,
+    }
+
+
+def review_items_for_change(repo, change, *, revision_id=None, pending_only=False):
+    revision = revision_for(change, revision_id)
+    payload = build_diff(
+        repo,
+        revision["base"],
+        revision["head"],
+        revision["paths"],
+    )
+    index = decision_index(change)
+    items = []
+    for file in payload["files"]:
+        file_decision = decision_for(
+            index, revision["id"], file["path"], "file"
+        )
+        if file_decision and file_decision["status"] != "pending":
+            items.append(
+                {
+                    "path": file["path"],
+                    "scope": "file",
+                    "hunk": None,
+                    "status": file_decision["status"],
+                    "decision": file_decision,
+                }
+            )
+            continue
+        if not file["hunks"]:
+            items.append(
+                {
+                    "path": file["path"],
+                    "scope": "file",
+                    "hunk": None,
+                    "status": "pending",
+                    "decision": file_decision,
+                }
+            )
+            continue
+        for hunk in file["hunks"]:
+            decision = decision_for(
+                index,
+                revision["id"],
+                file["path"],
+                "hunk",
+                hunk,
+            )
+            items.append(
+                {
+                    "path": file["path"],
+                    "scope": "hunk",
+                    "hunk": hunk_coordinates(hunk),
+                    "status": decision["status"] if decision else "pending",
+                    "decision": decision,
+                }
+            )
+    if pending_only:
+        items = [item for item in items if item["status"] == "pending"]
+    return {
+        "change": change["id"],
+        "title": change["title"],
+        "change_status": change["status"],
+        "revision": revision["id"],
+        "summary": review_summary_for_change(
+            repo,
+            change,
+            revision_id=revision["id"],
+            payload=payload,
+        ),
+        "items": items,
+    }
+
+
+def record_review_decision(
+    repo,
+    state,
+    change,
+    *,
+    revision_id,
+    path,
+    scope,
+    hunk,
+    status,
+    author,
+    reason="",
+):
+    revision = revision_for(change, revision_id)
+    payload = build_diff(
+        repo,
+        revision["base"],
+        revision["head"],
+        revision["paths"],
+    )
+    file = next(
+        (
+            item
+            for item in payload["files"]
+            if item["path"] == path or item["old_path"] == path
+        ),
+        None,
+    )
+    if file is None:
+        raise ReviewError(f"The revision does not contain a changed file: {path}")
+    if scope == "hunk":
+        if hunk is None:
+            raise ReviewError("A hunk decision needs coordinates")
+        hunk = review_state.validate_hunk(hunk)
+        if not any(item == hunk_coordinates(hunk) for item in file["hunks"]):
+            raise ReviewError(
+                f"The selected hunk is not present in {file['path']} "
+                f"for revision {revision['id']}"
+            )
+    decision = review_state.set_review_decision(
+        change,
+        revision_id=revision["id"],
+        path=file["path"],
+        scope=scope,
+        hunk=hunk,
+        status=status,
+        author=author,
+        reason=reason,
+    )
+    summary = review_summary_for_change(
+        repo,
+        change,
+        revision_id=revision["id"],
+        payload=payload,
+    )
+    is_latest = revision["id"] == change["revisions"][-1]["id"]
+    if change["status"] != "superseded" and is_latest:
+        if status == "pending" and change["status"] == "accepted":
+            change["status"] = "revisit"
+        elif (
+            not review_state.open_feedback(change)
+            and summary["complete"]
+            and summary["user_accepted"]
+        ):
+            change["status"] = "accepted"
+        elif status != "pending" and change["status"] == "unreviewed":
+            change["status"] = "reviewing"
+    review_state.touch(change)
+    return decision, summary
+
+
 def is_review_artifact(path, state_relative):
     return (
         path == ".review"
@@ -308,6 +597,53 @@ def runtime_for(repo, state_path, state):
 def index_html(token):
     source = (WEB_ROOT / "index.html").read_text(encoding="utf-8")
     return source.replace("__REVIEW_TOKEN__", token)
+
+
+def deliver_feedback(repo, review_path, note):
+    events = review_state.pending_events_for_note(note)
+    if not events:
+        return {"state": "none", "event_ids": []}
+    # Keep the "is a wake already pending?" check and the queue call in one
+    # serialized section. Otherwise two concurrent annotations can both decide
+    # to wake the same Agent thread.
+    with WAKE_LOCK:
+        listener = review_listener.load(review_path)
+        if listener["status"] not in ("listening", "degraded"):
+            return {
+                "state": "paused" if listener["status"] == "paused" else "queued",
+                "event_ids": [event["id"] for event in events],
+            }
+        event_ids = [event["id"] for event in events]
+        with review_state.locked_state(review_path) as state:
+            if review_state.has_waiting_delivery(state):
+                review_state.set_delivery_states(state, event_ids, "delivered")
+                already_waiting = True
+            else:
+                already_waiting = False
+        if already_waiting:
+            review_listener.delivered(review_path, event_ids[-1])
+            return {"state": "delivered", "event_ids": event_ids}
+        message = review_listener.wake_message(
+            review_path=review_path.relative_to(repo),
+            state_tool=Path(review_state.__file__).resolve(),
+        )
+        try:
+            review_listener.queue_thread(listener["thread_id"], message, repo)
+        except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
+            with review_state.locked_state(review_path) as state:
+                review_state.set_delivery_states(
+                    state, event_ids, "failed", str(error)
+                )
+            review_listener.fail(review_path, str(error))
+            return {
+                "state": "failed",
+                "event_ids": event_ids,
+                "error": str(error),
+            }
+        with review_state.locked_state(review_path) as state:
+            review_state.set_delivery_states(state, event_ids, "delivered")
+        review_listener.delivered(review_path, event_ids[-1])
+        return {"state": "delivered", "event_ids": event_ids}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -407,10 +743,28 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if parsed.path == "/api/state":
                 state = review_state.load(self.review_path)
+                for change in state["changes"]:
+                    try:
+                        change["review"] = review_summary_for_change(
+                            self.repo, change
+                        )
+                    except (OSError, ReviewError, TypeError, ValueError) as error:
+                        change["review"] = {
+                            "revision_id": change["revisions"][-1]["id"],
+                            "pending": 0,
+                            "pending_files": 0,
+                            "terminal_items": 0,
+                            "excluded_items": 0,
+                            "user_accepted": False,
+                            "complete": False,
+                            "error": str(error),
+                            "files": [],
+                        }
                 self.send_json(
                     {
                         "state": state,
                         "runtime": runtime_for(self.repo, self.review_path, state),
+                        "listener": review_listener.load(self.review_path),
                     }
                 )
                 return
@@ -487,8 +841,21 @@ class Handler(BaseHTTPRequestHandler):
             if parsed.path == "/api/status":
                 self.update_status(body)
                 return
+            if parsed.path == "/api/review-item":
+                self.update_review_item(body)
+                return
             if parsed.path == "/api/adopt":
                 self.adopt_path(body)
+                return
+            if parsed.path == "/api/listener/stop":
+                self.send_json(
+                    {
+                        "listener": review_listener.stop(
+                            self.review_path,
+                            body.get("reason") or "Stopped from the review UI",
+                        )
+                    }
+                )
                 return
             self.send_error_json("Not found", HTTPStatus.NOT_FOUND)
         except (OSError, TypeError, ValueError, ReviewError) as error:
@@ -527,7 +894,14 @@ class Handler(BaseHTTPRequestHandler):
                 excerpt=excerpt,
                 suggestion=suggestion,
             )
-        self.send_json({"annotation": note})
+        delivery = deliver_feedback(self.repo, self.review_path, note)
+        self.send_json(
+            {
+                "annotation": note,
+                "delivery": delivery,
+                "listener": review_listener.load(self.review_path),
+            }
+        )
 
     def update_annotation(self, annotation_id, body):
         action = body.get("action", "status")
@@ -551,6 +925,8 @@ class Handler(BaseHTTPRequestHandler):
                     raise ReviewError(f"Unknown annotation status: {status}")
                 note["status"] = status
                 note["updated_at"] = review_state.now()
+                if status != "open":
+                    review_state.answer_deliveries(note)
                 if (
                     status != "open"
                     and change["status"] not in ("accepted", "superseded")
@@ -560,13 +936,58 @@ class Handler(BaseHTTPRequestHandler):
                 review_state.touch(change)
             else:
                 raise ReviewError(f"Unknown annotation action: {action}")
-        self.send_json({"ok": True})
+        delivery = (
+            deliver_feedback(self.repo, self.review_path, note)
+            if action == "reply"
+            else {"state": "none", "event_ids": []}
+        )
+        self.send_json(
+            {
+                "ok": True,
+                "delivery": delivery,
+                "listener": review_listener.load(self.review_path),
+            }
+        )
 
     def update_status(self, body):
         with review_state.locked_state(self.review_path) as state:
             change = review_state.find_change(state, body.get("change", ""))
             review_state.set_status(change, body.get("status", ""))
         self.send_json({"ok": True})
+
+    def update_review_item(self, body):
+        scope = body.get("scope", "file")
+        if scope not in review_state.REVIEW_SCOPES:
+            raise ReviewError(f"Unknown review scope: {scope}")
+        status = body.get("status", "accepted")
+        if status not in review_state.REVIEW_STATUSES:
+            raise ReviewError(f"Unknown review item status: {status}")
+        reason = body.get("reason", "")
+        if not isinstance(reason, str) or len(reason) > 20_000:
+            raise ReviewError("Review item reason is invalid or too long")
+        path = review_state.require_text(body.get("path"), "Path")
+        hunk = body.get("hunk")
+        with review_state.locked_state(self.review_path) as state:
+            change = review_state.find_change(state, body.get("change", ""))
+            decision, summary = record_review_decision(
+                self.repo,
+                state,
+                change,
+                revision_id=body.get("revision"),
+                path=path,
+                scope=scope,
+                hunk=hunk,
+                status=status,
+                author="user",
+                reason=reason,
+            )
+        self.send_json(
+            {
+                "decision": decision,
+                "review": summary,
+                "change_status": change["status"],
+            }
+        )
 
     def adopt_path(self, body):
         path = review_state.require_text(body.get("path"), "Path")
@@ -632,11 +1053,17 @@ def serve(state_path, host="127.0.0.1", port=0):
     if not review_path.is_relative_to(repo):
         raise ValueError("The review record must stay inside the workspace")
     review_state.prepare_state(review_path)
+    listener = review_listener.load(review_path)
+    if listener["status"] == "unconfigured" and listener["thread_id"]:
+        listener = review_listener.configure(
+            review_path, thread_id=listener["thread_id"]
+        )
     token = secrets.token_urlsafe(24)
     server = ReviewHTTPServer((host, port), repo, review_path, token)
     actual_port = server.server_address[1]
     print(f"Review frontend: http://{host}:{actual_port}")
     print(f"State: {review_path.relative_to(repo)}")
+    print(f"Listener: {listener['status']}")
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()

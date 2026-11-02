@@ -1,6 +1,6 @@
 interface:
   display_name: "Review With Me"
-  short_description: "Review AI changes with stable diffs and inline feedback"
-  default_prompt: "Use $review-with-me to organize these AI-generated changes into semantic review units, preserve each reviewed state, answer my feedback, automatically start and verify the local diff frontend, and give me its working URL. Never ask me to run the server myself."
+  short_description: "Review AI changes with stable diffs and live Agent feedback"
+  default_prompt: "Use $review-with-me to organize these AI-generated changes into semantic review units, preserve each reviewed state, connect the local review UI to this Agent with live feedback delivery and a fallback heartbeat, automatically start and verify the frontend, and give me its working URL. Never ask me to run or restart the server myself. After I stop listening, do not resume it until I explicitly ask you to."
 policy:
   allow_implicit_invocation: true

@@ -1,13 +1,16 @@
 import contextlib
+import concurrent.futures
 import io
 import json
 import os
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 
 SCRIPTS = Path(__file__).resolve().parents[1]
@@ -15,6 +18,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 import review_server
 import review_state
+import review_listener
 
 
 @contextlib.contextmanager
@@ -387,6 +391,7 @@ class ReviewStateTest(unittest.TestCase):
         migrated = review_state.migrate_annotations(
             review_state.migrate_legacy(legacy)
         )
+        migrated = review_state.migrate_review_items(migrated)
         review_state.validate_state(migrated)
         change = migrated["changes"][0]
         self.assertEqual(change["status"], "reviewing")
@@ -424,6 +429,648 @@ class ReviewStateTest(unittest.TestCase):
             first["changes"][0]["annotations"][0]["id"],
             second["changes"][0]["annotations"][0]["id"],
         )
+
+    def test_v2_record_migrates_to_review_decisions(self):
+        state_path = self.repo / ".review/v2.json"
+        state = self.state()
+        state["version"] = 2
+        change = self.add_change(state)
+        change.pop("decisions")
+        state_path.parent.mkdir()
+        state_path.write_text(
+            json.dumps(state),
+            encoding="utf-8",
+        )
+
+        migrated = review_state.load(state_path)
+
+        self.assertEqual(migrated["version"], review_state.SCHEMA_VERSION)
+        self.assertEqual(migrated["changes"][0]["decisions"], [])
+
+    def test_file_acceptance_completes_the_revision(self):
+        (self.repo / "file.txt").write_text(
+            "first\nsecond\nthird\n",
+            encoding="utf-8",
+        )
+        with working_directory(self.repo):
+            head = review_state.require_worktree_snapshot()
+        state = self.state()
+        change = review_state.add_change(
+            state,
+            change_id="file-change",
+            title="Change file",
+            paths=["file.txt"],
+            summary="The file changes.",
+            rationale="The behavior needs review.",
+            base=self.base,
+            head=head,
+        )
+
+        decision, summary = review_server.record_review_decision(
+            self.repo,
+            state,
+            change,
+            revision_id="r1",
+            path="file.txt",
+            scope="file",
+            hunk=None,
+            status="accepted",
+            author="user",
+        )
+
+        self.assertEqual(decision["scope"], "file")
+        self.assertEqual(summary["pending"], 0)
+        self.assertTrue(summary["user_accepted"])
+        self.assertEqual(change["status"], "accepted")
+
+    def test_each_hunk_can_be_accepted_without_accepting_the_file(self):
+        original = "".join(f"line {index}\n" for index in range(1, 21))
+        changed = original.replace("line 2\n", "line two\n").replace(
+            "line 18\n", "line eighteen\n"
+        )
+        (self.repo / "file.txt").write_text(original, encoding="utf-8")
+        git(self.repo, "add", "file.txt")
+        git(self.repo, "commit", "-qm", "long file")
+        base = git(self.repo, "rev-parse", "HEAD").strip()
+        (self.repo / "file.txt").write_text(changed, encoding="utf-8")
+        with working_directory(self.repo):
+            head = review_state.require_worktree_snapshot()
+        state = self.state()
+        state["base"] = base
+        change = review_state.add_change(
+            state,
+            change_id="hunk-change",
+            title="Change two regions",
+            paths=["file.txt"],
+            summary="Two regions change.",
+            rationale="Both regions need review.",
+            base=base,
+            head=head,
+        )
+        payload = review_server.build_diff(
+            self.repo, base, head, ["file.txt"]
+        )
+        first, second = payload["files"][0]["hunks"]
+        pending_items = review_server.review_items_for_change(
+            self.repo, change, pending_only=True
+        )["items"]
+        self.assertEqual(
+            [(item["scope"], item["status"]) for item in pending_items],
+            [("hunk", "pending"), ("hunk", "pending")],
+        )
+
+        _, first_summary = review_server.record_review_decision(
+            self.repo,
+            state,
+            change,
+            revision_id="r1",
+            path="file.txt",
+            scope="hunk",
+            hunk=first,
+            status="accepted",
+            author="user",
+        )
+        self.assertEqual(first_summary["pending"], 1)
+        self.assertEqual(change["status"], "reviewing")
+        self.assertEqual(
+            len(
+                review_server.review_items_for_change(
+                    self.repo, change, pending_only=True
+                )["items"]
+            ),
+            1,
+        )
+
+        _, second_summary = review_server.record_review_decision(
+            self.repo,
+            state,
+            change,
+            revision_id="r1",
+            path="file.txt",
+            scope="hunk",
+            hunk=second,
+            status="accepted",
+            author="user",
+        )
+        self.assertEqual(second_summary["pending"], 0)
+        self.assertEqual(change["status"], "accepted")
+
+    def test_agent_excluded_test_file_stays_out_of_user_acceptance(self):
+        (self.repo / "test_file.txt").write_text(
+            "assert new behavior\n",
+            encoding="utf-8",
+        )
+        with working_directory(self.repo):
+            head = review_state.require_worktree_snapshot()
+        state = self.state()
+        change = review_state.add_change(
+            state,
+            change_id="test-change",
+            title="Update tests",
+            paths=["test_file.txt"],
+            summary="The tests follow the new behavior.",
+            rationale="They protect the changed contract.",
+            base=self.base,
+            head=head,
+        )
+
+        decision, summary = review_server.record_review_decision(
+            self.repo,
+            state,
+            change,
+            revision_id="r1",
+            path="test_file.txt",
+            scope="file",
+            hunk=None,
+            status="excluded",
+            author="agent",
+            reason="测试辅助改动，行为已由对应审阅单元说明。",
+        )
+
+        self.assertEqual(decision["status"], "excluded")
+        self.assertEqual(summary["pending"], 0)
+        self.assertFalse(summary["user_accepted"])
+        self.assertNotEqual(change["status"], "accepted")
+
+    def test_invalid_hunk_decision_is_rejected(self):
+        (self.repo / "file.txt").write_text("changed\n", encoding="utf-8")
+        with working_directory(self.repo):
+            head = review_state.require_worktree_snapshot()
+        state = self.state()
+        change = review_state.add_change(
+            state,
+            change_id="file-change",
+            title="Change file",
+            paths=["file.txt"],
+            summary="The file changes.",
+            rationale="The behavior needs review.",
+            base=self.base,
+            head=head,
+        )
+
+        with self.assertRaisesRegex(review_server.ReviewError, "selected hunk"):
+            review_server.record_review_decision(
+                self.repo,
+                state,
+                change,
+                revision_id="r1",
+                path="file.txt",
+                scope="hunk",
+                hunk={
+                    "old_start": 999,
+                    "old_count": 1,
+                    "new_start": 999,
+                    "new_count": 1,
+                },
+                status="accepted",
+                author="user",
+            )
+
+    def test_revision_refactor_does_not_reuse_old_hunk_decisions(self):
+        original = "".join(f"line {index}\n" for index in range(1, 21))
+        first_change = original.replace("line 2\n", "line two\n")
+        (self.repo / "file.txt").write_text(original, encoding="utf-8")
+        git(self.repo, "add", "file.txt")
+        git(self.repo, "commit", "-qm", "long file")
+        base = git(self.repo, "rev-parse", "HEAD").strip()
+        (self.repo / "file.txt").write_text(first_change, encoding="utf-8")
+        with working_directory(self.repo):
+            first_head = review_state.require_worktree_snapshot()
+        state = self.state()
+        state["base"] = base
+        change = review_state.add_change(
+            state,
+            change_id="hunk-change",
+            title="Change one region",
+            paths=["file.txt"],
+            summary="One region changes.",
+            rationale="It needs review.",
+            base=base,
+            head=first_head,
+        )
+        first_hunk = review_server.build_diff(
+            self.repo, base, first_head, ["file.txt"]
+        )["files"][0]["hunks"][0]
+        review_server.record_review_decision(
+            self.repo,
+            state,
+            change,
+            revision_id="r1",
+            path="file.txt",
+            scope="hunk",
+            hunk=first_hunk,
+            status="accepted",
+            author="user",
+        )
+
+        (self.repo / "file.txt").write_text(
+            original.replace("line 2\n", "line second\n").replace(
+                "line 18\n", "line eighteenth\n"
+            ),
+            encoding="utf-8",
+        )
+        with working_directory(self.repo):
+            second_head = review_state.require_worktree_snapshot()
+        review_state.revise_change(
+            change,
+            head=second_head,
+            label="Structural follow-up",
+            summary="The file is reorganized.",
+            reason="The implementation changed after review.",
+        )
+
+        summary = review_server.review_summary_for_change(
+            self.repo, change, revision_id="r2"
+        )
+
+        self.assertEqual(summary["pending"], 2)
+        self.assertFalse(summary["user_accepted"])
+        self.assertEqual(change["status"], "revisit")
+
+    def test_feedback_delivery_is_claimed_once_and_answered(self):
+        state = self.state()
+        change = self.add_change(state)
+        note = review_state.add_annotation(
+            change,
+            author="user",
+            kind="change",
+            body="Keep the fallback.",
+            revision_id="r1",
+            path="file.txt",
+            side="new",
+            start=1,
+            end=1,
+        )
+        self.assertEqual(note["delivery"]["state"], "queued")
+
+        claimed = review_state.claim_feedback(state)
+
+        self.assertEqual(len(claimed), 1)
+        self.assertEqual(claimed[0]["annotation"], note["id"])
+        self.assertEqual(note["delivery"]["state"], "processing")
+        self.assertEqual(review_state.claim_feedback(state), [])
+
+        review_state.reply_to_annotation(
+            change,
+            note,
+            author="agent",
+            body="Kept and covered by a test.",
+            resolve=True,
+        )
+        self.assertEqual(note["delivery"]["state"], "answered")
+        self.assertEqual(review_state.claim_feedback(state), [])
+        review_state.validate_state(state)
+
+    def test_user_reply_creates_another_delivery_event(self):
+        state = self.state()
+        change = self.add_change(state)
+        note = review_state.add_annotation(
+            change,
+            author="agent",
+            kind="note",
+            body="This follows the caller contract.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        reply = review_state.reply_to_annotation(
+            change,
+            note,
+            author="user",
+            body="Which caller relies on it?",
+        )
+
+        self.assertEqual(reply["delivery"]["state"], "queued")
+        claimed = review_state.claim_feedback(state)
+        self.assertEqual(len(claimed), 1)
+        self.assertEqual(claimed[0]["reply"], reply["id"])
+        self.assertEqual(claimed[0]["body"], "Which caller relies on it?")
+
+    def test_user_reply_reopens_a_resolved_note_and_blocks_acceptance(self):
+        state = self.state()
+        change = self.add_change(state)
+        note = review_state.add_annotation(
+            change,
+            author="agent",
+            kind="note",
+            body="This follows the caller contract.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        note["status"] = "resolved"
+        review_state.set_status(change, "accepted")
+
+        review_state.reply_to_annotation(
+            change,
+            note,
+            author="user",
+            body="Which caller relies on it?",
+        )
+
+        self.assertEqual(note["status"], "open")
+        self.assertEqual(change["status"], "feedback")
+        with self.assertRaisesRegex(ValueError, "Resolve open user feedback"):
+            review_state.set_status(change, "accepted")
+
+        review_state.reply_to_annotation(
+            change,
+            note,
+            author="agent",
+            body="The session response path does.",
+            resolve=True,
+        )
+        review_state.set_status(change, "accepted")
+
+    def test_stale_processing_event_can_be_reclaimed(self):
+        state = self.state()
+        change = self.add_change(state)
+        note = review_state.add_annotation(
+            change,
+            author="user",
+            kind="question",
+            body="Did the turn finish?",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        review_state.claim_feedback(state)
+        self.assertEqual(review_state.claim_feedback(state), [])
+
+        note["delivery"]["claimed_at"] = "2000-01-01T00:00:00Z"
+
+        reclaimed = review_state.claim_feedback(state)
+        self.assertEqual(len(reclaimed), 1)
+        self.assertEqual(reclaimed[0]["annotation"], note["id"])
+
+    def test_paused_listener_blocks_claim_until_agent_resumes(self):
+        state_path = self.repo / ".review/auth.json"
+        state = self.state()
+        change = self.add_change(state)
+        review_state.add_annotation(
+            change,
+            author="user",
+            kind="question",
+            body="Why this route?",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        review_state.save(state_path, state)
+        review_listener.configure(state_path, thread_id="thread-123")
+        review_listener.stop(state_path)
+
+        with working_directory(self.repo):
+            with self.assertRaisesRegex(ValueError, "listener is paused"):
+                review_state.run(
+                    review_state.parser().parse_args(
+                        [
+                            "inbox",
+                            "--state",
+                            ".review/auth.json",
+                            "--claim",
+                            "--json",
+                        ]
+                    )
+                )
+
+        listener = review_listener.configure(
+            state_path,
+            thread_id="thread-123",
+            automation_id="review-auth",
+        )
+        self.assertEqual(listener["status"], "listening")
+        with working_directory(self.repo):
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                review_state.run(
+                    review_state.parser().parse_args(
+                        [
+                            "inbox",
+                            "--state",
+                            ".review/auth.json",
+                            "--claim",
+                            "--json",
+                        ]
+                    )
+                )
+        self.assertEqual(len(json.loads(output.getvalue())), 1)
+
+    def test_direct_delivery_uses_queue_and_persists_state(self):
+        state_path = (self.repo / ".review/auth.json").resolve()
+        state = self.state()
+        change = self.add_change(state)
+        note = review_state.add_annotation(
+            change,
+            author="user",
+            kind="bug",
+            body="This fails.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        review_state.save(state_path, state)
+        review_listener.configure(state_path, thread_id="thread-123")
+
+        with mock.patch.object(review_listener, "queue_thread") as queue_thread:
+            result = review_server.deliver_feedback(
+                self.repo, state_path, note
+            )
+
+        self.assertEqual(result["state"], "delivered")
+        queue_thread.assert_called_once()
+        message = queue_thread.call_args.args[1]
+        self.assertIn("inbox", message)
+        self.assertIn("--claim", message)
+        saved = review_state.load(state_path)
+        saved_note = saved["changes"][0]["annotations"][0]
+        self.assertEqual(saved_note["delivery"]["state"], "delivered")
+        listener = review_listener.load(state_path)
+        self.assertEqual(listener["status"], "listening")
+        self.assertEqual(listener["last_event_id"], saved_note["delivery"]["id"])
+
+    def test_paused_listener_does_not_queue_feedback(self):
+        state_path = (self.repo / ".review/auth.json").resolve()
+        state = self.state()
+        change = self.add_change(state)
+        note = review_state.add_annotation(
+            change,
+            author="user",
+            kind="bug",
+            body="This fails.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        review_state.save(state_path, state)
+        review_listener.configure(state_path, thread_id="thread-123")
+        review_listener.stop(state_path)
+
+        with mock.patch.object(review_listener, "queue_thread") as queue_thread:
+            result = review_server.deliver_feedback(
+                self.repo, state_path, note
+            )
+
+        self.assertEqual(result["state"], "paused")
+        queue_thread.assert_not_called()
+        saved = review_state.load(state_path)
+        self.assertEqual(
+            saved["changes"][0]["annotations"][0]["delivery"]["state"],
+            "queued",
+        )
+
+    def test_inflight_delivery_cannot_resume_a_paused_listener(self):
+        state_path = (self.repo / ".review/auth.json").resolve()
+        state = self.state()
+        change = self.add_change(state)
+        note = review_state.add_annotation(
+            change,
+            author="user",
+            kind="question",
+            body="Why is this here?",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        review_state.save(state_path, state)
+        review_listener.configure(state_path, thread_id="thread-123")
+
+        def stop_while_queueing(*args, **kwargs):
+            review_listener.stop(state_path)
+
+        with mock.patch.object(
+            review_listener, "queue_thread", side_effect=stop_while_queueing
+        ):
+            result = review_server.deliver_feedback(
+                self.repo, state_path, note
+            )
+
+        self.assertEqual(result["state"], "delivered")
+        self.assertEqual(review_listener.load(state_path)["status"], "paused")
+
+    def test_queue_failure_keeps_scheduled_fallback_available(self):
+        state_path = (self.repo / ".review/auth.json").resolve()
+        state = self.state()
+        change = self.add_change(state)
+        note = review_state.add_annotation(
+            change,
+            author="user",
+            kind="bug",
+            body="This fails.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        review_state.save(state_path, state)
+        review_listener.configure(
+            state_path,
+            thread_id="thread-123",
+            automation_id="review-auth",
+        )
+
+        with mock.patch.object(
+            review_listener,
+            "queue_thread",
+            side_effect=RuntimeError("app-server unavailable"),
+        ):
+            result = review_server.deliver_feedback(
+                self.repo, state_path, note
+            )
+
+        self.assertEqual(result["state"], "failed")
+        listener = review_listener.load(state_path)
+        self.assertEqual(listener["status"], "degraded")
+        self.assertIn("app-server unavailable", listener["last_error"])
+
+    def test_feedback_burst_reuses_one_queued_wake(self):
+        state_path = (self.repo / ".review/auth.json").resolve()
+        state = self.state()
+        change = self.add_change(state)
+        first = review_state.add_annotation(
+            change,
+            author="user",
+            kind="change",
+            body="First adjustment.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        second = review_state.add_annotation(
+            change,
+            author="user",
+            kind="question",
+            body="Second question.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        review_state.save(state_path, state)
+        review_listener.configure(state_path, thread_id="thread-123")
+
+        with mock.patch.object(review_listener, "queue_thread") as queue_thread:
+            first_result = review_server.deliver_feedback(
+                self.repo, state_path, first
+            )
+            second_result = review_server.deliver_feedback(
+                self.repo, state_path, second
+            )
+
+        self.assertEqual(first_result["state"], "delivered")
+        self.assertEqual(second_result["state"], "delivered")
+        queue_thread.assert_called_once()
+
+    def test_concurrent_feedback_reuses_one_queued_wake(self):
+        state_path = (self.repo / ".review/auth.json").resolve()
+        state = self.state()
+        change = self.add_change(state)
+        first = review_state.add_annotation(
+            change,
+            author="user",
+            kind="change",
+            body="First concurrent adjustment.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        second = review_state.add_annotation(
+            change,
+            author="user",
+            kind="question",
+            body="Second concurrent question.",
+            revision_id="r1",
+            side="file",
+            path="file.txt",
+        )
+        review_state.save(state_path, state)
+        review_listener.configure(state_path, thread_id="thread-123")
+
+        original_has_waiting = review_state.has_waiting_delivery
+
+        def slow_waiting_check(current_state):
+            result = original_has_waiting(current_state)
+            time.sleep(0.1)
+            return result
+
+        with (
+            mock.patch.object(review_listener, "queue_thread") as queue_thread,
+            mock.patch.object(
+                review_state,
+                "has_waiting_delivery",
+                side_effect=slow_waiting_check,
+            ),
+        ):
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(
+                    pool.map(
+                        lambda note: review_server.deliver_feedback(
+                            self.repo, state_path, note
+                        ),
+                        (first, second),
+                    )
+                )
+
+        self.assertEqual([result["state"] for result in results], ["delivered", "delivered"])
+        queue_thread.assert_called_once()
 
 
 class WebBoundaryTest(unittest.TestCase):
