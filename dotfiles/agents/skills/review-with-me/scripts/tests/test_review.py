@@ -1074,6 +1074,70 @@ class ReviewStateTest(unittest.TestCase):
 
 
 class WebBoundaryTest(unittest.TestCase):
+    def test_review_event_signature_tracks_state_and_listener_files(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state_path = Path(temporary) / "review.json"
+            state_path.write_text("one", encoding="utf-8")
+            first = review_server.review_event_signature(state_path)
+
+            state_path.write_text("a longer state", encoding="utf-8")
+            second = review_server.review_event_signature(state_path)
+            self.assertNotEqual(first, second)
+
+            review_listener.listener_path(state_path).write_text(
+                "{}",
+                encoding="utf-8",
+            )
+            third = review_server.review_event_signature(state_path)
+            self.assertNotEqual(second, third)
+
+    def test_event_stream_emits_ready_and_state_change(self):
+        handler = object.__new__(review_server.Handler)
+        handler.server = SimpleNamespace(review_path=Path("/tmp/review.json"))
+        handler.wfile = io.BytesIO()
+        handler.close_connection = False
+        statuses = []
+        headers = {}
+        handler.send_response = statuses.append
+        handler.send_header = headers.__setitem__
+        handler.end_headers = lambda: None
+        clock = [0.0]
+        signatures = iter(["first", "second"])
+
+        def signature(_):
+            return next(signatures, "second")
+
+        with (
+            mock.patch.object(
+                review_server,
+                "review_event_signature",
+                side_effect=signature,
+            ),
+            mock.patch.object(
+                review_server.time,
+                "monotonic",
+                side_effect=lambda: clock[0],
+            ),
+            mock.patch.object(
+                review_server.time,
+                "sleep",
+                side_effect=lambda value: clock.__setitem__(
+                    0, clock[0] + value
+                ),
+            ),
+        ):
+            handler.send_event_stream()
+
+        payload = handler.wfile.getvalue()
+        self.assertEqual(statuses, [review_server.HTTPStatus.OK])
+        self.assertEqual(
+            headers["Content-Type"],
+            "text/event-stream; charset=utf-8",
+        )
+        self.assertIn(b"event: ready", payload)
+        self.assertIn(b"event: state", payload)
+        self.assertTrue(handler.close_connection)
+
     def test_index_replaces_token_and_uses_bundled_entrypoints(self):
         source = (review_server.WEB_ROOT / "index.html").read_text(
             encoding="utf-8"

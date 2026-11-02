@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -599,6 +600,23 @@ def index_html(token):
     return source.replace("__REVIEW_TOKEN__", token)
 
 
+def file_signature(path):
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return "missing"
+    return f"{stat.st_dev}:{stat.st_ino}:{stat.st_size}:{stat.st_mtime_ns}"
+
+
+def review_event_signature(review_path):
+    return "|".join(
+        (
+            file_signature(review_path),
+            file_signature(review_listener.listener_path(review_path)),
+        )
+    )
+
+
 def deliver_feedback(repo, review_path, note):
     events = review_state.pending_events_for_note(note)
     if not events:
@@ -696,6 +714,40 @@ class Handler(BaseHTTPRequestHandler):
     def send_error_json(self, message, status=HTTPStatus.BAD_REQUEST):
         self.send_json({"error": str(message)}, status)
 
+    def send_event_stream(self):
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+        self.send_header("Cache-Control", "no-cache, no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.end_headers()
+        last_signature = review_event_signature(self.review_path)
+        last_heartbeat = time.monotonic()
+        try:
+            self.wfile.write(
+                b"retry: 1000\nevent: ready\ndata: connected\n\n"
+            )
+            self.wfile.flush()
+            deadline = time.monotonic() + 30
+            while time.monotonic() < deadline:
+                time.sleep(1)
+                current_signature = review_event_signature(self.review_path)
+                if current_signature != last_signature:
+                    last_signature = current_signature
+                    self.wfile.write(
+                        b"event: state\ndata: changed\n\n"
+                    )
+                    self.wfile.flush()
+                    last_heartbeat = time.monotonic()
+                elif time.monotonic() - last_heartbeat >= 10:
+                    self.wfile.write(b": keepalive\n\n")
+                    self.wfile.flush()
+                    last_heartbeat = time.monotonic()
+        except (BrokenPipeError, ConnectionResetError, OSError):
+            pass
+        finally:
+            self.close_connection = True
+
     def origin_ok(self):
         origin = self.headers.get("Origin")
         if not origin:
@@ -740,6 +792,9 @@ class Handler(BaseHTTPRequestHandler):
                         self.send_bytes(gzip.decompress(value), content_type)
                     return
                 self.send_bytes(target.read_bytes(), content_type)
+                return
+            if parsed.path == "/api/events":
+                self.send_event_stream()
                 return
             if parsed.path == "/api/state":
                 state = review_state.load(self.review_path)

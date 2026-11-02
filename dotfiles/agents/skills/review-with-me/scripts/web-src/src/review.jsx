@@ -175,6 +175,7 @@ const REVIEW_ITEM_LABELS = {
   accepted: "已通过",
   excluded: "已过滤",
 };
+const CLOSED_CHANGE_STATUSES = new Set(["accepted", "superseded"]);
 const MAP_VISIBILITY_KEY = "review-with-me:map-visible";
 const DIFF_CSS = `
 [data-diffs-header] {
@@ -341,7 +342,24 @@ function decisionForFile(decisions, path) {
   );
 }
 
-function fileReviewState(file, decisions) {
+function isClosedChange(change) {
+  return CLOSED_CHANGE_STATUSES.has(change?.status);
+}
+
+function fileReviewState(file, decisions, changeStatus) {
+  if (changeStatus === "accepted") {
+    return {
+      status: "accepted",
+      decision: null,
+      pendingHunks: [],
+      hunks: file.hunks.map((hunk) => ({
+        hunk,
+        decision: null,
+        status: "accepted",
+        inherited: true,
+      })),
+    };
+  }
   const fileDecision = decisionForFile(decisions, file.path);
   if (
     fileDecision &&
@@ -392,14 +410,18 @@ function fileReviewState(file, decisions) {
   };
 }
 
-function fileIsPending(file, decisions) {
-  return fileReviewState(file, decisions).pendingHunks.length > 0;
+function fileIsPending(file, decisions, changeStatus) {
+  return (
+    fileReviewState(file, decisions, changeStatus).pendingHunks.length > 0
+  );
 }
 
 function pendingFilesFor(diff, change, revision) {
-  if (!diff || !change || !revision) return [];
+  if (!diff || !change || !revision || isClosedChange(change)) return [];
   const decisions = reviewDecisions(change, revision);
-  return diff.files.filter((file) => fileIsPending(file, decisions));
+  return diff.files.filter((file) =>
+    fileIsPending(file, decisions, change.status),
+  );
 }
 
 function reviewTargets(change) {
@@ -411,10 +433,21 @@ function reviewTargets(change) {
 }
 
 function changeNeedsAttention(change) {
-  if (change.status === "superseded") return false;
+  if (isClosedChange(change)) return false;
   const review = reviewTargets(change);
   if (review.error) return true;
   return review.pending > 0 || openFeedback(change).length > 0;
+}
+
+function changeReviewLabel(change, review) {
+  if (change.status === "accepted") return "已确认";
+  if (change.status === "superseded") return "历史记录";
+  const status = STATUS_LABELS[change.status] || change.status;
+  if (review.pending) return `${status} · ${review.pending} 项待审`;
+  if (review.excluded_items) {
+    return `${status} · ${review.excluded_items} 项已过滤`;
+  }
+  return `${status} · ${change.revisions.length} 次`;
 }
 
 function deliveryNotification(delivery, noun) {
@@ -588,14 +621,21 @@ function App() {
 
   useEffect(() => {
     loadState();
+    const refresh = () => {
+      if (!document.hidden) loadState({ quiet: true });
+    };
+    const events = new EventSource("/api/events");
+    events.addEventListener("ready", refresh);
+    events.addEventListener("state", refresh);
     const timer = window.setInterval(() => {
-      if (!document.hidden) loadState({ quiet: true });
-    }, 2400);
+      refresh();
+    }, 8000);
     const onVisibility = () => {
-      if (!document.hidden) loadState({ quiet: true });
+      refresh();
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
+      events.close();
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisibility);
     };
@@ -625,7 +665,9 @@ function App() {
     visibleFiles.find((item) => item.path === filePath) ||
     visibleFiles[0] ||
     null;
-  const fileState = file ? fileReviewState(file, decisions) : null;
+  const fileState = file
+    ? fileReviewState(file, decisions, change?.status)
+    : null;
   const navigableHunks = fileState?.pendingHunks || [];
   const reviewChanges =
     snapshot?.state.changes.filter(
@@ -1648,14 +1690,7 @@ function ReviewRail({
                   : `${change.paths[0]} +${change.paths.length - 1}`}
               </span>
               <span className="change-item-foot">
-                <span>
-                  {STATUS_LABELS[change.status] || change.status} ·{" "}
-                  {review.pending
-                    ? `${review.pending} 项待审`
-                    : review.excluded_items
-                      ? `${review.excluded_items} 项已过滤`
-                      : `${change.revisions.length} 次`}
-                </span>
+                <span>{changeReviewLabel(change, review)}</span>
                 <span className="change-item-badges">
                   {pending > 0 && (
                     <span className="mini-badge feedback">{pending}</span>
@@ -1925,7 +1960,11 @@ function DiffToolbar({
           searchable={files.length > 8}
           disabled={!files.length}
           data={files.map((item) => {
-            const status = fileReviewState(item, decisions).status;
+            const status = fileReviewState(
+              item,
+              decisions,
+              change?.status,
+            ).status;
             return {
               value: item.path,
               label: `${item.old_path ? `${item.old_path} → ` : ""}${item.path}${
