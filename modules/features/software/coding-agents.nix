@@ -4,6 +4,21 @@
     "software/agent-skills".home =
       _:
       { inputs, pkgs, ... }:
+      # TODO: move skills to a separate repo and use flake inputs instead of a local path
+      let
+        localSkills = builtins.path {
+          path = ../../../dotfiles/agents/skills;
+          name = "local-agent-skills";
+          filter =
+            path: _:
+            !builtins.elem (baseNameOf (toString path)) [
+              ".git"
+              ".pytest_cache"
+              "__pycache__"
+              "node_modules"
+            ];
+        };
+      in
       {
         imports = [ inputs.agent-skills.homeManagerModules.default ];
 
@@ -20,7 +35,7 @@
               input = "yanhekit";
               subdir = "skills";
             };
-            local.path = ../../../dotfiles/agents/skills;
+            local.path = localSkills;
           };
           skills.enableAll = true;
           targets.agents = {
