@@ -19,6 +19,9 @@ python3 <review> inbox --state .review/auth.json --claim
 
 `capture --label '…' [--head COMMIT] [--include path …]` 登记新版本。
 相同文本不重复登记；include 可加入范围内未修改的上下文文件。
+新版本继承同一基线位置、相同内容的 hunk 决定，选区按行号偏移迁移，保留原因与作者。
+改写、新增或合并后的 hunk 重新待审；内容相同但基线位置不同的块不互相继承。
+文件范围的验收条件只有在该范围内容完全未变时才继承。
 
 ## 写入
 
@@ -84,6 +87,7 @@ Agent 根据行号与原文理解语义，不猜像素位置代表什么。
 停止监听不撤回已进入聊天的消息。`inbox --claim` 暂停时返回空数组，正常认领
 同一消息只取得一次。中断后用 retry 恢复，避免无条件重跑处理中工作。
 
+收到新版本后自动切到完整基线差异，旧草稿仍锚定旧版本；讨论按未解决优先、最新消息在前排列。
 页面 SSE `/api/events` 接收变化通知，再获取 `/api/state`；文件按需从
 `/api/file?revision=r2&against=base&path=…` 读取。服务限 loopback；变更请求要求
 同源和页面随机令牌。Agent 使用 CLI，无需获取页面令牌。

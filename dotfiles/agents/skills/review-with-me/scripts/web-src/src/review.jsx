@@ -13,7 +13,14 @@ import {
   createTheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { Component, useCallback, useEffect, useRef, useState } from "react";
+import {
+  Component,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { CodeCanvas } from "./CodeCanvas";
 import "./review.css";
@@ -97,7 +104,7 @@ function App() {
   const [file, setFile] = useState(null);
   const [groupId, setGroupId] = useState("");
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("pending");
   const [style, setStyle] = useState("unified");
   const [expanded, setExpanded] = useState(false);
   const [panel, setPanel] = useState(false);
@@ -117,6 +124,7 @@ function App() {
   const [linePicker, setLinePicker] = useState(null);
   const narrow = useMediaQuery("(max-width: 950px)");
   const fetchSequence = useRef(0);
+  const latestSeen = useRef(null);
   const restored = useRef(false);
   const draftKey = data
     ? `rwm:draft:${data.repo}:${data.title}:${data.base}`
@@ -135,7 +143,18 @@ function App() {
       const value = await api(`/api/state?${query}`);
       if (seq !== fetchSequence.current) return;
       setData(value);
-      if (!revision && value.revision) setRevision(value.revision);
+      const latest = value.revisions.at(-1)?.id;
+      if (
+        latest &&
+        (!revision || (latestSeen.current && latestSeen.current !== latest))
+      ) {
+        setRevision(latest);
+        setAgainst("base");
+        setFocused(null);
+        setJump(null);
+        setDrawing(false);
+      }
+      latestSeen.current = latest;
       setError("");
     } catch (err) {
       if (seq === fetchSequence.current) setError(err.message);
@@ -161,12 +180,18 @@ function App() {
     try {
       const saved = JSON.parse(localStorage.getItem(selectionKey) || "null");
       if (saved) {
-        setPath(saved.path);
-        if (data.revisions.some((r) => r.id === saved.revision))
-          setRevision(saved.revision);
         if (
-          saved.against === "base" ||
-          data.revisions.some((r) => r.id === saved.against)
+          data.files.some(
+            (f) =>
+              f.path === saved.path &&
+              ["pending", "feedback"].includes(f.review_status),
+          )
+        )
+          setPath(saved.path);
+        if (
+          saved.revision === data.revisions.at(-1)?.id &&
+          (saved.against === "base" ||
+            data.revisions.some((r) => r.id === saved.against))
         )
           setAgainst(saved.against);
       }
@@ -215,36 +240,53 @@ function App() {
   const selectedMeta = data?.files.find((f) => f.path === path);
   const relevantGroups =
     data?.groups.filter((g) => g.paths.includes(path)) || [];
-  const discussions =
-    data?.threads.filter(
-      (t) =>
-        allThreads ||
-        !t.targets.length ||
-        t.targets.some((a) => a.path === path),
-    ) || [];
-  const currentThreads =
-    data?.threads.filter(
-      (t) => t.revision === revision && t.against === against,
-    ) || [];
-  const selectedTargets = [
-    ...(draft?.revision === revision && draft?.against === against
-      ? draft.targets
-      : []),
-    ...(focused?.revision === revision && focused?.against === against
-      ? focused.targets
-      : []),
-  ];
+  const orderedThreads = useMemo(
+    () =>
+      [...(data?.threads || [])].sort(
+        (a, b) => b.messages.at(-1).created - a.messages.at(-1).created,
+      ),
+    [data?.threads],
+  );
+  const discussions = orderedThreads.filter(
+    (t) =>
+      allThreads || !t.targets.length || t.targets.some((a) => a.path === path),
+  );
+  const currentThreads = useMemo(
+    () =>
+      orderedThreads.filter(
+        (t) => t.revision === revision && t.against === against,
+      ),
+    [orderedThreads, revision, against],
+  );
+  const selectedTargets = useMemo(
+    () => [
+      ...(draft?.revision === revision && draft?.against === against
+        ? draft.targets
+        : []),
+      ...(focused?.revision === revision && focused?.against === against
+        ? focused.targets
+        : []),
+    ],
+    [
+      draft?.targets,
+      draft?.revision,
+      draft?.against,
+      focused,
+      revision,
+      against,
+    ],
+  );
   const openCount =
     data?.threads.filter((t) => t.status === "open").length || 0;
 
   useEffect(() => {
     if (data?.revision === revision)
       setPath((current) =>
-        data.files.some((f) => f.path === current)
+        visibleFiles.some((f) => f.path === current)
           ? current
-          : visibleFiles[0]?.path || data.files[0]?.path || "",
+          : visibleFiles[0]?.path || "",
       );
-  }, [data, revision]);
+  }, [data, revision, groupId, search, filter]);
   useEffect(() => {
     if (!path || !data?.revision) {
       setFile(null);
@@ -280,13 +322,13 @@ function App() {
   }
 
   const selectTargets = useCallback(
-    (newTargets) => {
+    (newTargets, append = false) => {
       setDraft((old) => {
         if (old && (old.revision !== revision || old.against !== against)) {
           setError("草稿属于另一个版本。请先发送或放弃草稿，再标注这个版本。");
           return old;
         }
-        const combined = [...(old?.targets || [])];
+        const combined = append ? [...(old?.targets || [])] : [];
         for (const target of newTargets) {
           if (
             !combined.some(
@@ -310,7 +352,32 @@ function App() {
     [revision, against],
   );
 
+  function decideCode(status, scope) {
+    const value = scope.blocks
+      ? scope.blocks.map((block) => ({
+          op: "decide",
+          revision,
+          path,
+          block: block.id,
+          status,
+        }))
+      : {
+          op: "decide",
+          revision,
+          against,
+          targets: scope.targets,
+          status,
+        };
+    if (status === "excluded") {
+      setExclude(value);
+      setExcludeReason("");
+    } else action(value);
+  }
+
   function showThread(thread, target = thread.targets[0]) {
+    setFilter("all");
+    setSearch("");
+    setGroupId("");
     setFocused(thread);
     setPanel(true);
     setRevision(thread.revision);
@@ -341,13 +408,12 @@ function App() {
         ].path,
       );
   }
-  function decide(status, block) {
+  function decide(status) {
     const value = {
       op: "decide",
       revision,
       path,
       status,
-      ...(block !== undefined ? { block } : {}),
     };
     if (status === "excluded") {
       setExclude(value);
@@ -486,6 +552,20 @@ function App() {
           <div className="composer-title">
             新标注 <span>{draft.revision}</span>
           </div>
+          {draft.revision !== revision && (
+            <div className="notice">
+              草稿仍对应 {draft.revision}
+              <button
+                type="button"
+                onClick={() => {
+                  setRevision(draft.revision);
+                  setAgainst(draft.against);
+                }}
+              >
+                回到草稿版本
+              </button>
+            </div>
+          )}
           <ul className="target-list">
             {draft.targets.map((t, i) => (
               <li key={i}>
@@ -568,7 +648,7 @@ function App() {
           </details>
           <p className="delivery-hint">
             {data?.listener.enabled
-              ? "提交后立即投递到当前聊天。可继续选择其他位置。"
+              ? "提交后立即投递到当前聊天。"
               : "监听已暂停，反馈会保存，恢复后投递。"}
           </p>
           <div className="actions">
@@ -680,16 +760,17 @@ function App() {
       {data?.revisions.at(-1)?.id !== revision &&
         data?.revisions.length > 0 && (
           <div className="new-version">
-            Agent 已更新到 {data.revisions.at(-1).id} ·{" "}
-            {data.revisions.at(-1).label}
+            正在查看历史版本 {revision}
             <Button
               size="compact-sm"
               onClick={() => {
-                setAgainst(revision);
+                setAgainst("base");
                 setRevision(data.revisions.at(-1).id);
+                setFocused(null);
+                setJump(null);
               }}
             >
-              查看这轮修改
+              回到最新审阅
             </Button>
           </div>
         )}
@@ -856,8 +937,8 @@ function App() {
           <div className="canvas-tools">
             <span>
               {drawing
-                ? "在代码上拖动圈画，松开后填写反馈。Esc 退出。"
-                : "拖选行号或文字以标注；可连续选择多处。"}
+                ? "在代码上拖动圈画，松开后选择操作。Esc 退出。"
+                : "选择文字或行号，就近操作；右键审阅当前改动块。"}
             </span>
             <div className="actions">
               <button
@@ -901,7 +982,7 @@ function App() {
             ) : !path ? (
               <Empty>
                 {data?.revisions.length
-                  ? "这个范围没有文件差异。"
+                  ? "当前筛选下没有文件。可切换显示范围查看其他文件。"
                   : "还没有审阅版本。请让 Agent 登记这次修改。"}
               </Empty>
             ) : !file ? (
@@ -923,109 +1004,14 @@ function App() {
                 targets={selectedTargets}
                 threads={currentThreads}
                 onSelect={selectTargets}
+                hasDraft={!!draft}
+                review={selectedMeta}
+                busy={busy}
+                onDecide={decideCode}
                 onThread={showThread}
                 onError={setError}
                 jump={jump}
               />
-            )}
-            {!!file?.blocks.length && (
-              <div className="block-list">
-                <h3>逐块审阅</h3>
-                {file.blocks.map((block, i) => {
-                  const decision = selectedMeta?.decision.blocks?.[block.id];
-                  const blockStatus =
-                    selectedMeta?.blocks.find((b) => b.id === block.id)
-                      ?.review_status || "pending";
-                  const side = block.new_count ? "new" : "old";
-                  const start = block[`${side}_start`];
-                  return (
-                    <div className="block-row" key={block.id}>
-                      <button
-                        onClick={() => {
-                          setExpanded(true);
-                          setJump({
-                            path,
-                            side,
-                            start,
-                            end: start + block[`${side}_count`] - 1,
-                          });
-                        }}
-                      >
-                        第 {i + 1} 块 · {side === "new" ? "新" : "旧"} {start}{" "}
-                        行
-                      </button>
-                      <Status value={blockStatus} />
-                      {decision?.reason && <small>{decision.reason}</small>}
-                      <Button
-                        size="compact-xs"
-                        variant="subtle"
-                        onClick={() =>
-                          decide(
-                            blockStatus !== "pending" ? "pending" : "accepted",
-                            block.id,
-                          )
-                        }
-                        disabled={
-                          busy ||
-                          against !== "base" ||
-                          selectedMeta?.review_status === "feedback"
-                        }
-                      >
-                        {blockStatus !== "pending" ? "撤销" : "通过"}
-                      </Button>
-                      <Button
-                        size="compact-xs"
-                        variant="subtle"
-                        onClick={() => decide("excluded", block.id)}
-                        disabled={busy || against !== "base"}
-                      >
-                        排除
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            {!!selectedMeta?.decision.regions?.length && (
-              <div className="region-list">
-                <h3>选区审阅记录</h3>
-                {selectedMeta.decision.regions.map((region, i) => (
-                  <div className="block-row" key={i}>
-                    <span>
-                      {region.side === "old" ? "旧" : "新"} {region.start}–
-                      {region.end} 行
-                    </span>
-                    <Status value={region.status} />
-                    {region.reason && <small>{region.reason}</small>}
-                    <Button
-                      size="compact-xs"
-                      variant="subtle"
-                      disabled={
-                        busy ||
-                        against !== "base" ||
-                        region.status === "pending"
-                      }
-                      onClick={() =>
-                        action({
-                          op: "decide",
-                          revision,
-                          targets: [
-                            {
-                              path,
-                              side: region.side,
-                              start: region.start,
-                              end: region.end,
-                            },
-                          ],
-                          status: "pending",
-                        })
-                      }
-                    >
-                      重新审阅
-                    </Button>
-                  </div>
-                ))}
-              </div>
             )}
           </div>
           <footer className="review-footer">
@@ -1093,14 +1079,29 @@ function App() {
         <form
           onSubmit={async (event) => {
             event.preventDefault();
-            if (await action({ ...exclude, reason: excludeReason })) {
-              if (exclude.targets) setDraft(null);
+            if (
+              await action(
+                Array.isArray(exclude)
+                  ? exclude.map((value) => ({
+                      ...value,
+                      reason: excludeReason,
+                    }))
+                  : { ...exclude, reason: excludeReason },
+              )
+            ) {
               setExclude(null);
             }
           }}
         >
           <p className="modal-path">
-            {exclude?.path || exclude?.targets.map(targetLabel).join("；")}
+            {Array.isArray(exclude)
+              ? exclude
+                  .map(
+                    (value) =>
+                      `${value.path} · 改动块 ${file.blocks.findIndex((block) => block.id === value.block) + 1}`,
+                  )
+                  .join("；")
+              : exclude?.path || exclude?.targets.map(targetLabel).join("；")}
           </p>
           <Textarea
             label="排除原因"
@@ -1203,9 +1204,11 @@ function App() {
           <dt>选择代码</dt>
           <dd>拖选行号或文字。Shift + 点击行号可以扩展选区。</dd>
           <dt>圈画</dt>
-          <dd>点击“圈画”，在代码文字上拖动；松开后填写反馈。</dd>
+          <dd>点击“圈画”，在代码文字上拖动；松开后点“评论选区”填写反馈。</dd>
           <dt>多处标注</dt>
-          <dd>草稿打开时继续选择其他位置，支持跨文件。</dd>
+          <dd>
+            重新选择默认替换；在选区菜单点“添加到当前标注”才累加，支持跨文件。
+          </dd>
           <dt>J / K</dt>
           <dd>下一个 / 上一个文件</dd>
           <dt>C</dt>

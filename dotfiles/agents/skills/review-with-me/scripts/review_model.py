@@ -133,20 +133,23 @@ def capture(state, path, action):
         "checks": {},
     }
     if previous:
+        unchanged = set()
         for p, file in files.items():
             # Binary/oversized contents cannot establish unchanged content.
             readable = all(
                 side is None or side["text"] is not None
                 for side in (file["old"], file["new"])
             )
-            if (
-                readable
-                and file == previous["files"].get(p)
-                and p in previous["decisions"]
-            ):
-                revision["decisions"][p] = copy.deepcopy(previous["decisions"][p])
+            if readable and file == previous["files"].get(p):
+                unchanged.add(p)
+            if p in previous["decisions"]:
+                carried = carry_decision(
+                    previous["files"][p], file, previous["decisions"][p]
+                )
+                if carried:
+                    revision["decisions"][p] = carried
         for group in state["groups"]:
-            if all(p in revision["decisions"] for p in group["paths"]):
+            if all(p in unchanged for p in group["paths"]):
                 for check in group["checks"]:
                     if check["id"] in previous["checks"]:
                         revision["checks"][check["id"]] = previous["checks"][
@@ -154,6 +157,61 @@ def capture(state, path, action):
                         ]
     state["revisions"].append(revision)
     return revision["id"]
+
+
+def carry_decision(before, after, decision):
+    if any(
+        side and side["text"] is None
+        for file in (before, after)
+        for side in (file["old"], file["new"])
+    ):
+        return {}
+    if before == after:
+        return copy.deepcopy(decision)
+    if (
+        before["old"] != after["old"]
+        or before["old_path"] != after["old_path"]
+        or before["new"] is None
+        or after["new"] is None
+        or before["new"]["mode"] != after["new"]["mode"]
+    ):
+        return {}
+
+    def signature(block, lines):
+        start = block["new_start"] - 1
+        return (
+            block["old_start"],
+            block["old_count"],
+            tuple(lines[start : start + block["new_count"]]),
+        )
+
+    old_lines = before["new"]["text"].splitlines(keepends=True)
+    new_lines = after["new"]["text"].splitlines(keepends=True)
+    prior = {signature(block, old_lines): block for block in blocks(before)}
+    result = {"status": "pending", "blocks": {}, "regions": []}
+    default = {k: v for k, v in decision.items() if k not in ("blocks", "regions")}
+    for block in blocks(after):
+        old_block = prior.get(signature(block, new_lines))
+        if old_block is None:
+            continue
+        result["blocks"][block["id"]] = copy.deepcopy(
+            decision.get("blocks", {}).get(old_block["id"], default)
+        )
+        # Keep overlapping selection decisions in their original order. Only the
+        # unchanged block is carried; a line shift never widens an approval.
+        for region in decision.get("regions", []):
+            side = region["side"]
+            start = max(region["start"], old_block[f"{side}_start"])
+            end = min(
+                region["end"],
+                old_block[f"{side}_start"] + old_block[f"{side}_count"] - 1,
+            )
+            if start <= end:
+                offset = block[f"{side}_start"] - old_block[f"{side}_start"]
+                result["regions"].append(
+                    {**region, "start": start + offset, "end": end + offset}
+                )
+    return result if result["blocks"] or result["regions"] else {}
 
 
 def targets(state, action):

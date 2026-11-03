@@ -199,6 +199,132 @@ class ReviewTest(ReviewFixture):
             "decide", path="case.py", status="accepted", reason="用户要求通过此文件"
         )
 
+    def test_capture_carries_unchanged_hunks_without_widening_review_scope(self):
+        original = Path("README.md").read_text().splitlines(keepends=True)
+        edited = original.copy()
+        edited[2] = "approved change\n"
+        edited[6] = "excluded change\n"
+        edited[10] = "partly reviewed\nreopened line\n"
+        edited[14] = "will change again\n"
+        Path("README.md").write_text("".join(edited))
+        old_revision = self.capture()
+        old_file = view(read(self.state), with_text=True)["files"][0]
+        self.assertEqual(old_file["path"], "README.md")
+        old_blocks = old_file["blocks"]
+        self.assertEqual(len(old_blocks), 4)
+        self.act("decide", actor="user", path="README.md", status="accepted")
+        self.act(
+            "decide",
+            actor="user",
+            path="README.md",
+            block=old_blocks[1]["id"],
+            status="excluded",
+            reason="不在这轮范围",
+        )
+        self.act(
+            "decide",
+            actor="user",
+            targets=[
+                {
+                    "path": "README.md",
+                    "side": "new",
+                    "start": old_blocks[2]["new_start"] + 1,
+                }
+            ],
+            status="pending",
+        )
+        self.act(
+            "group",
+            id="docs",
+            title="文档",
+            paths=["README.md"],
+            checks=[{"id": "docs-check", "text": "内容一致"}],
+        )
+        self.act("check", id="docs-check", status="passed", reason="已核对")
+        prior_decision = read(self.state)["revisions"][-1]["decisions"]["README.md"]
+
+        edited[14] = "changed again\n"
+        edited[17] = (
+            "approved change\n"  # Same text at another base location is new work.
+        )
+        Path("README.md").write_text("new heading\n" + "".join(edited))
+        self.capture()
+        state = read(self.state)
+        current = view(state)["files"][0]
+        self.assertEqual(
+            [b["review_status"] for b in current["blocks"]],
+            ["pending", "accepted", "excluded", "pending", "pending", "pending"],
+        )
+        self.assertEqual(current["review_status"], "pending")
+        decision = current["decision"]
+        self.assertEqual(
+            decision["blocks"][current["blocks"][2]["id"]]["reason"], "不在这轮范围"
+        )
+        self.assertEqual(
+            decision["regions"],
+            [
+                {
+                    "side": "new",
+                    "start": old_blocks[2]["new_start"] + 2,
+                    "end": old_blocks[2]["new_start"] + 2,
+                    "status": "pending",
+                    "reason": "",
+                    "by": "user",
+                }
+            ],
+        )
+        self.assertEqual(
+            view(state, old_revision)["files"][0]["decision"], prior_decision
+        )
+        self.assertNotIn("docs-check", view(state)["checks"])
+
+    def test_capture_preserves_partial_regions_only_inside_unchanged_hunks(self):
+        original = Path("README.md").read_text().splitlines(keepends=True)
+        original[2] = "first new line\nsecond new line\n"
+        original[10] = "another change\n"
+        Path("README.md").write_text("".join(original))
+        self.capture()
+        block = view(read(self.state))["files"][0]["blocks"][0]
+        self.act(
+            "decide",
+            actor="user",
+            targets=[
+                {
+                    "path": "README.md",
+                    "side": "new",
+                    "start": block["new_start"],
+                }
+            ],
+            status="accepted",
+        )
+        original[10] = "another revised change\n"
+        Path("README.md").write_text("shift\n" + "".join(original))
+        self.capture()
+        current = view(read(self.state))["files"][0]
+        self.assertTrue(all(b["review_status"] == "pending" for b in current["blocks"]))
+        self.assertEqual(
+            current["decision"]["regions"],
+            [
+                {
+                    "side": "new",
+                    "start": block["new_start"] + 1,
+                    "end": block["new_start"] + 1,
+                    "status": "accepted",
+                    "reason": "",
+                    "by": "user",
+                }
+            ],
+        )
+
+    def test_capture_resets_acceptance_when_file_mode_changes(self):
+        self.act("decide", actor="user", path="case.py", status="accepted")
+        Path("case.py").chmod(0o755)
+        self.capture()
+        current = next(
+            f for f in view(read(self.state))["files"] if f["path"] == "case.py"
+        )
+        self.assertEqual(current["review_status"], "pending")
+
     def test_multi_target_drawing_and_exact_excerpt_survive_round_trip(self):
         target = {
             "path": "case.py",

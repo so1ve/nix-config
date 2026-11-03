@@ -385,36 +385,39 @@ select {
   margin-left: auto;
   white-space: nowrap;
 }
-.block-list {
-  border-top: 1px solid var(--line);
-  padding: 12px 16px;
-}
-.block-list h3 {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 500;
-  margin: 0 0 8px;
-}
-.region-list {
-  border-top: 1px solid var(--line);
-  padding: 12px 16px;
-}
-.region-list h3 {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 500;
-  margin: 0 0 8px;
-}
-.block-row {
+.inline-block,
+.inline-region {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  padding: 5px 0;
-  font-size: 12px;
+  padding: 6px 12px;
+  font:
+    12px/1.5 system-ui,
+    sans-serif;
+  white-space: normal;
+  color: var(--ink);
+  background: var(--surface);
+  border-block: 1px solid var(--line);
 }
-.block-row small {
+.inline-block .actions {
+  margin-left: auto;
+}
+.block-location {
+  font-weight: 550;
+}
+.block-reason {
+  flex-basis: 100%;
   color: var(--muted);
+}
+.inline-region {
+  background: #fff;
+}
+.code-menu-anchor {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
 }
 .review-footer {
   border-top: 1px solid var(--line);

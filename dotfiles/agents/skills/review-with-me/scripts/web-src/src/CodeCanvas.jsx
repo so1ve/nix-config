@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Button, Menu } from "@mantine/core";
 import { parseDiffFromFile, registerCustomTheme } from "@pierre/diffs";
 import { FileDiff } from "@pierre/diffs/react";
 import pierreLight from "@pierre/highlights/themes/pierre-light";
@@ -9,6 +10,12 @@ const rowSide = (row) =>
   row.closest("[data-deletions]") || row.dataset.lineType?.includes("deletion")
     ? "old"
     : "new";
+const reviewLabels = {
+  pending: "待审",
+  accepted: "已通过",
+  excluded: "已排除",
+  feedback: "待回应",
+};
 
 export function CodeCanvas({
   file,
@@ -21,6 +28,10 @@ export function CodeCanvas({
   targets,
   threads,
   onSelect,
+  hasDraft,
+  review,
+  busy,
+  onDecide,
   onThread,
   onError,
   jump,
@@ -30,6 +41,12 @@ export function CodeCanvas({
   const [activeStroke, setActiveStroke] = useState([]);
   const [savedStrokes, setSavedStrokes] = useState([]);
   const [selection, setSelection] = useState(null);
+  const [menu, setMenu] = useState(null);
+  const markedTargets = useMemo(
+    () => [...targets, ...(menu?.targets || [])],
+    [targets, menu?.targets],
+  );
+  const currentSelection = useRef([]);
   const root = () =>
     container.current?.querySelector("diffs-container")?.shadowRoot;
   const rows = () =>
@@ -58,16 +75,47 @@ export function CodeCanvas({
     };
   }
 
+  function showActions(selectedTargets, point, blocks) {
+    if (!blocks) currentSelection.current = selectedTargets;
+    const last = selectedTargets.at(-1);
+    const row = rows().find(
+      (r) => rowSide(r) === last.side && Number(r.dataset.line) === last.end,
+    );
+    const box =
+      row?.getBoundingClientRect() || container.current.getBoundingClientRect();
+    setMenu({
+      targets: selectedTargets,
+      blocks:
+        blocks ||
+        file.blocks.filter((block) =>
+          selectedTargets.some(
+            (target) =>
+              block[`${target.side}_count`] > 0 &&
+              target.start <
+                block[`${target.side}_start`] + block[`${target.side}_count`] &&
+              target.end >= block[`${target.side}_start`],
+          ),
+        ),
+      blockOnly: !!blocks,
+      keyboard: point?.keyboard || false,
+      x: Math.max(
+        8,
+        Math.min(point?.x ?? box.left + 60, window.innerWidth - 16),
+      ),
+      y: Math.max(8, Math.min(point?.y ?? box.bottom, window.innerHeight - 16)),
+    });
+  }
+
   function selectLines(range) {
     if (!range || drawing) return;
     setSelection(range);
     if (range.endSide && range.endSide !== range.side) {
-      onSelect([
+      showActions([
         makeTarget(sideName(range.side), range.start, range.start),
         makeTarget(sideName(range.endSide), range.end, range.end),
       ]);
     } else {
-      onSelect([
+      showActions([
         makeTarget(
           sideName(range.side),
           Math.min(range.start, range.end),
@@ -77,8 +125,7 @@ export function CodeCanvas({
     }
   }
 
-  function selectText() {
-    if (drawing) return;
+  function textSelection() {
     const selected = root()?.getSelection?.() || window.getSelection();
     if (!selected || selected.isCollapsed || !selected.toString().trim())
       return;
@@ -103,27 +150,119 @@ export function CodeCanvas({
     const quote = selected.toString();
     // Some browsers include gutter text in a cross-row selection.
     if (target.quote.includes(quote)) target.quote = quote;
-    onSelect([target]);
+    return { target, range: selected.getRangeAt(0) };
   }
 
-  const annotations = threads.flatMap((thread) =>
-    thread.targets
-      .filter(
-        (target) =>
-          target.path === file.path &&
-          thread.revision === revision &&
-          thread.against === against,
-      )
-      .map((target) => ({
-        side: target.side === "old" ? "deletions" : "additions",
-        lineNumber: target.side === "file" ? 0 : target.end,
-        metadata: thread,
-      })),
+  function selectText(event) {
+    if (drawing || event.button === 2) return;
+    if (
+      event.nativeEvent
+        .composedPath()
+        .some((element) => element?.matches?.("button, [role=menu]"))
+    )
+      return;
+    const selected = textSelection();
+    if (!selected) return;
+    const box = selected.range.getBoundingClientRect();
+    setSelection(null);
+    showActions([selected.target], {
+      x: event.clientX ?? box.left,
+      y: event.clientY ?? box.bottom,
+    });
+  }
+
+  function contextMenu(event) {
+    if (drawing) return;
+    const row = event.nativeEvent
+      .composedPath()
+      .find((element) => element?.matches?.("[data-line]"));
+    if (!row) return;
+    event.preventDefault();
+    const side = rowSide(row);
+    const line = Number(row.dataset.line);
+    const text = textSelection();
+    const selected = text ? [text.target] : currentSelection.current;
+    const inSelection = selected.some(
+      (target) =>
+        target.side === side && line >= target.start && line <= target.end,
+    );
+    showActions(inSelection ? selected : [makeTarget(side, line, line)], {
+      x: event.clientX,
+      y: event.clientY,
+    });
+  }
+
+  function blockTargets(block) {
+    return ["old", "new"]
+      .filter((side) => block[`${side}_count`] > 0)
+      .map((side) =>
+        makeTarget(
+          side,
+          block[`${side}_start`],
+          block[`${side}_start`] + block[`${side}_count`] - 1,
+        ),
+      );
+  }
+
+  const annotations = useMemo(
+    () => [
+      ...file.blocks.map((block, index) => {
+        const side = block.new_count ? "new" : "old";
+        return {
+          side: side === "old" ? "deletions" : "additions",
+          lineNumber: block[`${side}_start`] - 1,
+          metadata: { kind: "block", block, index },
+        };
+      }),
+      ...(against === "base" ? review?.decision.regions || [] : []).map(
+        (region) => ({
+          side: region.side === "old" ? "deletions" : "additions",
+          lineNumber: region.end,
+          metadata: { kind: "region", region },
+        }),
+      ),
+      ...threads.flatMap((thread) =>
+        thread.targets
+          .filter(
+            (target) =>
+              target.path === file.path &&
+              thread.revision === revision &&
+              thread.against === against,
+          )
+          .map((target) => ({
+            side: target.side === "old" ? "deletions" : "additions",
+            lineNumber: target.side === "file" ? 0 : target.end,
+            metadata: { kind: "thread", thread },
+          })),
+      ),
+    ],
+    [file.blocks, file.path, against, revision, review, threads],
   );
 
   useEffect(() => {
     setSelection(null);
+    setMenu(null);
+    currentSelection.current = [];
   }, [file.path, revision, against]);
+
+  useEffect(() => {
+    setMenu(null);
+  }, [style, expanded]);
+
+  useEffect(() => {
+    if (drawing) setMenu(null);
+  }, [drawing]);
+
+  useEffect(() => {
+    const scroller = container.current.closest(".diff-scroll");
+    const close = () => setMenu(null);
+    scroller.addEventListener("scroll", close);
+    window.addEventListener("resize", close);
+    return () => {
+      scroller.removeEventListener("scroll", close);
+      window.removeEventListener("resize", close);
+    };
+  }, []);
 
   useEffect(() => {
     const element = container.current;
@@ -135,7 +274,7 @@ export function CodeCanvas({
         const origin = element.getBoundingClientRect();
         const visible = rows();
         for (const row of visible) {
-          const marked = targets.some(
+          const marked = markedTargets.some(
             (target) =>
               target.path === file.path &&
               target.side === rowSide(row) &&
@@ -147,7 +286,7 @@ export function CodeCanvas({
             : "";
         }
         setSavedStrokes(
-          targets
+          markedTargets
             .filter((target) => target.path === file.path && target.drawing)
             .flatMap((target) => {
               const selected = visible.filter(
@@ -186,7 +325,7 @@ export function CodeCanvas({
       observer.disconnect();
       element.removeEventListener("scroll", measure, true);
     };
-  }, [file.path, targets, style, expanded]);
+  }, [file.path, markedTargets, style, expanded]);
 
   useEffect(() => {
     if (!jump || jump.path !== file.path) return;
@@ -243,7 +382,7 @@ export function CodeCanvas({
           clamp((py - y) / height),
         ]),
     };
-    onSelect([target]);
+    showActions([target], { x: event.clientX, y: event.clientY });
   }
 
   const options = useMemo(
@@ -274,19 +413,276 @@ export function CodeCanvas({
       className={`code-canvas ${drawing ? "drawing" : ""}`}
       ref={container}
       onPointerUp={selectText}
+      onPointerDown={(event) => {
+        if (event.button === 0 && !event.shiftKey)
+          currentSelection.current = [];
+      }}
+      onContextMenu={contextMenu}
+      onKeyUp={(event) => {
+        if (event.key === "Shift") selectText(event);
+      }}
+      tabIndex={0}
+      aria-label="代码差异"
     >
       <FileDiff
         fileDiff={fileDiff}
         options={options}
         selectedLines={selection}
         lineAnnotations={annotations}
-        renderAnnotation={({ metadata }) => (
-          <button className="inline-thread" onClick={() => onThread(metadata)}>
-            ↳ {metadata.messages[0].body.slice(0, 100)}{" "}
-            <span>{metadata.status === "open" ? "讨论" : "已解决"}</span>
-          </button>
-        )}
+        renderAnnotation={({ metadata }) => {
+          if (metadata.kind === "thread") {
+            const thread = metadata.thread;
+            return (
+              <button
+                className="inline-thread"
+                onClick={() => onThread(thread)}
+              >
+                ↳ {thread.messages[0].body.slice(0, 100)}{" "}
+                <span>{thread.status === "open" ? "讨论" : "已解决"}</span>
+              </button>
+            );
+          }
+          if (metadata.kind === "region") {
+            const region = metadata.region;
+            return (
+              <div className="inline-region">
+                <span>
+                  {region.side === "old" ? "旧" : "新"} {region.start}–
+                  {region.end} 行
+                </span>
+                <span className={`status status-${region.status}`}>
+                  {reviewLabels[region.status]}
+                </span>
+                {region.reason && <span>{region.reason}</span>}
+                {region.status !== "pending" && (
+                  <Button
+                    size="compact-xs"
+                    variant="subtle"
+                    disabled={busy}
+                    onClick={() =>
+                      onDecide("pending", {
+                        targets: [
+                          makeTarget(region.side, region.start, region.end),
+                        ],
+                      })
+                    }
+                  >
+                    重新审阅选区
+                  </Button>
+                )}
+              </div>
+            );
+          }
+          const { block, index } = metadata;
+          const status =
+            against === "base"
+              ? review?.blocks.find((b) => b.id === block.id)?.review_status ||
+                "pending"
+              : "pending";
+          const reason =
+            against === "base"
+              ? review?.decision.blocks?.[block.id]?.reason
+              : null;
+          return (
+            <div className="inline-block" aria-label={`改动块 ${index + 1}`}>
+              <span className="block-location">
+                改动块 {index + 1} ·{" "}
+                {block.new_count
+                  ? `新 ${block.new_start}–${block.new_start + block.new_count - 1}`
+                  : `旧 ${block.old_start}–${block.old_start + block.old_count - 1}`}{" "}
+                行
+              </span>
+              {against === "base" && (
+                <span className={`status status-${status}`}>
+                  {reviewLabels[status]}
+                </span>
+              )}
+              <div className="actions">
+                <Button
+                  size="compact-xs"
+                  variant="subtle"
+                  disabled={
+                    busy ||
+                    against !== "base" ||
+                    (status === "pending" &&
+                      review?.review_status === "feedback")
+                  }
+                  onClick={() =>
+                    onDecide(status === "pending" ? "accepted" : "pending", {
+                      blocks: [block],
+                    })
+                  }
+                >
+                  {status === "pending" ? "通过此块" : "重新审阅此块"}
+                </Button>
+                <Button
+                  size="compact-xs"
+                  variant="subtle"
+                  onClick={(event) => {
+                    const box = event.currentTarget.getBoundingClientRect();
+                    showActions(
+                      blockTargets(block),
+                      {
+                        x: box.left,
+                        y: box.bottom,
+                        keyboard: event.detail === 0,
+                      },
+                      [block],
+                    );
+                  }}
+                  aria-label={`改动块 ${index + 1} 的更多操作`}
+                >
+                  更多
+                </Button>
+              </div>
+              {reason && <small className="block-reason">{reason}</small>}
+            </div>
+          );
+        }}
       />
+      <Menu
+        opened={!!menu}
+        onChange={(opened) => {
+          if (!opened) setMenu(null);
+        }}
+        position="bottom-start"
+        offset={6}
+        shadow="md"
+        width={260}
+        withinPortal
+        trapFocus={menu?.keyboard || false}
+        returnFocus={false}
+        menuItemTabIndex={0}
+        withInitialFocusPlaceholder={false}
+        transitionProps={{ duration: 0 }}
+      >
+        <Menu.Target>
+          <span
+            className="code-menu-anchor"
+            style={{ left: menu?.x || 0, top: menu?.y || 0 }}
+          />
+        </Menu.Target>
+        <Menu.Dropdown
+          aria-label="代码审阅操作"
+          onPointerUp={(event) => event.stopPropagation()}
+          style={{ maxHeight: "calc(100dvh - 16px)", overflowY: "auto" }}
+        >
+          {menu && (
+            <>
+              {!menu.blockOnly && (
+                <>
+                  <Menu.Label>
+                    {menu.targets
+                      .map(
+                        (t) =>
+                          `${t.side === "old" ? "旧" : "新"} ${t.start}${t.end === t.start ? "" : `–${t.end}`} 行`,
+                      )
+                      .join("、")}
+                  </Menu.Label>
+                  <Menu.Item onClick={() => onSelect(menu.targets)}>
+                    {hasDraft ? "替换当前标注" : "评论选区"}
+                  </Menu.Item>
+                  {hasDraft && (
+                    <Menu.Item onClick={() => onSelect(menu.targets, true)}>
+                      添加到当前标注
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    disabled={
+                      busy ||
+                      against !== "base" ||
+                      review?.review_status === "feedback"
+                    }
+                    onClick={() =>
+                      onDecide("accepted", { targets: menu.targets })
+                    }
+                  >
+                    仅通过所选行
+                  </Menu.Item>
+                  <Menu.Item
+                    disabled={busy || against !== "base"}
+                    onClick={() =>
+                      onDecide("excluded", { targets: menu.targets })
+                    }
+                  >
+                    排除所选行…
+                  </Menu.Item>
+                  <Menu.Item
+                    disabled={busy || against !== "base"}
+                    onClick={() =>
+                      onDecide("pending", { targets: menu.targets })
+                    }
+                  >
+                    重新审阅所选行
+                  </Menu.Item>
+                </>
+              )}
+              {!!menu.blocks.length && (
+                <>
+                  {!menu.blockOnly && <Menu.Divider />}
+                  <Menu.Label>
+                    {menu.blocks.length === 1
+                      ? `所在改动块 ${file.blocks.findIndex((b) => b.id === menu.blocks[0].id) + 1}`
+                      : `选区涉及 ${menu.blocks.length} 个改动块`}
+                  </Menu.Label>
+                  <Menu.Item
+                    onClick={() => onSelect(menu.blocks.flatMap(blockTargets))}
+                  >
+                    评论
+                    {menu.blocks.length === 1
+                      ? "整个改动块"
+                      : `这 ${menu.blocks.length} 个改动块`}
+                  </Menu.Item>
+                  {menu.blockOnly && hasDraft && (
+                    <Menu.Item onClick={() => onSelect(menu.targets, true)}>
+                      添加到当前标注
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    disabled={
+                      busy ||
+                      against !== "base" ||
+                      review?.review_status === "feedback"
+                    }
+                    onClick={() =>
+                      onDecide("accepted", { blocks: menu.blocks })
+                    }
+                  >
+                    通过
+                    {menu.blocks.length === 1
+                      ? "整个改动块"
+                      : `这 ${menu.blocks.length} 个改动块`}
+                  </Menu.Item>
+                  <Menu.Item
+                    disabled={busy || against !== "base"}
+                    onClick={() =>
+                      onDecide("excluded", { blocks: menu.blocks })
+                    }
+                  >
+                    排除
+                    {menu.blocks.length === 1
+                      ? "整个改动块"
+                      : `这 ${menu.blocks.length} 个改动块`}
+                    …
+                  </Menu.Item>
+                  <Menu.Item
+                    disabled={busy || against !== "base"}
+                    onClick={() => onDecide("pending", { blocks: menu.blocks })}
+                  >
+                    重新审阅
+                    {menu.blocks.length === 1
+                      ? "整个改动块"
+                      : `这 ${menu.blocks.length} 个改动块`}
+                  </Menu.Item>
+                </>
+              )}
+              {against !== "base" && (
+                <Menu.Label>切回完整改动后可标记通过</Menu.Label>
+              )}
+            </>
+          )}
+        </Menu.Dropdown>
+      </Menu>
       <svg
         className={`drawing-layer ${drawing ? "active" : ""}`}
         aria-label={drawing ? "在代码上拖动圈画" : "圈画标注"}
