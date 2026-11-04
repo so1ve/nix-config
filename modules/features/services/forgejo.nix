@@ -5,7 +5,7 @@
     requires.allOf = [
       "security/agenix"
       "virtualisation/podman"
-      "services/authelia"
+      "services/pocket-id"
       "services/cloudflared"
     ];
 
@@ -13,7 +13,7 @@
       autoStart = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Start Forgejo and configure its Authelia login source automatically.";
+        description = "Start Forgejo and configure its Pocket ID login source automatically.";
       };
 
       domain = lib.mkOption {
@@ -21,9 +21,9 @@
         description = "Public hostname served for Forgejo.";
       };
 
-      autheliaUrl = lib.mkOption {
+      pocketIdUrl = lib.mkOption {
         type = lib.types.str;
-        description = "Public base URL of the Authelia instance.";
+        description = "Public base URL of the Pocket ID instance.";
       };
 
       adminUsername = lib.mkOption {
@@ -94,7 +94,7 @@
         }
         // lib.optionalAttrs settings.autoStart {
           forgejo-oidc-setup = {
-            description = "Create the Forgejo administrator and Authelia OIDC source";
+            description = "Create the Forgejo administrator and Pocket ID OIDC source";
             wantedBy = [ "multi-user.target" ];
             requires = [ "forgejo.service" ];
             after = [ "forgejo.service" ];
@@ -108,8 +108,12 @@
               RemainAfterExit = true;
               TimeoutStartSec = "5min";
               EnvironmentFile = config.age.secrets.forgejo-env.path;
+              LoadCredential = "forgejo-oidc-client-secret:${config.age.secrets.forgejo-oidc-client-secret.path}";
             };
-            restartTriggers = [ config.age.secrets.forgejo-env.file ];
+            restartTriggers = [
+              config.age.secrets.forgejo-env.file
+              config.age.secrets.forgejo-oidc-client-secret.file
+            ];
             script = ''
               set -eu
 
@@ -146,7 +150,7 @@
               )"
               auth_source_id="$(
                 printf '%s\n' "$auth_sources" |
-                  awk '$2 == "authelia" { print $1; exit }'
+                  awk '$2 == "pocket-id" { print $1; exit }'
               )"
 
               configure_oauth() {
@@ -155,18 +159,24 @@
 
                 podman exec \
                   --env FORGEJO_OIDC_CLIENT_SECRET \
-                  forgejo forgejo admin auth "$action" \
-                  "$@" \
-                  --name authelia \
-                  --provider openidConnect \
-                  --key forgejo \
-                  --auto-discover-url ${lib.escapeShellArg "${settings.autheliaUrl}/.well-known/openid-configuration"} \
-                  --scopes openid \
-                  --scopes profile \
-                  --scopes email \
-                  --skip-local-2fa \
-                  --secret "$FORGEJO_OIDC_CLIENT_SECRET"
+                  forgejo sh -c '
+                    exec forgejo admin auth "$@" --secret "$FORGEJO_OIDC_CLIENT_SECRET"
+                  ' sh "$action" \
+                    "$@" \
+                    --name pocket-id \
+                    --provider openidConnect \
+                    --key forgejo \
+                    --auto-discover-url ${lib.escapeShellArg "${settings.pocketIdUrl}/.well-known/openid-configuration"} \
+                    --scopes openid \
+                    --scopes profile \
+                    --scopes email \
+                    --skip-local-2fa
               }
+
+              FORGEJO_OIDC_CLIENT_SECRET="$(
+                <"$CREDENTIALS_DIRECTORY/forgejo-oidc-client-secret"
+              )"
+              export FORGEJO_OIDC_CLIENT_SECRET
 
               if test -n "$auth_source_id"; then
                 configure_oauth update-oauth --id "$auth_source_id"

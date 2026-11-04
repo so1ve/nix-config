@@ -6,6 +6,7 @@
       "security/agenix"
       "virtualisation/podman"
       "services/cloudflared"
+      "services/pocket-id"
     ];
 
     options.autoStart = lib.mkOption {
@@ -71,6 +72,7 @@
                 Volume = [
                   "/var/lib/matrix/tuwunel:/var/lib/tuwunel"
                   "${config.age.secrets.tuwunel-config.path}:/etc/tuwunel.toml:ro"
+                  "${config.age.secrets.tuwunel-oidc-client-secret.path}:/run/secrets/tuwunel-oidc-client-secret:ro"
                 ];
                 Environment.TUWUNEL_CONFIG = "/etc/tuwunel.toml";
               };
@@ -124,7 +126,10 @@
         };
 
         systemd.services = {
-          tuwunel.restartTriggers = [ config.age.secrets.tuwunel-config.file ];
+          tuwunel.restartTriggers = [
+            config.age.secrets.tuwunel-config.file
+            config.age.secrets.tuwunel-oidc-client-secret.file
+          ];
           mautrix = {
             # The image changes ownership and upgrades these files, so it needs writable copies.
             preStart = ''
