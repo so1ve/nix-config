@@ -312,7 +312,7 @@ load_plugins("now", { "tiny-age.nvim" }, function()
     identities = { vim.fn.expand("~/.config/agenix/identity") },
     encrypt_to_identity = true,
   })
-})
+end)
 
 -- #############################
 -- # ftplugins                 #
