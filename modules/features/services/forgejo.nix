@@ -60,8 +60,16 @@
               FORGEJO__server__DISABLE_SSH = "true";
               FORGEJO__server__START_SSH_SERVER = "false";
               FORGEJO__repository__DEFAULT_BRANCH = "main";
+              FORGEJO__repository__DEFAULT_PRIVATE = "public";
+              FORGEJO__repository__DEFAULT_PUSH_CREATE_PRIVATE = "false";
+              FORGEJO__repository__ENABLE_PUSH_CREATE_USER = "true";
+              FORGEJO__repository__ENABLE_PUSH_CREATE_ORG = "true";
+              FORGEJO__server__LFS_START_SERVER = "true";
               FORGEJO__security__INSTALL_LOCK = "true";
+              FORGEJO__oauth2_client__ACCOUNT_LINKING = "auto";
               FORGEJO__oauth2_client__ENABLE_AUTO_REGISTRATION = "true";
+              FORGEJO__oauth2_client__UPDATE_AVATAR = "true";
+              FORGEJO__oauth2_client__USERNAME = "preferred_username";
               FORGEJO__service__DISABLE_REGISTRATION = "true";
               FORGEJO__service__REQUIRE_SIGNIN_VIEW = "true";
             };

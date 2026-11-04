@@ -61,7 +61,7 @@
             Environment = {
               APP_URL = settings.publicUrl;
               TRUST_PROXY = "true";
-              ALLOW_USER_SIGNUPS = "open";
+              ALLOW_USER_SIGNUPS = "withToken";
               UI_CONFIG_DISABLED = "true";
             };
             EnvironmentFile = [ config.age.secrets.pocket-id-env.path ];
