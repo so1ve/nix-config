@@ -16,6 +16,7 @@
             package = inputs.neovim-nightly-overlay.packages.${system}.default;
             sideloadInitLua = true;
             extraPackages = with pkgs; [
+              age
               bash-language-server
               copilot-language-server
               curl
