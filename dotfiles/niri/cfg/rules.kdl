@@ -32,6 +32,7 @@ window-rule {
 window-rule {
     match app-id=r#"^kitty$"#
     match app-id=r#"^dev\.zed\.Zed$"#
+    match app-id=r#"^(antigravity-ide|Antigravity IDE)$"#
     match app-id=r#"^com\.mitchellh\.ghostty$"#
 
     draw-border-with-background false

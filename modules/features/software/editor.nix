@@ -36,5 +36,12 @@
     "software/zed" = {
       home = _: { programs.zed-editor.enable = true; };
     };
+
+    "software/antigravity".home =
+      _:
+      { pkgs, ... }:
+      {
+        home.packages = [ pkgs.antigravity-ide ];
+      };
   };
 }
