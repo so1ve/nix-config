@@ -6,6 +6,7 @@
 - `rg`
 - `fd`
 - `tree-sitter-cli`
+- `age`
 
 ## TODOs
 

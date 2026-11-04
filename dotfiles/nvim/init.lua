@@ -201,6 +201,7 @@ vim.pack.add({
 
 vim.pack.add({
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
+  gh("so1ve/tiny-age.nvim"),
   gh("so1ve/tiny-gitref.nvim"),
   gh("stevearc/conform.nvim"),
   gh("folke/persistence.nvim"),
@@ -304,6 +305,13 @@ vim.filetype.add({
     ["compose%..*%.ya?ml"] = "yaml.docker-compose",
     ["docker%-compose%..*%.ya?ml"] = "yaml.docker-compose",
   },
+})
+
+load_plugins("now", { "tiny-age.nvim" }, function()
+  require("tiny-age").setup({
+    identities = { vim.fn.expand("~/.config/agenix/identity") },
+    encrypt_to_identity = true,
+  })
 })
 
 -- #############################
