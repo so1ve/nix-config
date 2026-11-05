@@ -1,0 +1,17 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content dashboard feeds">
+    {{template "user/dashboard/navbar" .}}
+    <div class="ui container so1ve-dashboard">
+        {{template "user/dashboard/repolist" .}}
+        <div class="so1ve-dashboard-main">
+            {{template "base/alert" .}}
+            {{template "user/heatmap" .}}
+            {{if .Feeds}}
+                {{template "user/dashboard/feeds" .}}
+            {{else}}
+                {{template "user/dashboard/guide" .}}
+            {{end}}
+        </div>
+    </div>
+</div>
+{{template "base/footer" .}}

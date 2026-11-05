@@ -1,0 +1,48 @@
+<div class="ui container so1ve-org-head">
+	{{ctx.AvatarUtils.Avatar .Org 96 "org-avatar"}}
+	<div id="org-info" class="so1ve-org-info">
+		<div class="org-title">
+			<h1>{{.Org.DisplayName}}</h1>
+			{{if .Org.Visibility.IsLimited}}<span class="ui label">{{ctx.Locale.Tr "org.settings.visibility.limited_shortname"}}</span>{{end}}
+			{{if .Org.Visibility.IsPrivate}}<span class="ui label">{{ctx.Locale.Tr "org.settings.visibility.private_shortname"}}</span>{{end}}
+		</div>
+		{{if .RenderedDescription}}<div class="render-content markup">{{.RenderedDescription}}</div>{{end}}
+		{{if or .Org.Location .Org.Website (and .IsSigned .Org.Email)}}
+			<ul class="so1ve-identity-meta">
+				{{if .Org.Location}}<li>{{svg "octicon-location"}}<span>{{.Org.Location}}</span></li>{{end}}
+				{{if .Org.Website}}<li>{{svg "octicon-link"}}<a class="muted" target="_blank" rel="noopener noreferrer me" href="{{.Org.Website}}">{{.Org.Website}}</a></li>{{end}}
+				{{if and .IsSigned .Org.Email}}<li>{{svg "octicon-mail"}}<a class="muted" href="mailto:{{.Org.Email}}">{{.Org.Email}}</a></li>{{end}}
+			</ul>
+		{{end}}
+	</div>
+	<div class="so1ve-org-actions">
+		{{if .Funding}}{{template "shared/donation_button" .}}{{end}}
+		{{if .IsOrganizationMember}}
+			<a class="ui secondary button" href="{{.OrgLink}}/dashboard">{{ctx.Locale.Tr "org.open_dashboard"}}</a>
+		{{end}}
+		{{if .IsSigned}}{{template "org/follow_unfollow" .}}{{end}}
+		{{$moderationEntryNeeded := and .IsModerationEnabled .IsSigned (not .IsOrganizationOwner)}}
+		{{if or .EnableFeed $moderationEntryNeeded}}
+			<details class="dropdown dir-rtl">
+				<summary class="border" data-tooltip-content="{{ctx.Locale.Tr "profile.actions.tooltip"}}" aria-label="{{ctx.Locale.Tr "profile.actions.tooltip"}}">{{svg "octicon-kebab-horizontal"}}</summary>
+				<div class="content">
+					<ul>
+						{{if .EnableFeed}}
+							<li><a href="{{.Org.HomeLink}}.rss">{{svg "octicon-rss"}}{{ctx.Locale.Tr "rss_feed"}}</a></li>
+							<li><a href="{{.Org.HomeLink}}.atom">{{svg "octicon-rss"}}{{ctx.Locale.Tr "feed.atom.link"}}</a></li>
+						{{end}}
+						{{if $moderationEntryNeeded}}
+							<li><a class="orange text" href="{{AppSubUrl}}/report_abuse?type=org&id={{$.Org.ID}}">{{svg "octicon-stop"}}{{ctx.Locale.Tr "moderation.report_abuse"}}</a></li>
+						{{end}}
+					</ul>
+				</div>
+			</details>
+		{{end}}
+	</div>
+</div>
+
+{{if .Funding}}
+	{{template "shared/funding" .}}
+{{end}}
+
+{{template "org/menu" .}}

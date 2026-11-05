@@ -1,0 +1,69 @@
+<div role="main" aria-label="{{.Title}}" class="page-content user notification" id="notification_div" data-sequence-number="{{.SequenceNumber}}">
+    <div class="ui container flex-container">
+        {{$page := "read"}}{{if eq .Status 1}}{{$page = "unread"}}{{end}}
+        {{template "user/notification/so1ve_nav" dict "ctxData" . "page" $page}}
+        <div class="flex-container-main">
+        <header class="so1ve-page-head">
+            <h1>{{if eq .Status 1}}{{ctx.Locale.Tr "notification.unread"}}{{else}}{{ctx.Locale.Tr "notification.read"}}{{end}}</h1>
+            {{if and (eq .Status 1) .Notifications}}
+                <form action="{{AppSubUrl}}/notifications/purge" method="post">
+                    <button class="ui secondary button">{{svg "octicon-checklist"}}{{ctx.Locale.Tr "notification.mark_all_as_read"}}</button>
+                </form>
+            {{end}}
+        </header>
+		<div id="notification_table" class="so1ve-list">
+			{{if not .Notifications}}
+				<div class="so1ve-empty">
+					{{svg "octicon-inbox" 28}}
+					<p>{{if eq .Status 1}}{{ctx.Locale.Tr "notification.no_unread"}}{{else}}{{ctx.Locale.Tr "notification.no_read"}}{{end}}</p>
+				</div>
+			{{else}}
+				{{range $notification := .Notifications}}
+					<div class="notifications-item" id="notification_{{.ID}}" data-status="{{.Status}}">
+						<div class="notifications-icon">
+							{{if .Issue}}{{template "shared/issueicon" .Issue}}{{else}}{{svg "octicon-repo" 16 "text grey"}}{{end}}
+						</div>
+						<a class="notifications-link silenced" href="{{.Link ctx}}">
+							<span class="notifications-title issue-title">
+								{{if .Issue}}{{RenderRefIssueTitle $.Context .Issue.Title}}{{else}}{{.Repository.FullName}}{{end}}
+							</span>
+							<span class="notifications-repo">
+								{{.Repository.FullName}}{{if .Issue}} <span>#{{.Issue.Index}}</span>{{end}}
+								{{if eq .Status 3}}{{svg "octicon-pin" 12}}{{end}}
+							</span>
+						</a>
+						<span class="notifications-updated">
+							{{if .Issue}}{{DateUtils.TimeSince .Issue.UpdatedUnix}}{{else}}{{DateUtils.TimeSince .UpdatedUnix}}{{end}}
+						</span>
+						<div class="notifications-buttons">
+							{{if ne .Status 3}}
+								<form action="{{AppSubUrl}}/notifications/status" method="post">
+									<input type="hidden" name="notification_id" value="{{.ID}}">
+									<input type="hidden" name="status" value="pinned">
+									<button class="btn interact-bg" title="{{ctx.Locale.Tr "notification.pin"}}" aria-label="{{ctx.Locale.Tr "notification.pin"}}" data-url="{{AppSubUrl}}/notifications/status" data-status="pinned" data-page="{{$.Page.Paginater.Current}}" data-notification-id="{{.ID}}" data-q="{{$.Keyword}}">{{svg "octicon-pin"}}</button>
+								</form>
+							{{end}}
+							{{if or (eq .Status 1) (eq .Status 3)}}
+								<form action="{{AppSubUrl}}/notifications/status" method="post">
+									<input type="hidden" name="notification_id" value="{{.ID}}">
+									<input type="hidden" name="status" value="read">
+									<input type="hidden" name="page" value="{{$.Page.Paginater.Current}}">
+									<button class="btn interact-bg" title="{{ctx.Locale.Tr "notification.mark_as_read"}}" aria-label="{{ctx.Locale.Tr "notification.mark_as_read"}}" data-url="{{AppSubUrl}}/notifications/status" data-status="read" data-page="{{$.Page.Paginater.Current}}" data-notification-id="{{.ID}}" data-q="{{$.Keyword}}">{{svg "octicon-check"}}</button>
+								</form>
+							{{else if eq .Status 2}}
+								<form action="{{AppSubUrl}}/notifications/status" method="post">
+									<input type="hidden" name="notification_id" value="{{.ID}}">
+									<input type="hidden" name="status" value="unread">
+									<input type="hidden" name="page" value="{{$.Page.Paginater.Current}}">
+									<button class="btn interact-bg" title="{{ctx.Locale.Tr "notification.mark_as_unread"}}" aria-label="{{ctx.Locale.Tr "notification.mark_as_unread"}}" data-url="{{AppSubUrl}}/notifications/status" data-status="unread" data-page="{{$.Page.Paginater.Current}}" data-notification-id="{{.ID}}" data-q="{{$.Keyword}}">{{svg "octicon-bell"}}</button>
+								</form>
+							{{end}}
+						</div>
+					</div>
+				{{end}}
+			{{end}}
+		</div>
+		{{template "base/paginate" .}}
+        </div>
+	</div>
+</div>

@@ -1,0 +1,137 @@
+{{template "user/settings/layout_head" (dict "ctxData" . "pageClass" "user settings profile")}}
+	<div class="user-setting-content so1ve-settings">
+		<header class="so1ve-page-head">
+			<h1>{{ctx.Locale.Tr "settings.public_profile"}}</h1>
+		</header>
+
+		<section id="avatar-settings" class="so1ve-settings-section">
+			<h2>{{ctx.Locale.Tr "settings.avatar"}}</h2>
+			<form class="ui form so1ve-avatar-form" action="{{.Link}}/avatar" method="post" enctype="multipart/form-data">
+				<div class="so1ve-avatar-current">{{ctx.AvatarUtils.Avatar .SignedUser 128}}</div>
+				<div class="so1ve-avatar-controls">
+					{{if .DisableGravatar}}
+						<input type="hidden" name="source" value="local">
+					{{else}}
+						<div class="so1ve-radio-group">
+							<label><input name="source" value="lookup" type="radio" {{if not .SignedUser.UseCustomAvatar}}checked{{end}}> {{ctx.Locale.Tr "settings.lookup_avatar_by_mail"}}</label>
+							<label><input name="source" value="local" type="radio" {{if .SignedUser.UseCustomAvatar}}checked{{end}}> {{ctx.Locale.Tr "settings.enable_custom_avatar"}}</label>
+						</div>
+						<label class="{{if .Err_Gravatar}}field error{{end}}">
+							Avatar {{ctx.Locale.Tr "email"}}
+							<input id="gravatar" name="gravatar" value="{{.SignedUser.AvatarEmail}}">
+						</label>
+					{{end}}
+					<label class="so1ve-file">
+						<span class="tw-sr-only">{{ctx.Locale.Tr "settings.choose_new_avatar"}}</span>
+						<input id="new-avatar" name="avatar" aria-describedby="new-avatar-description" type="file" accept="image/png,image/jpeg,image/gif,image/webp">
+					</label>
+					<span id="new-avatar-description" class="help">{{ctx.Locale.Tr "avatar.constraints_hint" (ctx.Locale.TrSize .MaxAvatarFileSize) .MaxAvatarWidth .MaxAvatarHeight}}</span>
+					<div class="so1ve-inline-actions">
+						<button class="ui primary button">{{ctx.Locale.Tr "settings.update_avatar"}}</button>
+						{{if .SignedUser.UseCustomAvatar}}
+							<button type="button" class="ui basic red button link-action" data-url="{{.Link}}/avatar/delete">{{ctx.Locale.Tr "settings.delete_current_avatar"}}</button>
+						{{end}}
+					</div>
+				</div>
+			</form>
+		</section>
+
+		<form class="ui form" action="{{.Link}}" method="post">
+			<section class="so1ve-settings-section">
+				<h2>{{ctx.Locale.Tr "settings.profile_desc"}}</h2>
+				<div class="so1ve-field-grid">
+					<label {{if .Err_FullName}}class="field error"{{end}}>
+						{{ctx.Locale.Tr "settings.full_name"}}
+						<input name="full_name" value="{{.SignedUser.FullName}}" maxlength="100">
+					</label>
+					<label id="label-pronouns">
+						{{ctx.Locale.Tr "settings.pronouns"}}
+						<input name="pronouns" list="pronouns" placeholder="{{ctx.Locale.Tr "settings.pronouns_unspecified"}}" value="{{.SignedUser.Pronouns}}" maxlength="50">
+						<datalist id="pronouns">
+							{{range .CommonPronouns}}<option value="{{.}}"></option>{{end}}
+						</datalist>
+					</label>
+				</div>
+				<label {{if .Err_Name}}class="field error"{{end}}>
+					{{ctx.Locale.Tr "username"}}
+					<input name="name" value="{{.SignedUser.Name}}" data-name="{{.SignedUser.Name}}" required {{if or .UserRenameDisabled .IsReverseProxy}}disabled{{end}} maxlength="40">
+					{{if or .UserRenameDisabled .IsReverseProxy}}
+						<span class="help">{{ctx.Locale.Tr "settings.password_username_disabled"}}</span>
+					{{else}}
+						<span class="help">
+							{{ctx.Locale.Tr "settings.change_username_prompt"}}
+							{{if gt .CooldownPeriod 0}}
+								{{ctx.Locale.TrN .CooldownPeriod "settings.change_username_redirect_prompt.with_cooldown.one" "settings.change_username_redirect_prompt.with_cooldown.few" .CooldownPeriod}}
+							{{else}}
+								{{ctx.Locale.Tr "settings.change_username_redirect_prompt"}}
+							{{end}}
+						</span>
+					{{end}}
+				</label>
+				<label {{if .Err_Biography}}class="field error"{{end}}>
+					{{ctx.Locale.Tr "user.user_bio"}}
+					<textarea name="biography" rows="3" placeholder="{{ctx.Locale.Tr "settings.biography_placeholder"}}" maxlength="255">{{.SignedUser.Description}}</textarea>
+					<span class="help">{{ctx.Locale.Tr "settings.profile.dotprofile.hint" ".profile" (AppDocsURL "user/collaboration/profile/")}}</span>
+				</label>
+				<div class="so1ve-field-grid">
+					<label {{if .Err_Website}}class="field error"{{end}}>
+						{{ctx.Locale.Tr "settings.website"}}
+						<input name="website" type="url" value="{{.SignedUser.Website}}" maxlength="255" pattern="{{.ValidSiteURLPattern}}" placeholder="https://">
+					</label>
+					<label>
+						{{ctx.Locale.Tr "settings.location"}}
+						<input name="location" placeholder="{{ctx.Locale.Tr "settings.location_placeholder"}}" value="{{.SignedUser.Location}}" maxlength="50">
+					</label>
+				</div>
+			</section>
+
+			<section class="so1ve-settings-section">
+				<h2 id="privacy-user-settings">{{ctx.Locale.Tr "settings.privacy"}}</h2>
+				<label id="visibility-setting" {{if .Err_Visibility}}class="field error"{{end}}>
+					{{ctx.Locale.Tr "user.visibility.label"}}
+					<div class="ui selection type dropdown" aria-labelledby="visibility-setting">
+						{{if .SignedUser.Visibility.IsPublic}}<input type="hidden" id="visibility" name="visibility" value="0">{{end}}
+						{{if .SignedUser.Visibility.IsLimited}}<input type="hidden" id="visibility" name="visibility" value="1">{{end}}
+						{{if .SignedUser.Visibility.IsPrivate}}<input type="hidden" id="visibility" name="visibility" value="2">{{end}}
+						<div class="text">
+							{{if .SignedUser.Visibility.IsPublic}}{{ctx.Locale.Tr "user.visibility.public.title"}}{{end}}
+							{{if .SignedUser.Visibility.IsLimited}}{{ctx.Locale.Tr "user.visibility.limited.title"}}{{end}}
+							{{if .SignedUser.Visibility.IsPrivate}}{{ctx.Locale.Tr "user.visibility.private.title"}}{{end}}
+						</div>
+						{{svg "octicon-triangle-down" 14 "dropdown icon"}}
+						<div class="menu">
+							{{range $mode := .AllowedUserVisibilityModes}}
+								{{if $mode.IsPublic}}
+									<div class="item" data-tooltip-content="{{ctx.Locale.Tr "user.visibility.public.tooltip"}}" data-value="0">{{ctx.Locale.Tr "user.visibility.public.title"}}</div>
+								{{else if $mode.IsLimited}}
+									<div class="item" data-tooltip-content="{{ctx.Locale.Tr "user.visibility.limited.tooltip"}}" data-value="1">{{ctx.Locale.Tr "user.visibility.limited.title"}}</div>
+								{{else if $mode.IsPrivate}}
+									<div class="item" data-tooltip-content="{{ctx.Locale.Tr "user.visibility.private.tooltip"}}" data-value="2">{{ctx.Locale.Tr "user.visibility.private.title"}}</div>
+								{{end}}
+							{{end}}
+						</div>
+					</div>
+					<span class="help">{{ctx.Locale.Tr "settings.visibility.description" (AppDocsURL "user/repo-permissions/#profile-and-visibility")}}</span>
+				</label>
+				<div class="so1ve-check-list">
+					<label class="so1ve-check-row">
+						<input name="keep_email_private" type="checkbox" {{if .SignedUser.KeepEmailPrivate}}checked{{end}}>
+						<span><strong>{{ctx.Locale.Tr "settings.keep_email_private"}}</strong><span class="help">{{ctx.Locale.Tr "settings.keep_email_private_popup" .SignedUser.GetPlaceholderEmail}}</span></span>
+					</label>
+					<label id="keep-activity-private" class="so1ve-check-row">
+						<input name="keep_activity_private" type="checkbox" {{if .SignedUser.KeepActivityPrivate}}checked{{end}}>
+						<span><strong>{{ctx.Locale.Tr "settings.keep_activity_private"}}</strong><span class="help">{{ctx.Locale.Tr "settings.keep_activity_private.description" (printf "/%s?tab=activity" .SignedUser.Name)}}</span></span>
+					</label>
+					<label class="so1ve-check-row">
+						<input name="keep_pronouns_private" type="checkbox" {{if .SignedUser.KeepPronounsPrivate}}checked{{end}}>
+						<span><strong>{{ctx.Locale.Tr "settings.keep_pronouns_private"}}</strong><span class="help">{{ctx.Locale.Tr "settings.keep_pronouns_private.description"}}</span></span>
+					</label>
+				</div>
+			</section>
+
+			<div class="so1ve-form-actions">
+				<button class="ui primary button">{{ctx.Locale.Tr "settings.update_profile"}}</button>
+			</div>
+		</form>
+	</div>
+{{template "user/settings/layout_footer" .}}

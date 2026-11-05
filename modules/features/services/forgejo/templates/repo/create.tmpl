@@ -1,0 +1,102 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content repository new repo">
+	<div class="ui container so1ve-form-page">
+		<header class="so1ve-page-head">
+			<h1>{{ctx.Locale.Tr "new_repo.title"}}</h1>
+			{{if not .DisableMigrations}}
+				<div class="so1ve-page-actions">
+					<a class="ui secondary button" href="{{AppSubUrl}}/repo/migrate">{{svg "octicon-repo-push"}}{{ctx.Locale.Tr "repo.migrate_repo"}}</a>
+				</div>
+			{{end}}
+		</header>
+		<form class="ui form so1ve-form" action="{{.Link}}" method="post">
+			{{if or .CanCreateRepo .Orgs}}
+				{{template "base/alert" .}}
+				{{if and (not .CanCreateRepo) (ne .MaxCreationLimit 0)}}
+					<div class="ui negative message">
+						<p>{{ctx.Locale.TrN .MaxCreationLimit "repo.form.reach_limit_of_creation_1" "repo.form.reach_limit_of_creation_n" .MaxCreationLimit}}</p>
+					</div>
+				{{end}}
+
+				<section class="so1ve-form-section">
+					<div class="so1ve-repo-path">
+						<label id="repo_owner_label" {{if .Err_Owner}}class="field error"{{end}}>
+							{{ctx.Locale.Tr "repo.owner"}}
+							<div class="ui selection required dropdown" aria-labelledby="repo_owner_label">
+								{{if .CanCreateRepo}}
+									<input type="hidden" id="uid" name="uid" value="{{.ContextUser.ID}}" required>
+									<span class="text truncated-item-container" title="{{.ContextUser.Name}}">
+										{{ctx.AvatarUtils.Avatar .ContextUser 20 "mini"}}
+										<span class="truncated-item-name">{{.ContextUser.ShortName 40}}</span>
+									</span>
+								{{else if .Orgs}}
+									<input type="hidden" id="uid" name="uid" value="{{(index .Orgs 0).ID}}" required>
+									<span class="text truncated-item-container" title="{{(index .Orgs 0).Name}}">
+										{{ctx.AvatarUtils.Avatar (index .Orgs 0) 20 "mini"}}
+										<span class="truncated-item-name">{{(index .Orgs 0).ShortName 40}}</span>
+									</span>
+								{{end}}
+								{{svg "octicon-triangle-down" 14 "dropdown icon"}}
+								<div class="menu">
+									{{if .CanCreateRepo}}
+										<div class="item truncated-item-container" data-value="{{.SignedUser.ID}}" title="{{.SignedUser.Name}}">
+											{{ctx.AvatarUtils.Avatar .SignedUser 20 "mini"}}
+											<span class="truncated-item-name">{{.SignedUser.ShortName 40}}</span>
+										</div>
+									{{end}}
+									{{range .Orgs}}
+										<div class="item truncated-item-container" data-value="{{.ID}}" title="{{.Name}}">
+											{{ctx.AvatarUtils.Avatar . 20 "mini"}}
+											<span class="truncated-item-name">{{.ShortName 40}}</span>
+										</div>
+									{{end}}
+								</div>
+							</div>
+						</label>
+						<span class="so1ve-repo-path-slash" aria-hidden="true">/</span>
+						<label {{if .Err_RepoName}}class="field error"{{end}}>
+							{{ctx.Locale.Tr "repo.repo_name"}}
+							<input name="repo_name" value="{{.repo_name}}" required maxlength="100" autocorrect="off" autocapitalize="none" spellcheck="false" autofocus>
+						</label>
+					</div>
+
+					<label {{if .Err_Description}}class="field error"{{end}}>
+						{{ctx.Locale.Tr "repo.repo_desc"}}
+						<textarea rows="2" name="description" placeholder="{{ctx.Locale.Tr "repo.repo_desc_helper"}}" maxlength="2048">{{.description}}</textarea>
+					</label>
+
+					<label class="so1ve-check-row">
+						<input name="private" type="checkbox" {{if .IsForcedPrivate}}checked disabled{{else}}{{if .private}}checked{{end}}{{end}}>
+						<span>
+							<strong>{{ctx.Locale.Tr "repo.visibility_helper"}}</strong>
+							<span class="help">{{if .IsForcedPrivate}}{{ctx.Locale.Tr "repo.visibility_helper_forced"}}{{else}}{{ctx.Locale.Tr "repo.visibility_description"}}{{end}}</span>
+						</span>
+					</label>
+				</section>
+
+				<section class="so1ve-form-section">
+					{{template "repo/create_from_template" .}}
+				</section>
+
+				<div id="non_template">
+					<section class="so1ve-form-section">
+						{{template "repo/create_init" .}}
+					</section>
+					<details class="so1ve-form-section so1ve-disclosure">
+						<summary>{{ctx.Locale.Tr "repo.new_advanced"}}</summary>
+						<div class="so1ve-disclosure-body">
+							{{template "repo/create_advanced" .}}
+						</div>
+					</details>
+				</div>
+
+				<div class="so1ve-form-actions">
+					<button class="ui primary button">{{ctx.Locale.Tr "repo.create_repo"}}</button>
+				</div>
+			{{else}}
+				<div class="ui negative message">{{ctx.Locale.Tr "repo.form.cannot_create"}}</div>
+			{{end}}
+		</form>
+	</div>
+</div>
+{{template "base/footer" .}}

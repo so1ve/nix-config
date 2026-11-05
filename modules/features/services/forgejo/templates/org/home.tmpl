@@ -1,0 +1,85 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content organization profile">
+	{{if .Flash}}
+		<div class="ui container tw-mb-4">
+			{{template "base/alert" .}}
+		</div>
+	{{end}}
+	{{if .Invite}}
+		<div class="ui container tw-mb-4">
+			<div class="ui info message tw-flex tw-items-center tw-justify-between">
+				<div>
+					{{if eq (len .TeamsInvitedTo) 1}}
+						{{$teamsFormatted := HTMLFormat "<b>%s</b>" (index .TeamsInvitedTo 0).Name}}
+						{{ctx.Locale.Tr "org.pending_invite_notification_single_team" $teamsFormatted}}
+					{{else}}
+						{{$teamsFormatted := ""}}
+						{{range $i, $v := .TeamsInvitedTo}}
+							{{$comma := ""}}
+							{{if $i}}{{$comma = ", "}}{{end}}
+							{{$teamsFormatted = HTMLFormat "%s%s<b>%s</b>" $teamsFormatted $comma .Name}}
+						{{end}}
+						{{ctx.Locale.Tr "org.pending_invite_notification_multiple_teams" $teamsFormatted}}
+					{{end}}
+				</div>
+				<div><a class="primary button" href="{{AppSubUrl}}/org/invite/{{.Invite.Token}}">{{ctx.Locale.Tr "org.view_invite"}}</a></div>
+			</div>
+		</div>
+	{{end}}
+	{{template "org/header" .}}
+
+	<div class="ui container so1ve-org-layout{{if .ShowMemberAndTeamTab}} has-aside{{end}}">
+		<section class="so1ve-org-main">
+			{{if .ProfileReadme}}
+				<div id="readme_profile" class="{{if not .IsProfileReadmePlain}}markup{{end}}">
+					{{if .IsProfileReadmePlain}}<pre>{{.ProfileReadme}}</pre>{{else}}{{.ProfileReadme}}{{end}}
+				</div>
+			{{end}}
+			<div class="so1ve-list-toolbar">
+				{{template "shared/repo_search" .}}
+				{{if .CanCreateOrgRepo}}
+                    <a class="ui primary button" href="{{AppSubUrl}}/repo/create?org={{.Org.ID}}">{{svg "octicon-plus"}}{{ctx.Locale.Tr "new_repo.link"}}</a>
+				{{end}}
+			</div>
+			{{template "explore/repo_list" .}}
+			{{template "base/paginate" .}}
+		</section>
+
+		{{if .ShowMemberAndTeamTab}}
+			<aside class="so1ve-org-aside">
+				{{if .NumMembers}}
+					<section class="so1ve-aside-section">
+						<h2><a class="muted" href="{{.OrgLink}}/members">{{ctx.Locale.Tr "org.members"}}<span>{{.NumMembers}}</span></a></h2>
+						<div class="members">
+							{{$isMember := .IsOrganizationMember}}
+							{{range .Members}}
+								{{if or $isMember (call $.IsPublicMember .ID)}}
+									<a href="{{.HomeLink}}" data-tooltip-content="{{.Name}}{{if .FullName}} ({{.FullName}}){{end}}" aria-label="{{.Name}}">{{ctx.AvatarUtils.Avatar . 32}}</a>
+								{{end}}
+							{{end}}
+						</div>
+					</section>
+				{{end}}
+				{{if .IsOrganizationMember}}
+					<section class="so1ve-aside-section">
+						<h2>
+							<a class="muted" href="{{.OrgLink}}/teams">{{ctx.Locale.Tr "org.teams"}}<span>{{.Org.NumTeams}}</span></a>
+							{{if .IsOrganizationOwner}}
+								<a class="so1ve-icon-link" href="{{.OrgLink}}/teams/new" data-tooltip-content="{{ctx.Locale.Tr "org.create_new_team"}}" aria-label="{{ctx.Locale.Tr "org.create_new_team"}}">{{svg "octicon-plus"}}</a>
+							{{end}}
+						</h2>
+						<ul class="so1ve-team-list">
+							{{range .Teams}}
+								<li>
+									<a href="{{$.OrgLink}}/teams/{{.LowerName | PathEscape}}">{{.Name}}</a>
+									<span>{{.NumMembers}} {{ctx.Locale.Tr "org.lower_members"}} · {{.NumRepos}} {{ctx.Locale.Tr "org.lower_repositories"}}</span>
+								</li>
+							{{end}}
+						</ul>
+					</section>
+				{{end}}
+			</aside>
+		{{end}}
+	</div>
+</div>
+{{template "base/footer" .}}

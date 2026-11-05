@@ -1,0 +1,99 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content repository releases">
+	{{template "repo/header" .}}
+	<div class="ui container">
+		{{template "base/alert" .}}
+		{{template "repo/release_tag_header" .}}
+		<ul id="release-list" class="so1ve-releases">
+			{{range $idx, $info := .Releases}}
+				{{$release := $info.Release}}
+				<li class="so1ve-release">
+					<aside class="meta so1ve-release-meta">
+						{{if $release.CreatedUnix}}<span class="so1ve-release-date" data-tooltip-content="{{DateUtils.AbsoluteLong $release.CreatedUnix}}">{{DateUtils.AbsoluteShort $release.CreatedUnix}}</span>{{end}}
+						<a class="muted" href="{{if not (and $release.Sha1 ($.Permission.CanRead $.UnitTypeCode))}}#{{else}}{{$.RepoLink}}/src/tag/{{$release.TagName | PathEscapeSegments}}{{end}}" rel="nofollow">{{svg "octicon-tag" 14}}<span>{{$release.TagName}}</span></a>
+						{{if and $release.Sha1 ($.Permission.CanRead $.UnitTypeCode)}}
+							<a class="muted tw-font-mono" href="{{$.RepoLink}}/src/commit/{{$release.Sha1}}" rel="nofollow">{{svg "octicon-git-commit" 14}}<span>{{ShortSha $release.Sha1}}</span></a>
+						{{end}}
+						<span class="author">
+							{{if $release.OriginalAuthor}}
+								{{svg (MigrationIcon $release.Repo.GetOriginalURLHostname) 14}}<span>{{$release.OriginalAuthor}}</span>
+							{{else if $release.Publisher}}
+								{{ctx.AvatarUtils.Avatar $release.Publisher 16}}
+								{{template "shared/user/authorlink" $release.Publisher}}
+							{{else}}
+								{{template "shared/user/authorlink" (dict "ID" -1)}}
+							{{end}}
+						</span>
+						{{if and (not $release.IsDraft) ($.Permission.CanRead $.UnitTypeCode)}}
+							<a class="muted ahead" href="{{$.RepoLink}}/compare/{{$release.TagName | PathEscapeSegments}}...{{$release.TargetBehind | PathEscapeSegments}}" data-tooltip-content="{{ctx.Locale.Tr "repo.release.ahead.target" $release.TargetBehind}}">{{svg "octicon-git-compare" 14}}<span>{{ctx.Locale.Tr "repo.release.ahead.commits" $release.NumCommitsBehind}}</span></a>
+						{{end}}
+					</aside>
+					<div class="so1ve-release-body">
+					<header class="release-title-wrap">
+						<div class="so1ve-release-title">
+							<h2>
+								<a href="{{$.RepoLink}}/releases/tag/{{$release.TagName | PathEscapeSegments}}">{{$release.Title}}</a>
+							</h2>
+							{{if $release.IsDraft}}
+								<span class="ui yellow label">{{ctx.Locale.Tr "repo.release.draft"}}</span>
+							{{else if $release.IsPrerelease}}
+								<span class="ui orange label">{{ctx.Locale.Tr "repo.release.prerelease"}}</span>
+							{{else if (not $release.IsTag)}}
+								<span class="ui green label">{{ctx.Locale.Tr "repo.release.stable"}}</span>
+							{{end}}
+							{{template "repo/commit_statuses" dict "Status" $info.CommitStatus "Statuses" $info.CommitStatuses "AdditionalClasses" "tw-flex"}}
+						</div>
+						<div class="so1ve-release-actions">
+							{{if and $release.Sha1 ($.Permission.CanRead $.UnitTypeCode)}}
+								{{template "repo/branch_dropdown" dict "root" $ "release" $release}}
+							{{end}}
+							{{if and $.CanCreateRelease (not $release.IsTag)}}
+								<a class="ui secondary button" href="{{$.RepoLink}}/releases/edit/{{$release.TagName | PathEscapeSegments}}" rel="nofollow">{{svg "octicon-pencil"}}{{ctx.Locale.Tr "repo.release.edit"}}</a>
+							{{end}}
+						</div>
+					</header>
+					<div class="detail">
+						{{template "repo/tag/verification_line" (dict "ctxData" $ "release" $release)}}
+						{{if $release.RenderedNote}}
+							<div class="markup desc">{{$release.RenderedNote}}</div>
+						{{end}}
+						{{$hasReleaseAttachment := gt (len $release.Attachments) 0}}
+						{{$hasArchiveLinks := and (not $.DisableDownloadSourceArchives) (not $release.IsDraft) (not $release.HideArchiveLinks) ($.Permission.CanRead $.UnitTypeCode)}}
+						{{if or $hasArchiveLinks $hasReleaseAttachment}}
+							<details class="download so1ve-assets" {{if eq $idx 0}}open{{end}}>
+								<summary>{{ctx.Locale.Tr "repo.release.downloads"}}</summary>
+								<ul class="list">
+									{{range $release.Attachments}}
+										{{if .ExternalURL}}
+											<li>
+												<a class="flex-text-inline" target="_blank" rel="nofollow" href="{{.DownloadURL}}">{{svg "octicon-link-external" 16}}{{.Name}}</a>
+											</li>
+										{{else}}
+											<li class="attachment">
+												<a class="flex-text-inline" target="_blank" rel="nofollow" href="{{.DownloadURL}}" download>{{svg "octicon-package" 16}}{{.Name}}</a>
+												<span class="text grey">{{.Size | ctx.Locale.TrSize}} · {{ctx.Locale.TrPluralString .DownloadCount "release.n_downloads" (ctx.Locale.PrettyNumber .DownloadCount)}}</span>
+											</li>
+										{{end}}
+									{{end}}
+									{{if $hasArchiveLinks}}
+										<li>
+											<a class="archive-link flex-text-inline" href="{{$.RepoLink}}/archive/{{$release.TagName | PathEscapeSegments}}.zip" rel="nofollow" type="application/zip">{{svg "octicon-file-zip" 16}}{{ctx.Locale.Tr "repo.release.source_code"}} (ZIP)</a>
+											<span class="text grey" data-tooltip-content="{{ctx.Locale.Tr "repo.release.system_generated"}}">{{ctx.Locale.TrPluralString $release.ArchiveDownloadCount.Zip "release.n_downloads" (ctx.Locale.PrettyNumber $release.ArchiveDownloadCount.Zip)}}</span>
+										</li>
+										<li>
+											<a class="archive-link flex-text-inline" href="{{$.RepoLink}}/archive/{{$release.TagName | PathEscapeSegments}}.tar.gz" rel="nofollow" type="application/gzip">{{svg "octicon-file-zip" 16}}{{ctx.Locale.Tr "repo.release.source_code"}} (TAR.GZ)</a>
+											<span class="text grey" data-tooltip-content="{{ctx.Locale.Tr "repo.release.system_generated"}}">{{ctx.Locale.TrPluralString $release.ArchiveDownloadCount.TarGz "release.n_downloads" (ctx.Locale.PrettyNumber $release.ArchiveDownloadCount.TarGz)}}</span>
+										</li>
+									{{end}}
+								</ul>
+							</details>
+						{{end}}
+					</div>
+					</div>
+				</li>
+			{{end}}
+		</ul>
+		{{template "base/paginate" .}}
+	</div>
+</div>
+{{template "base/footer" .}}

@@ -1,0 +1,90 @@
+{{$showFollow := and .IsSigned (ne .SignedUserID .ContextUser.ID)}}
+{{$isSelf := eq .SignedUserID .ContextUser.ID}}
+<div id="profile-avatar-card" class="so1ve-identity">
+	<div id="profile-avatar" class="so1ve-identity-avatar">
+		{{if $isSelf}}
+			<a href="{{AppSubUrl}}/user/settings#avatar-settings" data-tooltip-content="{{ctx.Locale.Tr "user.change_avatar"}}" aria-label="{{ctx.Locale.Tr "user.change_avatar"}}">{{ctx.AvatarUtils.Avatar .ContextUser 160}}</a>
+		{{else}}
+			{{ctx.AvatarUtils.Avatar .ContextUser 160}}
+		{{end}}
+	</div>
+	<div class="so1ve-identity-main profile-avatar-name">
+		<h1>{{if .ContextUser.FullName}}{{.ContextUser.FullName}}{{else}}{{.ContextUser.Name}}{{end}}</h1>
+		{{$pronouns := .ContextUser.GetPronouns .IsSigned}}
+		{{if or .ContextUser.FullName $pronouns}}
+			<p class="so1ve-identity-handle">{{if .ContextUser.FullName}}<span class="username">{{.ContextUser.Name}}</span>{{end}}{{if and .ContextUser.FullName $pronouns}} · {{end}}{{$pronouns}}</p>
+		{{end}}
+		{{if $.RenderedDescription}}
+			<div class="render-content markup so1ve-identity-bio">{{$.RenderedDescription}}</div>
+		{{end}}
+		<ul class="so1ve-identity-meta">
+			<li>
+				{{svg "octicon-people"}}
+				<a class="muted" href="{{.ContextUser.HomeLink}}?tab=followers">{{ctx.Locale.TrPluralString .NumFollowers "counters.n_followers" .NumFollowers}}</a>
+				<span aria-hidden="true">·</span>
+				<a class="muted" href="{{.ContextUser.HomeLink}}?tab=following">{{ctx.Locale.TrPluralString .NumFollowing "counters.n_following" .NumFollowing}}</a>
+			</li>
+			{{if .ContextUser.Location}}
+				<li>
+					{{svg "octicon-location"}}
+					{{if .ContextUserLocationMapURL}}
+						<a class="muted" href="{{.ContextUserLocationMapURL}}" rel="nofollow noreferrer" data-tooltip-content="{{ctx.Locale.Tr "user.show_on_map"}}">{{.ContextUser.Location}}</a>
+					{{else}}
+						<span>{{.ContextUser.Location}}</span>
+					{{end}}
+				</li>
+			{{end}}
+			{{if .ContextUser.Website}}
+				<li>{{svg "octicon-link"}}<a class="muted" target="_blank" rel="noopener noreferrer me" href="{{.ContextUser.Website}}">{{.ContextUser.Website}}</a></li>
+			{{end}}
+			{{if .ShowUserEmail}}
+				<li>
+					{{svg "octicon-mail"}}
+					<a class="muted" href="mailto:{{.ContextUser.Email}}" rel="nofollow">{{.ContextUser.Email}}</a>
+					{{if $isSelf}}
+						<a class="muted" href="{{AppSubUrl}}/user/settings#privacy-user-settings" data-tooltip-content="{{ctx.Locale.Tr "user.email_visibility.limited"}}" aria-label="{{ctx.Locale.Tr "user.email_visibility.limited"}}">{{svg "octicon-unlock" 14}}</a>
+					{{end}}
+				</li>
+			{{end}}
+			{{range .OpenIDs}}
+				{{if .Show}}
+					<li>{{svg "fontawesome-openid"}}<a class="muted" target="_blank" rel="noopener noreferrer" href="{{.URI}}">{{.URI}}</a></li>
+				{{end}}
+			{{end}}
+			<li>{{svg "octicon-calendar"}}<span>{{ctx.Locale.Tr "user.joined_on" (DateUtils.AbsoluteShort .ContextUser.CreatedUnix)}}</span></li>
+		</ul>
+		{{if and .Orgs .HasOrgsVisible}}
+			<ul class="user-orgs so1ve-identity-orgs">
+				{{range .Orgs}}
+					{{if (or .Visibility.IsPublic (and ($.SignedUser) (or .Visibility.IsLimited (and (.HasMemberWithUserID ctx $.SignedUserID) .Visibility.IsPrivate) ($.IsAdmin))))}}
+						<li><a href="{{.HomeLink}}" data-tooltip-content="{{.Name}}" aria-label="{{.Name}}">{{ctx.AvatarUtils.Avatar . 24}}</a></li>
+					{{end}}
+				{{end}}
+			</ul>
+		{{end}}
+		{{if .Badges}}
+			<ul class="user-badges">
+				{{range .Badges}}
+					<li><img width="32" height="32" src="{{.ImageURL}}" alt="{{.Description}}" data-tooltip-content="{{.Description}}"></li>
+				{{end}}
+			</ul>
+		{{end}}
+	</div>
+	<div class="so1ve-identity-actions main-actions">
+		{{if .Funding}}{{template "shared/donation_button" .}}{{end}}
+		{{if $showFollow}}
+			{{if .IsFollowing}}
+				<button class="ui secondary button" hx-post="{{.ContextUser.HomeLink}}?action=unfollow" hx-target="#profile-avatar-card" hx-indicator="#profile-avatar-card">{{ctx.Locale.Tr "user.unfollow"}}</button>
+			{{else}}
+				<button class="ui primary button" hx-post="{{.ContextUser.HomeLink}}?action=follow" hx-target="#profile-avatar-card" hx-indicator="#profile-avatar-card">{{ctx.Locale.Tr "user.follow"}}</button>
+			{{end}}
+		{{else if $isSelf}}
+			<a class="ui secondary button" href="{{AppSubUrl}}/user/settings">{{ctx.Locale.Tr "profile.edit.link"}}</a>
+		{{end}}
+		{{template "shared/user/actions_menu" .}}
+	</div>
+</div>
+
+{{if .Funding}}
+	{{template "shared/funding" .}}
+{{end}}

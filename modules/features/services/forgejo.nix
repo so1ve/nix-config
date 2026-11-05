@@ -50,10 +50,17 @@
             NetworkAlias = [ "forgejo" ];
             NoNewPrivileges = true;
             DropCapability = [ "ALL" ];
-            Volume = [ "/var/lib/forgejo:/var/lib/gitea" ];
+            Volume = [
+              "/var/lib/forgejo:/var/lib/gitea"
+              "${./forgejo/templates}:/var/lib/gitea/custom/templates:ro"
+              "${./forgejo/public}:/var/lib/gitea/custom/public:ro"
+            ];
             Environment = {
               USER_UID = "1000";
               USER_GID = "1000";
+              FORGEJO____APP_NAME = settings.domain;
+              FORGEJO__ui__DEFAULT_THEME = "so1ve-auto";
+              FORGEJO__ui__THEMES = "so1ve-auto,so1ve-light,so1ve-dark,forgejo-auto";
               FORGEJO__server__ROOT_URL = "https://${settings.domain}/";
               FORGEJO__server__DOMAIN = settings.domain;
               FORGEJO__server__HTTP_PORT = "3000";

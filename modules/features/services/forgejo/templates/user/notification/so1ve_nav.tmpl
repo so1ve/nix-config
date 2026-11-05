@@ -1,0 +1,19 @@
+{{$unread := call .ctxData.NotificationUnreadCount}}
+<nav class="flex-container-nav" aria-label="{{ctx.Locale.Tr "notifications"}}">
+    <div class="ui fluid vertical menu">
+        <div class="header item">{{ctx.Locale.Tr "notifications"}}</div>
+        <a class="{{if eq .page "unread"}}active {{end}}item" href="{{AppSubUrl}}/notifications?q=unread">
+            {{svg "octicon-inbox"}}{{ctx.Locale.Tr "notification.unread"}}
+            <span class="notifications-unread-count so1ve-count{{if not $unread}} tw-hidden{{end}}">{{$unread}}</span>
+        </a>
+        <a class="{{if eq .page "read"}}active {{end}}item" href="{{AppSubUrl}}/notifications?q=read">
+            {{svg "octicon-check"}}{{ctx.Locale.Tr "notification.read"}}
+        </a>
+        <a class="{{if eq .page "subscriptions"}}active {{end}}item" href="{{AppSubUrl}}/notifications/subscriptions">
+            {{svg "octicon-bell"}}{{ctx.Locale.Tr "notification.subscriptions"}}
+        </a>
+        <a class="{{if eq .page "watching"}}active {{end}}item" href="{{AppSubUrl}}/notifications/watching">
+            {{svg "octicon-eye"}}{{ctx.Locale.Tr "notification.watching"}}
+        </a>
+    </div>
+</nav>

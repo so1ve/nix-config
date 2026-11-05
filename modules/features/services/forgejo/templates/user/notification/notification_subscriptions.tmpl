@@ -1,0 +1,59 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content user notification">
+    <div class="ui container flex-container">
+        {{$page := "watching"}}{{if eq .Status 1}}{{$page = "subscriptions"}}{{end}}
+        {{template "user/notification/so1ve_nav" dict "ctxData" . "page" $page}}
+        <div class="flex-container-main">
+            <header class="so1ve-page-head">
+                <h1>{{if eq .Status 1}}{{ctx.Locale.Tr "notification.subscriptions"}}{{else}}{{ctx.Locale.Tr "notification.watching"}}{{end}}</h1>
+            </header>
+            {{if eq .Status 1}}
+                <div class="so1ve-list-toolbar">
+                    <div class="switch">
+                        <a class="{{if eq .State "all"}}active {{end}}item" href="?sort={{$.SortType}}&state=all&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "all"}}</a>
+                        <a class="{{if eq .State "open"}}active {{end}}item" href="?sort={{$.SortType}}&state=open&issueType={{$.IssueType}}&labels={{$.Labels}}">{{svg "octicon-issue-opened" 16}}{{ctx.Locale.Tr "repo.issues.open_title"}}</a>
+                        <a class="{{if eq .State "closed"}}active {{end}}item" href="?sort={{$.SortType}}&state=closed&issueType={{$.IssueType}}&labels={{$.Labels}}">{{svg "octicon-issue-closed" 16}}{{ctx.Locale.Tr "repo.issues.closed_title"}}</a>
+                    </div>
+                    <div class="ui secondary filter menu so1ve-filter-end">
+                        <div class="ui dropdown type jump item">
+                            <span class="text">{{ctx.Locale.Tr "repo.issues.filter_type"}}</span>
+                            {{svg "octicon-triangle-down" 14 "dropdown icon"}}
+                            <div class="menu">
+                                <a class="{{if or (eq .IssueType "all") (not .IssueType)}}active {{end}}item" href="?sort={{$.SortType}}&state={{$.State}}&issueType=all&labels={{$.Labels}}">{{ctx.Locale.Tr "all"}}</a>
+                                <a class="{{if eq .IssueType "issues"}}active {{end}}item" href="?sort={{$.SortType}}&state={{$.State}}&issueType=issues&labels={{$.Labels}}">{{ctx.Locale.Tr "issues"}}</a>
+                                <a class="{{if eq .IssueType "pulls"}}active {{end}}item" href="?sort={{$.SortType}}&state={{$.State}}&issueType=pulls&labels={{$.Labels}}">{{ctx.Locale.Tr "pull_requests"}}</a>
+                            </div>
+                        </div>
+                        <div class="ui dropdown type jump item">
+                            <span class="text">{{ctx.Locale.Tr "repo.issues.filter_sort"}}</span>
+                            {{svg "octicon-triangle-down" 14 "dropdown icon"}}
+                            <div class="menu">
+                                <a class="{{if or (eq .SortType "latest") (not .SortType)}}active {{end}}item" href="?sort=latest&state={{$.State}}&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "issues.search.sort.latest"}}</a>
+                                <a class="{{if eq .SortType "oldest"}}active {{end}}item" href="?sort=oldest&state={{$.State}}&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "issues.search.sort.oldest"}}</a>
+                                <a class="{{if eq .SortType "recentupdate"}}active {{end}}item" href="?sort=recentupdate&state={{$.State}}&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "issues.search.sort.recentupdate"}}</a>
+                                <a class="{{if eq .SortType "leastupdate"}}active {{end}}item" href="?sort=leastupdate&state={{$.State}}&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "issues.search.sort.leastupdate"}}</a>
+                                <a class="{{if eq .SortType "mostcomment"}}active {{end}}item" href="?sort=mostcomment&state={{$.State}}&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "issues.search.sort.mostcomment"}}</a>
+                                <a class="{{if eq .SortType "leastcomment"}}active {{end}}item" href="?sort=leastcomment&state={{$.State}}&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "issues.search.sort.leastcomment"}}</a>
+                                <a class="{{if eq .SortType "nearduedate"}}active {{end}}item" href="?sort=nearduedate&state={{$.State}}&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "issues.search.sort.nearduedate"}}</a>
+                                <a class="{{if eq .SortType "farduedate"}}active {{end}}item" href="?sort=farduedate&state={{$.State}}&issueType={{$.IssueType}}&labels={{$.Labels}}">{{ctx.Locale.Tr "issues.search.sort.farduedate"}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{if not .Issues}}
+                    <div class="so1ve-list so1ve-empty">
+                        {{svg "octicon-bell" 28}}
+                        <p>{{ctx.Locale.Tr "notification.no_subscriptions"}}</p>
+                    </div>
+                {{else}}
+                    {{template "shared/issuelist" dict "." . "listType" "dashboard"}}
+                {{end}}
+            {{else}}
+                {{template "shared/repo_search" .}}
+                {{template "explore/repo_list" .}}
+                {{template "base/paginate" .}}
+            {{end}}
+        </div>
+    </div>
+</div>
+{{template "base/footer" .}}

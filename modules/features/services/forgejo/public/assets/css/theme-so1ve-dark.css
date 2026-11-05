@@ -1,0 +1,78 @@
+@import url("./theme-forgejo-dark.css");
+@import url("./so1ve.css");
+
+:root {
+  --steel-900: #0d0e0d;
+  --steel-850: #111211;
+  --steel-800: #151615;
+  --steel-750: #1a1b1a;
+  --steel-700: #202220;
+  --steel-650: #272927;
+  --steel-600: #303330;
+  --steel-550: #3b3e3b;
+  --steel-500: #4a4d49;
+  --steel-450: #5b5f5a;
+  --steel-400: #6e726c;
+  --steel-350: #82867f;
+  --steel-300: #979b94;
+  --steel-250: #adb0a9;
+  --steel-200: #c2c4be;
+  --steel-150: #d5d6d1;
+  --steel-100: #e8e8e3;
+
+  --color-primary: #85c7a2;
+  --color-primary-contrast: #0b1710;
+  --color-primary-dark-1: #9ad2b2;
+  --color-primary-dark-2: #aedcc1;
+  --color-primary-dark-3: #c2e6d1;
+  --color-primary-dark-4: #d6efe1;
+  --color-primary-light-1: #6fb68e;
+  --color-primary-light-2: #579b75;
+  --color-primary-light-3: #45805f;
+  --color-primary-light-4: #36664b;
+  --color-primary-light-5: #2a503b;
+  --color-primary-light-6: #203d2d;
+  --color-primary-light-7: #182d21;
+  --color-primary-alpha-10: #85c7a219;
+  --color-primary-alpha-20: #85c7a233;
+  --color-primary-alpha-30: #85c7a24b;
+  --color-primary-alpha-40: #85c7a266;
+  --color-primary-alpha-50: #85c7a280;
+  --color-primary-alpha-60: #85c7a299;
+  --color-primary-alpha-70: #85c7a2b3;
+  --color-primary-alpha-80: #85c7a2cc;
+  --color-primary-alpha-90: #85c7a2e1;
+  --color-primary-hover: var(--color-primary-dark-1);
+  --color-primary-active: var(--color-primary-dark-2);
+
+  --color-body: #111211;
+  --color-box-body: #161716;
+  --color-box-header: #1b1c1b;
+  --color-card: #161716;
+  --color-menu: #1b1c1b;
+  --color-input-background: #151615;
+  --color-input-border: #343734;
+  --color-input-border-hover: #4a4d49;
+  --color-secondary: #292c29;
+  --color-secondary-nav-bg: #111211;
+  --color-nav-bg: #111211;
+  --color-nav-hover-bg: #232523;
+  --color-header-wrapper: #161716;
+  --color-footer: #111211;
+  --color-hover: #222422;
+  --color-active: #2a2d2a;
+  --color-button: #1b1c1b;
+  --color-code-bg: #141514;
+  --color-markup-code-block: #1a1b1a;
+  --color-markup-code-inline: #252725;
+  --color-label-bg: #2a2d2a;
+  --color-label-hover-bg: #343734;
+  --color-selection-bg: #36664b;
+  --color-selection-fg: #f2f2ed;
+  --color-shadow: #00000066;
+
+  --so1ve-ink: #eeeee8;
+  --so1ve-muted: #a2a59d;
+  --so1ve-faint: #6f736c;
+  --so1ve-panel: #161716;
+}

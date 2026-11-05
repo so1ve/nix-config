@@ -1,0 +1,11 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{ctx.Locale.Tr "home"}}" class="page-content home so1ve-home">
+	<section class="so1ve-landing">
+		<div class="so1ve-landing-mark">
+			<img src="{{AssetUrlPrefix}}/img/logo.svg" width="56" height="56" alt="">
+			<h1>{{AppDisplayName}}</h1>
+		</div>
+		<a class="ui primary button" href="{{AppSubUrl}}/user/login">{{ctx.Locale.Tr "sign_in"}}</a>
+	</section>
+</div>
+{{template "base/footer" .}}
