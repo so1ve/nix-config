@@ -72,6 +72,8 @@
               FORGEJO__oauth2_client__USERNAME = "preferred_username";
               FORGEJO__service__DISABLE_REGISTRATION = "true";
               FORGEJO__service__REQUIRE_SIGNIN_VIEW = "true";
+              FORGEJO__service__ENABLE_INTERNAL_SIGNIN = "false";
+              FORGEJO__service__ENABLE_BASIC_AUTHENTICATION = "false";
             };
             EnvironmentFile = [ config.age.secrets.forgejo-env.path ];
           };
