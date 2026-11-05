@@ -1,20 +1,8 @@
 let
-  mkRimeWithWanxiang =
-    pkgs: wanxiang:
-    let
-      wanxiangPatched = wanxiang.overrideAttrs (old: {
-        postPatch = (old.postPatch or "") + ''
-          for schema in wanxiang.schema.yaml wanxiang_english.schema.yaml; do
-            substituteInPlace "$schema" \
-              --replace-fail \
-              '    - {when: always, accept: Shift+space, select: .next}  #下一个方案' \
-              ""
-          done
-        '';
-      });
-    in
+  mkRimeWithFrost =
+    pkgs: frost:
     pkgs.fcitx5-rime.override {
-      rimeDataPkgs = [ wanxiangPatched ];
+      rimeDataPkgs = [ frost ];
     };
 in
 {
@@ -24,7 +12,7 @@ in
       { inputs, pkgs, ... }:
       let
         personalPackages = import inputs.so1ve { inherit pkgs; };
-        rimeWithWanxiang = mkRimeWithWanxiang pkgs personalPackages.rime-wanxiang;
+        rimeWithFrost = mkRimeWithFrost pkgs personalPackages.rime-frost;
       in
       {
         i18n.inputMethod = {
@@ -33,7 +21,7 @@ in
 
           fcitx5 = {
             addons = [
-              rimeWithWanxiang
+              rimeWithFrost
               pkgs.fcitx5-mellow-themes
             ];
             waylandFrontend = true;
@@ -67,8 +55,7 @@ in
       }:
       let
         personalPackages = import inputs.so1ve { inherit pkgs; };
-        rimeWithWanxiang = mkRimeWithWanxiang pkgs personalPackages.rime-wanxiang;
-        rimeLmdg = personalPackages.rime-lmdg;
+        rimeWithFrost = mkRimeWithFrost pkgs personalPackages.rime-frost;
       in
       {
         # XDG autostart services are not restarted by Home Manager's service switch.
@@ -108,11 +95,10 @@ in
 
           dataFile."fcitx5/rime/default.custom.yaml" = {
             text = ''
-              # shared-data: ${rimeWithWanxiang}
+              # shared-data: ${rimeWithFrost}
               patch:
-                __include: wanxiang_suggested_default:/
                 schema_list:
-                  - schema: wanxiang
+                  - schema: rime_frost
             '';
 
             # Rime compares mtimes, while Nix store files are dated 1970. Rebuild
@@ -122,17 +108,14 @@ in
 
               rm -rf "$rime_data_dir/build"
               ${pkgs.librime}/bin/rime_deployer \
-                --build "$rime_data_dir" "${rimeWithWanxiang}/share/rime-data" "$rime_data_dir/build"
+                --build "$rime_data_dir" "${rimeWithFrost}/share/rime-data" "$rime_data_dir/build"
 
               (
                 cd "$rime_data_dir"
-                ${pkgs.librime}/bin/rime_deployer --set-active-schema wanxiang
+                ${pkgs.librime}/bin/rime_deployer --set-active-schema rime_frost
               )
             '';
           };
-
-          dataFile."fcitx5/rime/wanxiang-lts-zh-hans.gram".source =
-            "${rimeLmdg}/share/rime-data/wanxiang-lts-zh-hans.gram";
         };
       };
   };
