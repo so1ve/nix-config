@@ -324,6 +324,38 @@ details.dropdown > .content {
   font-size: 13px;
 }
 
+.so1ve-latest-commit-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.so1ve-commit-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--so1ve-muted);
+  font-weight: 500;
+}
+
+.repository.file.list #repo-files-table tbody .so1ve-commit-count .svg {
+  width: 14px;
+  min-width: 14px;
+  height: 14px;
+  min-height: 14px;
+  margin: 0;
+}
+
+.so1ve-commit-count:hover {
+  color: var(--color-primary);
+}
+
+.so1ve-commit-count b {
+  color: var(--so1ve-ink);
+  font-weight: 650;
+}
+
 .ui.sha.label,
 .commit-id-short {
   border: 1px solid var(--color-secondary);
@@ -545,6 +577,63 @@ details.dropdown > .content {
 .timeline-item.event {
   color: var(--so1ve-muted);
   font-size: 13px;
+}
+
+.timeline-item.merge .timeline-avatar {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 14%, var(--color-body));
+}
+
+.timeline-item.merge .timeline-avatar svg {
+  width: 20px;
+  height: 20px;
+}
+
+.timeline-item.merge .merge-section {
+  padding: 12px 16px;
+}
+
+.timeline-item.merge .merge-section > .item {
+  gap: 8px;
+  min-height: 24px;
+}
+
+.timeline-item.merge .merge-section > .item > svg {
+  flex: none;
+  color: var(--so1ve-muted);
+}
+
+.timeline-item.merge .merge-section > .divider {
+  margin: 12px -16px;
+}
+
+.timeline-item.merge .merge-button .button {
+  min-height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.timeline-item.merge .merge-button .button:not(.dropdown) {
+  gap: 6px;
+}
+
+.timeline-item.merge .merge-button .dropdown.button {
+  padding: 0 10px;
+}
+
+.timeline-item.merge .merge-section > details.collapsible > summary {
+  padding: 0 !important;
+  color: var(--so1ve-muted);
+  font-size: 13px;
+}
+
+.timeline-item.merge .merge-section > details.collapsible > summary:hover {
+  color: var(--so1ve-ink);
 }
 
 .issue-content-right {
@@ -1046,7 +1135,8 @@ form.issue-content .issue-content-right {
   padding: 0 !important;
 }
 
-#profile-avatar-card.so1ve-identity {
+#profile-avatar-card.so1ve-identity,
+.so1ve-identity {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: start;
@@ -1080,6 +1170,10 @@ form.issue-content .issue-content-right {
   font-weight: 650;
   letter-spacing: -0.03em;
   line-height: 1.15;
+}
+
+:is(.so1ve-identity-main, .so1ve-org-info) h1 > a.muted {
+  color: inherit;
 }
 
 .so1ve-identity-handle {
@@ -1988,42 +2082,6 @@ label.so1ve-check-row .help {
   gap: 8px;
 }
 
-.so1ve-repo-stats {
-  display: grid;
-  gap: 2px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 13px;
-}
-
-.so1ve-repo-stats li,
-.so1ve-repo-stats li > a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 30px;
-  color: var(--so1ve-muted);
-}
-
-.so1ve-repo-stats li > a:hover {
-  color: var(--color-primary);
-}
-
-.so1ve-repo-stats svg {
-  flex: none;
-  color: var(--so1ve-faint);
-}
-
-.so1ve-repo-stats b {
-  color: var(--so1ve-ink);
-  font-weight: 650;
-}
-
-#language-stats.so1ve-aside-section {
-  border-top: 1px solid var(--color-secondary);
-}
-
 .so1ve-lang-bar {
   display: flex;
   gap: 2px;
@@ -2366,6 +2424,7 @@ label.so1ve-check-row .help {
   }
 
   #profile-avatar-card.so1ve-identity,
+  .so1ve-identity,
   .so1ve-org-head {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 16px;
@@ -2474,12 +2533,6 @@ label.so1ve-check-row .help {
   .so1ve-repo-aside {
     order: -1;
     gap: 14px;
-  }
-
-  .so1ve-repo-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 16px;
   }
 
   .so1ve-repo-aside .so1ve-aside-section + .so1ve-aside-section {

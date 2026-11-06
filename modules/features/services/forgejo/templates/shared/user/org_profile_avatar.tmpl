@@ -1,0 +1,24 @@
+{{with .ContextUser}}
+	<div class="ui container">
+		{{if .IsOrganization}}
+			<div class="so1ve-org-head">
+				{{ctx.AvatarUtils.Avatar . 96 "org-avatar"}}
+				<div class="so1ve-org-info">
+					<div class="org-title">
+						<h1><a class="muted" href="{{.HomeLink}}">{{.DisplayName}}</a></h1>
+						{{if .Visibility.IsLimited}}<span class="ui label">{{ctx.Locale.Tr "org.settings.visibility.limited_shortname"}}</span>{{end}}
+						{{if .Visibility.IsPrivate}}<span class="ui label">{{ctx.Locale.Tr "org.settings.visibility.private_shortname"}}</span>{{end}}
+					</div>
+				</div>
+			</div>
+		{{else}}
+			<div class="so1ve-identity">
+				<div class="so1ve-identity-avatar"><a href="{{.HomeLink}}">{{ctx.AvatarUtils.Avatar . 160}}</a></div>
+				<div class="so1ve-identity-main">
+					<h1><a class="muted" href="{{.HomeLink}}">{{if .FullName}}{{.FullName}}{{else}}{{.Name}}{{end}}</a></h1>
+					{{if .FullName}}<p class="so1ve-identity-handle">{{.Name}}</p>{{end}}
+				</div>
+			</div>
+		{{end}}
+	</div>
+{{end}}
