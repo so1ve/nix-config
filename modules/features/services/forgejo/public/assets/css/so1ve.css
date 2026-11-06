@@ -63,8 +63,17 @@ body {
   font-weight: 500;
 }
 
-#navbar .item:hover,
+#navbar :is(a, button).item:hover,
 #navbar .item.active {
+  background: var(--color-nav-hover-bg);
+  color: var(--so1ve-ink);
+}
+
+#navbar #navbar-expand-toggle {
+  background: transparent;
+}
+
+#navbar.navbar-menu-open #navbar-expand-toggle {
   background: var(--color-nav-hover-bg);
   color: var(--so1ve-ink);
 }
@@ -566,11 +575,37 @@ details.dropdown > .content {
 }
 
 #user-heatmap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 12px;
   margin-bottom: 18px;
-  padding: 16px 18px 12px;
+  padding: 16px 18px 14px;
   border: 1px solid var(--color-secondary);
   border-radius: var(--border-radius-medium);
   background: var(--color-box-body);
+}
+
+#user-heatmap .vch__container {
+  display: contents;
+}
+
+#user-heatmap .vch__wrapper {
+  grid-column: 1 / -1;
+  overflow: visible;
+}
+
+#user-heatmap .total-contributions {
+  position: static;
+  grid-row: 2;
+  grid-column: 1;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+#user-heatmap .vch__container > .vch__legend {
+  grid-row: 2;
+  grid-column: 2;
 }
 
 #user-heatmap + .divider {
@@ -2576,6 +2611,10 @@ label.so1ve-check-row .help {
 @media (max-width: 767.98px) {
   :root {
     --page-margin-x: 14px;
+  }
+
+  #navbar.navbar-menu-open .navbar-left .navbar-mobile-right {
+    min-height: 56px;
   }
 
   .repository.branches .ui.table > tbody > tr {

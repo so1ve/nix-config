@@ -55,6 +55,15 @@
   --color-input-border: #d3cdc1;
   --color-input-border-hover: #b3ac9f;
   --color-secondary: #e2ded4;
+  --color-secondary-alpha-10: #e2ded419;
+  --color-secondary-alpha-20: #e2ded433;
+  --color-secondary-alpha-30: #e2ded44b;
+  --color-secondary-alpha-40: #e2ded466;
+  --color-secondary-alpha-50: #e2ded480;
+  --color-secondary-alpha-60: #e2ded499;
+  --color-secondary-alpha-70: #e2ded4b3;
+  --color-secondary-alpha-80: #e2ded4cc;
+  --color-secondary-alpha-90: #e2ded4e1;
   --color-secondary-nav-bg: #f8f7f3;
   --color-nav-bg: #f8f7f3;
   --color-nav-hover-bg: #ebe8e0;
