@@ -1,52 +1,15 @@
 {
   ray.features."software/git/github" = {
-    requires.allOf = [
-      "software/git"
-      "software/ssh"
-      "security/agenix"
-    ];
+    requires.allOf = [ "software/git" ];
 
     home =
       _:
+      { ... }:
       {
-        config,
-        user,
-        ...
-      }:
-      let
-        githubKey = config.age.secrets.ssh-github.path;
-        githubPublicKey = builtins.readFile config.home.file.".ssh/ssh-github.pub".source;
-        allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
-      in
-      {
-        age.secrets.ssh-github.path = "${config.home.homeDirectory}/.ssh/ssh-github";
-
-        programs = {
-          gh = {
-            enable = true;
-            settings.git_protocol = "ssh";
-          };
-
-          git = {
-            signing = {
-              key = githubKey;
-              format = "ssh";
-              signByDefault = true;
-            };
-
-            settings.gpg.ssh.allowedSignersFile = allowedSignersFile;
-          };
-
-          ssh.settings."github.com ssh.github.com" = {
-            HostName = "ssh.github.com";
-            Port = 443;
-            User = "git";
-            IdentityFile = githubKey;
-            IdentitiesOnly = true;
-          };
+        programs.gh = {
+          enable = true;
+          settings.git_protocol = "ssh";
         };
-
-        xdg.configFile."git/allowed_signers".text = "${user.gitEmail} ${githubPublicKey}";
       };
   };
 }
