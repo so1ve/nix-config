@@ -82,7 +82,10 @@ in
         inputs.home-manager.follows = "home-manager";
       };
 
-      codex-desktop.url = "github:ilysenko/codex-desktop-linux";
+      codex-desktop = {
+        url = "github:ilysenko/codex-desktop-linux";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
 
       llm-agents.url = "github:numtide/llm-agents.nix";
 
