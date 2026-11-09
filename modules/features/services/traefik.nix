@@ -42,7 +42,7 @@
       { settings, ... }:
       { config, pkgs, ... }:
       let
-        inherit (config.virtualisation.quadlet) containers networks;
+        inherit (config.virtualisation.quadlet) containers networks volumes;
         dynamicConfig = (pkgs.formats.yaml { }).generate "traefik-dynamic.yaml" settings.dynamicConfig;
         staticConfig = pkgs.writeText "traefik.json" (
           builtins.toJSON {
@@ -93,14 +93,13 @@
         );
       in
       {
-        systemd.tmpfiles.rules = [ "d /var/lib/traefik 0700 root root - -" ];
-
         networking.firewall.interfaces.br-traefik = {
           allowedTCPPorts = [ 53 ];
           allowedUDPPorts = [ 53 ];
         };
 
         virtualisation.quadlet = {
+          volumes.traefik = { };
           networks.traefik.networkConfig = {
             NetworkName = "traefik";
             InterfaceName = "br-traefik";
@@ -123,7 +122,7 @@
               Volume = [
                 "${staticConfig}:/etc/traefik/traefik.json:ro"
                 "${dynamicConfig}:/etc/traefik/dynamic.yaml:ro"
-                "/var/lib/traefik:/data"
+                "${volumes.traefik.ref}:/data"
                 "/run/podman/podman.sock:/var/run/docker.sock:ro"
               ];
               EnvironmentFile = [ config.age.secrets.cloudflare-dns-env.path ];

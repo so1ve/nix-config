@@ -12,34 +12,26 @@
         type = lib.types.str;
         description = "QQ account to log in automatically using the saved NapCat session.";
       };
-      dataDir = lib.mkOption {
-        type = lib.types.str;
-        default = "/var/lib/yanqi";
-        description = "Local Yanqi database and NapCat account state.";
-      };
     };
 
     nixos =
       { settings, ... }:
       { config, ... }:
       let
-        inherit (config.virtualisation.quadlet) containers networks;
+        inherit (config.virtualisation.quadlet) containers networks volumes;
       in
       {
-        systemd.tmpfiles.rules = [
-          "d ${settings.dataDir} 0700 root root - -"
-          "d ${settings.dataDir}/data 0750 media media - -"
-          "d ${settings.dataDir}/napcat 0755 root root - -"
-          "d ${settings.dataDir}/napcat/QQ 0750 media media - -"
-          "d ${settings.dataDir}/napcat/config 0750 media media - -"
-        ];
-
         networking.firewall.interfaces.br-yanqi = {
           allowedTCPPorts = [ 53 ];
           allowedUDPPorts = [ 53 ];
         };
 
         virtualisation.quadlet = {
+          volumes = {
+            yanqi = { };
+            napcat-qq = { };
+            napcat-config = { };
+          };
           networks.yanqi.networkConfig = {
             NetworkName = "yanqi";
             InterfaceName = "br-yanqi";
@@ -51,8 +43,8 @@
               NetworkAlias = [ "napcat" ];
               PublishPort = [ "0.0.0.0:6100:6099" ];
               Volume = [
-                "${settings.dataDir}/napcat/QQ:/app/.config/QQ"
-                "${settings.dataDir}/napcat/config:/app/napcat/config"
+                "${volumes.napcat-qq.ref}:/app/.config/QQ"
+                "${volumes.napcat-config.ref}:/app/napcat/config"
               ];
               Environment = {
                 NAPCAT_QUICK_ACCOUNT = settings.account;
@@ -73,7 +65,7 @@
                 Network = [ networks.yanqi.ref ];
                 NetworkAlias = [ "yanqi" ];
                 PublishPort = [ "0.0.0.0:3210:3000" ];
-                Volume = [ "${settings.dataDir}/data:/app/data" ];
+                Volume = [ "${volumes.yanqi.ref}:/app/data" ];
                 Environment.TZ = config.time.timeZone;
                 NoNewPrivileges = true;
               };
