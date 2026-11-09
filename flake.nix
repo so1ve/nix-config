@@ -61,6 +61,10 @@
       url = "github:so1ve/chrome-url-router";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    claude-desktop-extra = {
+      url = "github:patrickjaja/claude-desktop-extra";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     cloudflare-skills = {
       url = "github:cloudflare/skills";
       flake = false;

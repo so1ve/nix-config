@@ -27,11 +27,24 @@
         "software/magpie"
       ];
 
+      nixos =
+        _:
+        { inputs, ... }:
+        {
+          imports = [ inputs.claude-desktop-extra.nixosModules.default ];
+
+          programs.claude-desktop-extra.kvmAccess.enable = true;
+        };
+
       home =
         _:
         { inputs, pkgs, ... }:
         {
-          home.packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop ];
+          home.packages = [
+            (inputs.claude-desktop-extra.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
+              claude-code = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
+            })
+          ];
         };
     };
 

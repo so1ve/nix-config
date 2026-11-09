@@ -87,6 +87,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      claude-desktop-extra = {
+        url = "github:patrickjaja/claude-desktop-extra";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       llm-agents.url = "github:numtide/llm-agents.nix";
 
       cloudflare-skills = {
