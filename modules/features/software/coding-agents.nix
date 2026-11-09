@@ -1,6 +1,40 @@
 { ... }:
 {
   ray.features = {
+    "software/claude-code" = {
+      # depend on magpie for model routing
+      requires.allOf = [ "software/magpie" ];
+
+      home =
+        _:
+        {
+          inputs,
+          mkDotfilesSource,
+          pkgs,
+          ...
+        }:
+        {
+          home = {
+            packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code ];
+            file.".claude/CLAUDE.md".source = mkDotfilesSource "agents/AGENTS.md";
+          };
+        };
+    };
+
+    "software/claude-desktop" = {
+      requires.allOf = [
+        "software/claude-code"
+        "software/magpie"
+      ];
+
+      home =
+        _:
+        { inputs, pkgs, ... }:
+        {
+          home.packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop ];
+        };
+    };
+
     "software/agent-skills".home =
       _:
       { inputs, pkgs, ... }:
