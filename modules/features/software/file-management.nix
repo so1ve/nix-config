@@ -12,7 +12,10 @@
         _:
         { pkgs, ... }:
         {
-          home.packages = [ pkgs.nautilus ];
+          home.packages = [
+            pkgs.nautilus
+            pkgs.ffmpegthumbnailer
+          ];
         };
     };
 
