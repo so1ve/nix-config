@@ -35,7 +35,7 @@
                 "R Maple Mono NF CN"
                 "Unifont"
               ];
-              font-size = 11;
+              font-size = 12;
               mouse-scroll-multiplier = "precision:1,discrete:1";
               theme = "Kitty Default";
               window-decoration = "none";
