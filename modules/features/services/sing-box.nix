@@ -5,7 +5,7 @@
     options = {
       domain = lib.mkOption {
         type = lib.types.str;
-        description = "HTTPS domain shared by VMess WebSocket and NaïveProxy.";
+        description = "HTTPS domain for VMess WebSocket.";
       };
 
       vmess.path = lib.mkOption {
@@ -18,7 +18,6 @@
         description = "VLESS REALITY TCP port. Must be unprivileged and different from the internal VMess port 10000.";
       };
 
-      naive.ipv4Only = lib.mkEnableOption "IPv4-only destination connections for NaïveProxy";
     };
 
     requires.allOf = [ "security/agenix" ];
@@ -27,13 +26,9 @@
       settings:
       {
         config,
-        inputs,
-        pkgs,
         ...
       }:
       {
-        age.secrets.naive-server.owner = "caddy";
-
         networking.firewall.allowedTCPPorts = [
           80
           443
@@ -42,7 +37,6 @@
 
         services.caddy = {
           enable = true;
-          package = (import inputs.so1ve { inherit pkgs; }).caddy-naive;
           globalConfig = ''
             servers {
               protocols h1 h2
@@ -55,17 +49,6 @@
             serverAliases = [ settings.domain ];
             extraConfig = ''
               route {
-                forward_proxy {
-                  import ${config.age.secrets.naive-server.path}
-                  hide_ip
-                  hide_via
-                  probe_resistance
-                  ${lib.optionalString settings.naive.ipv4Only ''
-                    acl {
-                      deny ::/0
-                    }
-                  ''}
-                }
                 @vmess path ${builtins.toJSON settings.vmess.path}
                 reverse_proxy @vmess 127.0.0.1:10000
                 respond "Not Found" 404
@@ -73,8 +56,6 @@
             '';
           };
         };
-        systemd.services.caddy.restartTriggers = [ config.age.secrets.naive-server.file ];
-
         services.sing-box = {
           enable = true;
           settings = {
