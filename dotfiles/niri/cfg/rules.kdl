@@ -41,17 +41,23 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"(?i)^google-chrome(?:-stable)?$"#
+    match app-id=r#"^codex-desktop$"#
 
-    open-on-workspace "browser"
-    open-focused true
+    open-on-workspace "dev"
     open-maximized-to-edges true
 }
 
 window-rule {
-    match app-id=r#"^codex-desktop$"#
+    match app-id=r#"^magpie$"#
 
     open-on-workspace "dev"
+}
+
+window-rule {
+    match app-id=r#"(?i)^google-chrome(?:-stable)?$"#
+
+    open-on-workspace "browser"
+    open-focused true
     open-maximized-to-edges true
 }
 
