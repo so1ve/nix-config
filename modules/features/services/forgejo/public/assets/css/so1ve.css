@@ -388,6 +388,13 @@ details.dropdown > .content {
   background: var(--color-hover);
 }
 
+.so1ve-latest-commit-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  contain: inline-size;
+}
+
 #repo-files-table td.name a {
   color: var(--so1ve-ink);
 }
@@ -400,9 +407,13 @@ details.dropdown > .content {
 
 .so1ve-latest-commit-meta {
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+  color: var(--so1ve-muted);
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .so1ve-commit-count {
@@ -2215,6 +2226,27 @@ label.so1ve-check-row .help {
   border-radius: var(--border-radius-medium) !important;
 }
 
+.repo-button-row input {
+  height: 32px;
+}
+
+.so1ve-repo-layout .repo-button-row > div:has(> .clone-panel) {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.so1ve-repo-layout .clone-panel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.so1ve-repo-layout .clone-panel #repo-clone-url {
+  flex: 1 1 200px;
+  width: auto;
+  min-width: 0;
+}
+
 .so1ve-repo-aside {
   display: grid;
   gap: 20px;
@@ -2238,7 +2270,15 @@ label.so1ve-check-row .help {
   min-width: 0;
 }
 
+.so1ve-repo-search .ui.input > :is(input, .ui.dropdown, .ui.button) {
+  height: 32px;
+  min-height: 32px;
+  padding-block: 0 !important;
+}
+
 .so1ve-repo-search .ui.input > .ui.selection.dropdown {
+  display: flex;
+  align-items: center;
   flex: none;
   width: auto;
   min-width: 0 !important;
@@ -3004,6 +3044,11 @@ label.so1ve-check-row .help {
     background: var(--color-box-header);
   }
 
+  #repo-files-table tbody tr.commit-list > td.repo-files-table-latest-commit-cell {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
   #repo-files-table tbody tr.entry {
     min-height: 42px;
     border-top: 1px solid var(--color-secondary);
@@ -3013,6 +3058,10 @@ label.so1ve-check-row .help {
 @media (min-width: 768px) {
   .flex-container-nav {
     width: 220px;
+  }
+
+  #repo-files-table td .truncate {
+    contain: inline-size;
   }
 }
 

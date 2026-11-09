@@ -178,7 +178,6 @@
 
                     {{if and (.Permission.CanRead $.UnitTypeCode) (not .IsEmptyRepo) .LanguageStats}}
                         <section class="so1ve-aside-section" id="language-stats">
-                            <h2>{{ctx.Locale.Tr "repo.repo_lang"}}</h2>
                             <div class="so1ve-lang-bar" aria-hidden="true">
                                 {{range .LanguageStats}}
                                     <span style="width: {{.Percentage}}%; background-color: {{.Color}}"></span>
