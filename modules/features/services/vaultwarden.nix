@@ -12,7 +12,6 @@
         type = lib.types.str;
         description = "Public hostname served by Vaultwarden.";
       };
-
     };
 
     nixos =
@@ -34,7 +33,6 @@
             };
           };
         };
-
       };
   };
 }

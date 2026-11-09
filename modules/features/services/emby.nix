@@ -1,8 +1,12 @@
 { lib, ... }:
 {
   ray.features."services/emby" = {
-    requires.allOf = [ "virtualisation/podman" ];
-    nixos = _: { config, ... }: {
+    requires.allOf = [
+      "virtualisation/podman"
+      "services/traefik"
+    ];
+    options.domain = lib.mkOption { type = lib.types.str; };
+    nixos = { settings, ... }: { config, ... }: {
       virtualisation.quadlet = {
         volumes.emby = { };
         containers.emby.containerConfig = {
@@ -20,6 +24,11 @@
               config.users.groups.video.gid
             ];
             TZ = config.time.timeZone;
+          };
+          Label = {
+            "traefik.enable" = "true";
+            "traefik.http.routers.emby.rule" = "Host(`${settings.domain}`)";
+            "traefik.http.services.emby.loadbalancer.server.port" = "8096";
           };
         };
       };

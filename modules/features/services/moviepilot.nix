@@ -8,10 +8,6 @@
     ];
     options = {
       domain = lib.mkOption { type = lib.types.str; };
-      environment = lib.mkOption {
-        type = lib.types.attrsOf lib.types.str;
-        default = { };
-      };
     };
     nixos =
       { settings, ... }:
@@ -47,8 +43,7 @@
                 PGID = toString config.users.groups.media.gid;
                 TZ = config.time.timeZone;
                 MOVIEPILOT_AUTO_UPDATE = "false";
-              }
-              // settings.environment;
+              };
               EnvironmentFile = [ config.age.secrets.moviepilot-env.path ];
               GroupAdd = [ (toString config.users.groups.podman.gid) ];
               HealthCmd = "curl -fsS http://127.0.0.1:3001/health/ready";

@@ -19,23 +19,12 @@
         description = "Contact email for Let's Encrypt.";
       };
 
-      certificateDomains = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        description = "DNS names, including wildcards, to request certificates for.";
-      };
-
       dnsChallenge = lib.mkOption {
         type = lib.types.attrs;
         default = { };
         description = "DNS-01 propagation settings for the network hosting Traefik.";
       };
 
-      dynamicConfig = lib.mkOption {
-        type = lib.types.attrs;
-        default = { };
-        description = "Traefik file-provider configuration for backends outside Podman.";
-      };
     };
 
     nixos =
@@ -43,7 +32,6 @@
       { config, pkgs, ... }:
       let
         inherit (config.virtualisation.quadlet) containers networks volumes;
-        dynamicConfig = (pkgs.formats.yaml { }).generate "traefik-dynamic.yaml" settings.dynamicConfig;
         staticConfig = pkgs.writeText "traefik.json" (
           builtins.toJSON {
             entryPoints = {
@@ -60,12 +48,7 @@
                 address = ":443";
                 asDefault = true;
                 http.aliasHeadersStrategy = "delete";
-                http.tls = {
-                  certResolver = "letsencrypt";
-                  domains = map (domain: {
-                    main = domain;
-                  }) settings.certificateDomains;
-                };
+                http.tls.certResolver = "letsencrypt";
               };
             };
             providers = {
@@ -74,7 +57,6 @@
                 exposedByDefault = false;
                 network = networks.traefik.podmanName;
               };
-              file.filename = "/etc/traefik/dynamic.yaml";
             };
             certificatesResolvers.letsencrypt.acme = {
               email = settings.acmeEmail;
@@ -99,7 +81,7 @@
         };
 
         virtualisation.quadlet = {
-          volumes.traefik = { };
+          volumes.traefik-acme = { };
           networks.traefik.networkConfig = {
             NetworkName = "traefik";
             InterfaceName = "br-traefik";
@@ -121,8 +103,7 @@
               ];
               Volume = [
                 "${staticConfig}:/etc/traefik/traefik.json:ro"
-                "${dynamicConfig}:/etc/traefik/dynamic.yaml:ro"
-                "${volumes.traefik.ref}:/data"
+                "${volumes.traefik-acme.ref}:/data"
                 "/run/podman/podman.sock:/var/run/docker.sock:ro"
               ];
               EnvironmentFile = [ config.age.secrets.cloudflare-dns-env.path ];
