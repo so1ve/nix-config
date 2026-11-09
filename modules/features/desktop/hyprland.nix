@@ -1,7 +1,10 @@
 {
   ray.features."desktop/hyprland" = {
     nixos = _: {
-      programs.hyprland.enable = true;
+      programs.hyprland = {
+        enable = true;
+        withUWSM = true;
+      };
     };
 
     home =

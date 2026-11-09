@@ -312,7 +312,7 @@
                 plugins = [
                   "npm:@deepseek-ai/dsh-base"
                   "npm:@deepseek-ai/dsh-web-app"
-                  "github:YuJunZhiXue/dsh-purge"
+                  "github:kingcharleslzy-ai/dsh-purge"
                 ];
               };
               # The Web UI rewrites its profile patch when saving settings.
@@ -341,6 +341,10 @@
                 }
                 {
                   id = "dsh-purge-redteam";
+                  disabled.__jsExpr = "process.env.DSH_ENABLE_PURGE !== '1'";
+                }
+                {
+                  id = "dsh-purge-presets";
                   disabled.__jsExpr = "process.env.DSH_ENABLE_PURGE !== '1'";
                 }
                 {
