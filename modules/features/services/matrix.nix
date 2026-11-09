@@ -49,7 +49,7 @@
             InterfaceName = "br-matrix";
             Options = [
               "isolate=true"
-              "no_default_route=1"
+              "no_default_route=true"
             ];
           };
 

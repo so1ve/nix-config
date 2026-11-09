@@ -44,7 +44,7 @@
             InterfaceName = "br-new-api";
             Options = [
               "isolate=true"
-              "no_default_route=1"
+              "no_default_route=true"
             ];
           };
 
