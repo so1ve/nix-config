@@ -30,7 +30,7 @@
     };
 
     home =
-      settings:
+      { settings, ... }:
       {
         config,
         user,

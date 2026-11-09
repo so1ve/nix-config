@@ -21,22 +21,26 @@ let
 
   featureType = types.submodule {
     options = {
+      multiple = lib.mkEnableOption "named instances of this feature";
+
       options = mkOption {
-        type = types.attrsOf types.raw;
+        type = types.coercedTo (types.attrsOf types.raw) (declarations: _: declarations) (
+          types.functionTo (types.attrsOf types.raw)
+        );
         default = { };
-        description = "Native option declarations for this feature's per-host settings.";
+        description = "Native option declarations, fixed or computed from the settings submodule arguments.";
       };
 
       nixos = mkOption {
         type = types.nullOr (types.functionTo types.deferredModule);
         default = null;
-        description = "Function from this feature's settings to a NixOS module.";
+        description = "Function from { name, settings } to a NixOS module.";
       };
 
       home = mkOption {
         type = types.nullOr (types.functionTo types.deferredModule);
         default = null;
-        description = "Function from this feature's settings to a Home Manager module.";
+        description = "Function from { name, settings } to a Home Manager module.";
       };
 
       requires = mkOption {
@@ -84,17 +88,32 @@ let
         features = mkOption {
           type = types.submodule {
             options = lib.mapAttrs (
-              name: feature:
+              featureName: feature:
+              let
+                settingsType = types.submodule (
+                  { name, ... }@args:
+                  {
+                    options = feature.options (
+                      args
+                      // {
+                        name = if feature.multiple then name else builtins.baseNameOf featureName;
+                      }
+                    );
+                  }
+                );
+              in
               mkOption {
-                type = types.nullOr (types.submodule { options = feature.options; });
+                type = types.nullOr (if feature.multiple then types.attrsOf settingsType else settingsType);
                 default = null;
-                description = "Enable ${name} and configure its settings.";
+                description = "Configure ${featureName}${lib.optionalString feature.multiple " by instance name"}.";
               }
             ) config.ray.features;
           };
           default = { };
-          apply = lib.filterAttrs (_: settings: settings != null);
-          description = "Enabled features and their typed settings. An empty set uses defaults.";
+          apply = lib.filterAttrs (
+            name: settings: settings != null && (!config.ray.features.${name}.multiple || settings != { })
+          );
+          description = "Feature settings, keyed by instance name when multiple is enabled. Null or an empty instance set disables a feature.";
         };
 
         modules = mkOption {

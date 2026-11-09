@@ -9,7 +9,7 @@
     };
 
     nixos =
-      settings:
+      { settings, ... }:
       { username, ... }:
       {
         security.sudo-rs = {

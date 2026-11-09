@@ -32,7 +32,15 @@ in
     inherit nixosConfigurations deploy;
     checks.${system} =
       lib.mapAttrs (_: nixos: nixos.config.system.build.toplevel) nixosConfigurations
-      // inputs.deploy-rs.lib.${system}.deployChecks deploy;
+      // inputs.deploy-rs.lib.${system}.deployChecks deploy
+      // {
+        feature-registry =
+          let
+            failures = import ./tests/feature-registry.nix { inherit lib; };
+          in
+          assert lib.assertMsg (failures == [ ]) (builtins.toJSON failures);
+          pkgs.runCommand "feature-registry-tests" { } "touch $out";
+      };
     formatter.${system} = pkgs.nixfmt-tree;
     packages.${system}.deploy-rs = inputs.deploy-rs.packages.${system}.default;
   };

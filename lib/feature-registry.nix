@@ -18,11 +18,28 @@ let
     host:
     let
       enabledFeatures = builtins.attrNames host.features;
-      missingRequirements = lib.concatMap (
-        name:
+      instances = lib.concatMap (
+        featureName:
         let
-          feature = featureByName name;
-          requirements = feature.requires host.features.${name};
+          feature = featureByName featureName;
+          settings = host.features.${featureName};
+          namedSettings =
+            if feature.multiple then settings else { ${builtins.baseNameOf featureName} = settings; };
+        in
+        lib.mapAttrsToList (name: settings: {
+          inherit
+            featureName
+            feature
+            name
+            settings
+            ;
+        }) namedSettings
+      ) enabledFeatures;
+      missingRequirements = lib.concatMap (
+        instance:
+        let
+          name = instance.featureName + lib.optionalString instance.feature.multiple " (${instance.name})";
+          requirements = instance.feature.requires instance.settings;
           unknownRequirements = filter (required: !featureExists required) (
             requirements.allOf ++ requirements.anyOf
           );
@@ -36,10 +53,10 @@ let
         map (required: "${name} references unknown feature ${required}") unknownRequirements
         ++ map (required: "${name} requires ${required}") missingAll
         ++ optional missingAny "${name} requires any of: ${lib.concatStringsSep ", " requirements.anyOf}"
-      ) enabledFeatures;
+      ) instances;
     in
     if missingRequirements == [ ] then
-      lib.genAttrs enabledFeatures featureByName
+      instances
     else
       throw ''
         Missing feature dependencies for host '${host.hostname}':

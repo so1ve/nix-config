@@ -14,7 +14,7 @@
     };
 
     nixos =
-      settings:
+      { settings, ... }:
       { config, ... }:
       {
         networking.firewall.interfaces.br-cloudflared = {

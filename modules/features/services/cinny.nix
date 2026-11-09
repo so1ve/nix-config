@@ -22,7 +22,7 @@
     };
 
     nixos =
-      settings:
+      { settings, ... }:
       {
         config,
         pkgs,

@@ -23,7 +23,7 @@ in
     };
 
     nixos =
-      settings:
+      { settings, ... }:
       {
         inputs,
         pkgs,

@@ -13,12 +13,12 @@
       description = "Interactive shells to configure";
     };
 
-    nixos = settings: {
+    nixos = { settings, ... }: {
       programs.fish.enable = lib.elem "fish" settings.shells;
     };
 
     home =
-      settings:
+      { settings, ... }:
       { config, mkDotfilesSource, ... }:
       let
         cliLocale = "en_US.UTF-8";

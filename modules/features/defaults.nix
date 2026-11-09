@@ -44,7 +44,7 @@ in
     };
 
     nixos =
-      settings:
+      { settings, ... }:
       {
         config,
         pkgs,
@@ -58,7 +58,7 @@ in
         };
       };
 
-    home = settings: {
+    home = { settings, ... }: {
       config = lib.mkMerge [
         (lib.mkIf (settings.terminal != null) {
           home.sessionVariables.TERMINAL = settings.terminal;

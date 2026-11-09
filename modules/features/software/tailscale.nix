@@ -8,7 +8,7 @@
     };
 
     nixos =
-      settings:
+      { settings, ... }:
       {
         config,
         username,

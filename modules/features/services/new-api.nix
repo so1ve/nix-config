@@ -15,7 +15,7 @@
     };
 
     nixos =
-      settings:
+      { settings, ... }:
       { config, ... }:
       let
         inherit (config.virtualisation.quadlet) containers networks;

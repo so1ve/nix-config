@@ -23,7 +23,7 @@
     requires.allOf = [ "security/agenix" ];
 
     nixos =
-      settings:
+      { settings, ... }:
       {
         config,
         ...

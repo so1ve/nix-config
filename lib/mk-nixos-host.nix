@@ -50,11 +50,11 @@ let
 in
 host:
 let
-  features = featureRegistry.select host;
+  instances = featureRegistry.select host;
   modulesFor =
     kind:
-    lib.mapAttrsToList (name: feature: feature.${kind} host.features.${name}) (
-      lib.filterAttrs (_: feature: feature.${kind} != null) features
+    map (instance: instance.feature.${kind} { inherit (instance) name settings; }) (
+      lib.filter (instance: instance.feature.${kind} != null) instances
     );
   nixosModules = modulesFor "nixos";
   homeModules = modulesFor "home";
