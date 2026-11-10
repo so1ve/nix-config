@@ -1,14 +1,42 @@
 { lib, ... }:
+
 {
   ray.features."services/emby" = {
     requires.allOf = [
       "virtualisation/podman"
       "services/traefik"
     ];
-    options.domain = lib.mkOption { type = lib.types.str; };
+
+    options = {
+      domain = lib.mkOption { type = lib.types.str; };
+
+      lanInterface = lib.mkOption {
+        type = lib.types.str;
+        description = "Host interface used for LAN access and discovery.";
+      };
+
+      lanSubnet = lib.mkOption {
+        type = lib.types.str;
+        description = "IPv4 subnet allowed to access and discover Emby directly.";
+      };
+    };
+
     nixos = { settings, ... }: { config, ... }: {
+      networking.firewall = {
+        interfaces = {
+          br-media.allowedTCPPorts = [ 8096 ];
+          br-traefik.allowedTCPPorts = [ 8096 ];
+        };
+        # for lan discovery
+        extraInputRules = ''
+          iifname "${settings.lanInterface}" ip saddr ${settings.lanSubnet} tcp dport 8096 accept
+          iifname "${settings.lanInterface}" ip saddr ${settings.lanSubnet} udp dport { 1900, 7359 } accept
+        '';
+      };
+
       virtualisation.quadlet = {
         volumes.emby = { };
+
         containers.emby.containerConfig = {
           Image = "docker.io/amilys/embyserver:beta";
           Network = [ "host" ];

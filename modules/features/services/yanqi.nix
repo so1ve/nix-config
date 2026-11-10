@@ -32,16 +32,18 @@
             napcat-qq = { };
             napcat-config = { };
           };
+
           networks.yanqi.networkConfig = {
             NetworkName = "yanqi";
             InterfaceName = "br-yanqi";
           };
+
           containers = {
             napcat.containerConfig = {
               Image = "docker.io/mlikiowa/napcat-docker@sha256:696e9574a0f6fb2f86cbecba8a32048f2a5823117dc9b13c6c02637ad890fa8b";
               Network = [ networks.yanqi.ref ];
               NetworkAlias = [ "napcat" ];
-              PublishPort = [ "0.0.0.0:6100:6099" ];
+              PublishPort = [ "6100:6099" ];
               Volume = [
                 "${volumes.napcat-qq.ref}:/app/.config/QQ"
                 "${volumes.napcat-config.ref}:/app/napcat/config"
@@ -64,7 +66,7 @@
                 Image = "ghcr.io/so1ve/yanqi@sha256:eaf60e9505b11fde9cf92cb0ac897c2e6d7b5b70416301a98e2510a3922d58ce";
                 Network = [ networks.yanqi.ref ];
                 NetworkAlias = [ "yanqi" ];
-                PublishPort = [ "0.0.0.0:3210:3000" ];
+                PublishPort = [ "3210:3000" ];
                 Volume = [ "${volumes.yanqi.ref}:/app/data" ];
                 Environment.TZ = config.time.timeZone;
                 NoNewPrivileges = true;

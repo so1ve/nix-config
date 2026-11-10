@@ -1,4 +1,5 @@
 { lib, ... }:
+
 {
   ray.features."services/moviepilot" = {
     requires.allOf = [
@@ -6,9 +7,11 @@
       "virtualisation/podman"
       "services/traefik"
     ];
+
     options = {
       domain = lib.mkOption { type = lib.types.str; };
     };
+
     nixos =
       { settings, ... }:
       { config, ... }:
@@ -21,6 +24,7 @@
             moviepilot-config = { };
             moviepilot-browser = { };
           };
+
           containers.moviepilot = {
             unitConfig = {
               Requires = [ "podman.socket" ];
@@ -33,6 +37,7 @@
                 config.virtualisation.quadlet.networks.traefik.ref
               ];
               NetworkAlias = [ "moviepilot" ];
+              PublishPort = [ "2000:3000" ];
               Volume = [
                 "${volumes.moviepilot-config.ref}:/config"
                 "${volumes.moviepilot-browser.ref}:/moviepilot/.cloakbrowser"
@@ -55,6 +60,7 @@
             };
           };
         };
+
         systemd.services.${containers.moviepilot.serviceName}.restartTriggers = [
           config.age.secrets.moviepilot-env.file
         ];

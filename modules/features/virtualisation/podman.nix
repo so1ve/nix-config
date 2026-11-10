@@ -11,7 +11,20 @@
       {
         imports = [ inputs.quadlet-nix.nixosModules.default ];
 
-        virtualisation.quadlet.enable = true;
+        virtualisation.quadlet = {
+          enable = true;
+
+          networks.media.networkConfig = {
+            NetworkName = "media";
+            InterfaceName = "br-media";
+            IPv6 = true;
+          };
+        };
+
+        networking.firewall.interfaces.br-media = {
+          allowedTCPPorts = [ 53 ];
+          allowedUDPPorts = [ 53 ];
+        };
 
         virtualisation.podman = {
           enable = true;
