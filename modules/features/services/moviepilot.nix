@@ -46,6 +46,8 @@
               Volume = [
                 "${volumes.moviepilot-config.ref}:/config"
                 "${volumes.moviepilot-browser.ref}:/moviepilot/.cloakbrowser"
+                # MoviePilot checks this marker before persisting plugin code.
+                "/dev/null:/.dockerenv:ro"
                 "/run/podman/podman.sock:/var/run/docker.sock:ro"
                 "${settings.mediaRoot}:/data"
               ];
