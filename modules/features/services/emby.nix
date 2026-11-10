@@ -10,6 +10,11 @@
     options = {
       domain = lib.mkOption { type = lib.types.str; };
 
+      mediaRoot = lib.mkOption {
+        type = lib.types.str;
+        description = "Host media directory mounted at /video.";
+      };
+
       lanInterface = lib.mkOption {
         type = lib.types.str;
         description = "Host interface used for LAN access and discovery.";
@@ -43,6 +48,7 @@
           AddDevice = [ "/dev/dri" ];
           Volume = [
             "${config.virtualisation.quadlet.volumes.emby.ref}:/config"
+            "${settings.mediaRoot}:/video"
           ];
           Environment = {
             UID = toString config.users.users.media.uid;

@@ -10,6 +10,11 @@
 
     options = {
       domain = lib.mkOption { type = lib.types.str; };
+
+      mediaRoot = lib.mkOption {
+        type = lib.types.str;
+        description = "Host media and download directory mounted at /data.";
+      };
     };
 
     nixos =
@@ -42,6 +47,7 @@
                 "${volumes.moviepilot-config.ref}:/config"
                 "${volumes.moviepilot-browser.ref}:/moviepilot/.cloakbrowser"
                 "/run/podman/podman.sock:/var/run/docker.sock:ro"
+                "${settings.mediaRoot}:/data"
               ];
               Environment = {
                 PUID = toString config.users.users.media.uid;
