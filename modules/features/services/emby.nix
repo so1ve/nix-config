@@ -31,6 +31,9 @@
         interfaces = {
           br-media.allowedTCPPorts = [ 8096 ];
           br-traefik.allowedTCPPorts = [ 8096 ];
+          ${config.services.tailscale.interfaceName}.allowedTCPPorts =
+            lib.mkIf config.services.tailscale.enable
+              [ 8096 ];
         };
         # for lan discovery
         extraInputRules = ''
