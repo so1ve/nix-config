@@ -85,10 +85,17 @@
             local.path = localSkills;
           };
           skills.enableAll = true;
-          targets.agents = {
-            enable = true;
-            dest = ".agents/skills";
-            structure = "link";
+          targets = {
+            agents = {
+              enable = true;
+              dest = ".agents/skills";
+              structure = "link";
+            };
+            claude = {
+              enable = true;
+              dest = ".claude/skills";
+              structure = "link";
+            };
           };
         };
       };

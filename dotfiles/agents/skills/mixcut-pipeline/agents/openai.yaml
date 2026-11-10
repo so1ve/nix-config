@@ -1,0 +1,3 @@
+interface:
+  display_name: "Mixcut Pipeline"
+  short_description: "ffmpeg + Python 混剪流水线：分析、读素材、写剪辑表、校验和渲染"
