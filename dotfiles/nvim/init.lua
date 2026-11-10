@@ -310,7 +310,7 @@ vim.filetype.add({
 load_plugins("now", { "tiny-age.nvim" }, function()
   require("tiny-age").setup({
     identities = { vim.fn.expand("~/.config/agenix/identity") },
-    encrypt_to_identity = true,
+    recipients = require("tiny-age.agenix").from_file("~/Develop/nix-hosts/secrets/secrets.nix"),
   })
 end)
 

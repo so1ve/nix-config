@@ -119,7 +119,7 @@
       "src": "https://github.com/folke/snacks.nvim"
     },
     "tiny-age.nvim": {
-      "rev": "4347e82102f4629094f21ac8833a4b8ea097b867",
+      "rev": "4fddc84282409374b0c0096fcaf1eb529cd0c6f6",
       "src": "https://github.com/so1ve/tiny-age.nvim"
     },
     "tiny-comment.nvim": {
