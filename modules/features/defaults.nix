@@ -13,13 +13,25 @@ let
     enable = true;
     defaultApplications = lib.genAttrs mimeTypes (_: desktopFile);
   };
+
+  terminalDesktopFiles = {
+    ghostty = "com.mitchellh.ghostty.desktop";
+    kitty = "kitty.desktop";
+  };
+
+  textMimeTypes = [
+    "application/json"
+    "text/markdown"
+    "text/plain"
+  ];
 in
 {
   ray.features.defaults = {
     options = {
       shell = choice [ "bash" "fish" ] "Login shell for the primary user.";
-      terminal = choice [ "kitty" "ghostty" ] "Default terminal emulator.";
+      terminal = choice (builtins.attrNames terminalDesktopFiles) "Default terminal emulator.";
       editor = choice [ "neovim" ] "Default editor for interactive tools.";
+      graphicalEditor = choice [ "zed" ] "Default application for opening text files on the desktop.";
       browser = choice [ "chrome" ] "Default browser for web links.";
       fileManager = choice [ "nautilus" ] "Default application for directories.";
       archiveManager = choice [ "peazip" ] "Default application for archives.";
@@ -34,6 +46,7 @@ in
           lib.filter (application: application != null) [
             settings.terminal
             settings.editor
+            settings.graphicalEditor
             settings.browser
             settings.fileManager
             settings.archiveManager
@@ -62,6 +75,11 @@ in
       config = lib.mkMerge [
         (lib.mkIf (settings.terminal != null) {
           home.sessionVariables.TERMINAL = settings.terminal;
+
+          xdg.terminal-exec = {
+            enable = true;
+            settings.default = [ terminalDesktopFiles.${settings.terminal} ];
+          };
         })
 
         (lib.mkIf (settings.editor == "neovim") {
@@ -84,6 +102,14 @@ in
               viAlias = true;
               vimAlias = true;
             };
+          };
+        })
+
+        (lib.mkIf (settings.graphicalEditor == "zed") {
+          xdg.mimeApps = mimeDefaults textMimeTypes "dev.zed.Zed.desktop" // {
+            associations.added = lib.mkIf (settings.editor == "neovim") (
+              lib.genAttrs textMimeTypes (_: "org.neovim.nvim.desktop")
+            );
           };
         })
 
