@@ -146,6 +146,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      we-layerd = {
+        url = "github:Aromatic05/we-layerd/v0.2.9";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
       waydroid-script = {

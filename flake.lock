@@ -1013,6 +1013,125 @@
         "type": "github"
       }
     },
+    "renderer": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788491866,
+        "narHash": "sha256-0sDOR2GVuAuiIZKwgisatwzicjboMlqo89/L4QPRr7M=",
+        "owner": "Aromatic05",
+        "repo": "wallpaper-engine-renderer",
+        "rev": "89dfcd86de2dc0ae537bc136046c5ed05733e7b7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Aromatic05",
+        "repo": "wallpaper-engine-renderer",
+        "rev": "89dfcd86de2dc0ae537bc136046c5ed05733e7b7",
+        "type": "github"
+      }
+    },
+    "rendererEigen": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1629319318,
+        "narHash": "sha256-1/4xMetKMDOgZgzz3WMxfHUEpmdAm52RqZvz6i0mLEw=",
+        "owner": "libeigen",
+        "repo": "eigen",
+        "rev": "3147391d946bb4b6c68edd901f2add6ac1f31f8c",
+        "type": "gitlab"
+      },
+      "original": {
+        "owner": "libeigen",
+        "repo": "eigen",
+        "rev": "3147391d946bb4b6c68edd901f2add6ac1f31f8c",
+        "type": "gitlab"
+      }
+    },
+    "rendererGlslang": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1746606779,
+        "narHash": "sha256-Ydw20Ztkb6N+DqO2e1uOE2pfLicVemrYX/0nPsm4Lh8=",
+        "owner": "KhronosGroup",
+        "repo": "glslang",
+        "rev": "9db8c369e6f49b5c00376040ba8c0cda6cbb7b4d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "KhronosGroup",
+        "repo": "glslang",
+        "rev": "9db8c369e6f49b5c00376040ba8c0cda6cbb7b4d",
+        "type": "github"
+      }
+    },
+    "rendererMiniaudio": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1700011380,
+        "narHash": "sha256-EOIykyUXYcdDeTYb/Mf3xgcxEpKS4us213tEFwm5mEI=",
+        "owner": "mackron",
+        "repo": "miniaudio",
+        "rev": "4a5b74bef029b3592c54b6048650ee5f972c1a48",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mackron",
+        "repo": "miniaudio",
+        "rev": "4a5b74bef029b3592c54b6048650ee5f972c1a48",
+        "type": "github"
+      }
+    },
+    "rendererNlohmann": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1706469922,
+        "narHash": "sha256-tXvz5ukjB+33gTw4h5AWA40hAGdkWCuKnQMiwT6LRbg=",
+        "owner": "nlohmann",
+        "repo": "json",
+        "rev": "0457de21cffb298c22b629e538036bfeb96130b7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nlohmann",
+        "repo": "json",
+        "rev": "0457de21cffb298c22b629e538036bfeb96130b7",
+        "type": "github"
+      }
+    },
+    "rendererQuickjs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1775732016,
+        "narHash": "sha256-ltrHT0zwJaZXZ8+AR4ouDXVWlVzJcdDzY2wpp8PyDmU=",
+        "owner": "quickjs-ng",
+        "repo": "quickjs",
+        "rev": "01bce21cb70c771b372ac17a8ef9920ee105e972",
+        "type": "github"
+      },
+      "original": {
+        "owner": "quickjs-ng",
+        "repo": "quickjs",
+        "rev": "01bce21cb70c771b372ac17a8ef9920ee105e972",
+        "type": "github"
+      }
+    },
+    "rendererSpirvReflect": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1743785178,
+        "narHash": "sha256-wghhePlcZEwd+qXgAkdFmXe+eBLjbtQXGDmPfxsIcWc=",
+        "owner": "KhronosGroup",
+        "repo": "SPIRV-Reflect",
+        "rev": "c6c0f5c9796bdef40c55065d82e0df67c38a29a4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "KhronosGroup",
+        "repo": "SPIRV-Reflect",
+        "rev": "c6c0f5c9796bdef40c55065d82e0df67c38a29a4",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -1046,6 +1165,7 @@
         "smart-splits-nvim": "smart-splits-nvim",
         "so1ve": "so1ve",
         "waydroid-script": "waydroid-script",
+        "we-layerd": "we-layerd",
         "yanhekit": "yanhekit"
       }
     },
@@ -1072,11 +1192,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1794191682,
-        "narHash": "sha256-OgQD3D037GDnf6127IDTN//M/5nYfwZ9x10NMluHL4c=",
+        "lastModified": 1794377282,
+        "narHash": "sha256-45QC2eGyRvTsDkmbFBNmhGCejp0ULGQcpZlYO2PR7UU=",
         "owner": "so1ve",
         "repo": "nur-packages",
-        "rev": "22fbfdc2af3f9a89443b98b47a9698b1e2e666f5",
+        "rev": "61819c31739423c7da3ddc43a8cd667c96fd02a1",
         "type": "github"
       },
       "original": {
@@ -1290,6 +1410,34 @@
         "owner": "casualsnek",
         "repo": "waydroid_script",
         "rev": "d5289cfd8929e86e7f0dc89ecadcef8b66930eec",
+        "type": "github"
+      }
+    },
+    "we-layerd": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "renderer": "renderer",
+        "rendererEigen": "rendererEigen",
+        "rendererGlslang": "rendererGlslang",
+        "rendererMiniaudio": "rendererMiniaudio",
+        "rendererNlohmann": "rendererNlohmann",
+        "rendererQuickjs": "rendererQuickjs",
+        "rendererSpirvReflect": "rendererSpirvReflect"
+      },
+      "locked": {
+        "lastModified": 1791209797,
+        "narHash": "sha256-rJ2tjLh3uYnmGRCNofb3heG+9z3tI75Z2RLA1MItzwo=",
+        "owner": "Aromatic05",
+        "repo": "we-layerd",
+        "rev": "bb15033d48d81ff1aabcb7613665e5f300503699",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Aromatic05",
+        "ref": "v0.2.9",
+        "repo": "we-layerd",
         "type": "github"
       }
     },
