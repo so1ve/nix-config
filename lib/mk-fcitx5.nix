@@ -14,8 +14,6 @@ let
   };
 in
 {
-  inherit profile;
-
   nixos = pkgs: inputMethod: addons: {
     i18n.inputMethod = {
       enable = true;
@@ -33,11 +31,27 @@ in
   };
 
   home =
-    { lib, pkgs, ... }:
+    inputMethod:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     let
       themes = "${pkgs.fcitx5-mellow-themes}/share/fcitx5/themes";
     in
     {
+      # Preserve profiles written by Fcitx5 even if a previous backup exists.
+      home.activation.backupFcitxProfile =
+        lib.hm.dag.entryBetween [ "linkGeneration" ] [ "writeBoundary" ]
+          ''
+            fcitx_profile=${lib.escapeShellArg "${config.xdg.configHome}/fcitx5/profile"}
+            if [[ -f "$fcitx_profile" && ! -L "$fcitx_profile" ]]; then
+              run mv --backup=numbered -- "$fcitx_profile" "$fcitx_profile.before-home-manager"
+            fi
+          '';
+
       # XDG autostart services are not restarted by Home Manager's service switch.
       home.activation.restartFcitx =
         lib.hm.dag.entryAfter
@@ -59,6 +73,12 @@ in
 
       # Fcitx5-Qt only reads the user-level config for the candidate window.
       xdg.configFile = {
+        # A profile saved by Fcitx5 takes precedence over the system profile.
+        "fcitx5/profile" = {
+          force = true;
+          text = lib.generators.toINI { } (profile inputMethod);
+        };
+
         "fcitx5/config".text = lib.generators.toINI { } {
           "Hotkey/TriggerKeys"."0" = "Super+space";
           # Let the input engine handle Shift for switching between Chinese and English.

@@ -42,7 +42,7 @@ in
           "${personalPackages.rime-lmdg}/share/rime-data/${languageModel}";
     in
     {
-      imports = [ fcitx5.home ];
+      imports = [ (fcitx5.home "rime") ];
 
       xdg.dataFile = {
         "fcitx5/rime/default.custom.yaml" = {

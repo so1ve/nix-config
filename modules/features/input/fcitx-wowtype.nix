@@ -11,14 +11,6 @@ in
       in
       fcitx5.nixos pkgs "wowtype" [ wowtype ];
 
-    home =
-      _:
-      { lib, ... }:
-      {
-        imports = [ fcitx5.home ];
-
-        # A profile saved by Fcitx5 takes precedence over the system profile.
-        xdg.configFile."fcitx5/profile".text = lib.generators.toINI { } (fcitx5.profile "wowtype");
-      };
+    home = _: fcitx5.home "wowtype";
   };
 }
