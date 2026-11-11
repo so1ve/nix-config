@@ -71,10 +71,10 @@ in
           "One Time Hint Trigger" = { };
         };
 
+        # Qt's client-side candidate window reads Theme without applying DarkTheme.
         "fcitx5/conf/classicui.conf".text = ''
-          Theme=${theme}
-          DarkTheme=${theme}-dark
-          UseDarkTheme=True
+          Theme=${theme}-dark
+          UseDarkTheme=False
         '';
       };
     };
