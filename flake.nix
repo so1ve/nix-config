@@ -142,6 +142,10 @@
       url = "github:Aromatic05/we-layerd/v0.2.9";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    wowtype = {
+      url = "github:Gloridust/WowType/v0.3.10";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     yanhekit = {
       url = "github:windlandneko/yanhekit";
       flake = false;

@@ -151,6 +151,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      wowtype = {
+        url = "github:Gloridust/WowType/v0.3.10";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
       waydroid-script = {

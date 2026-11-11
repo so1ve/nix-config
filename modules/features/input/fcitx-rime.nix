@@ -1,4 +1,6 @@
 let
+  fcitx5 = import ../../../lib/mk-fcitx5.nix;
+
   mkRimeWithFrost =
     pkgs: frost:
     pkgs.fcitx5-rime.override {
@@ -14,35 +16,7 @@ in
         personalPackages = import inputs.so1ve { inherit pkgs; };
         rimeWithFrost = mkRimeWithFrost pkgs personalPackages.rime-frost;
       in
-      {
-        i18n.inputMethod = {
-          enable = true;
-          type = "fcitx5";
-
-          fcitx5 = {
-            addons = [
-              rimeWithFrost
-              pkgs.fcitx5-mellow-themes
-            ];
-            waylandFrontend = true;
-
-            settings.inputMethod = {
-              "Groups/0" = {
-                Name = "Default";
-                "Default Layout" = "us";
-                DefaultIM = "rime";
-              };
-
-              "Groups/0/Items/0".Name = "rime";
-              "Groups/0/Items/1".Name = "keyboard-us";
-              GroupOrder."0" = "Default";
-            };
-          };
-        };
-
-        # Qt does not support the text-input-v3 protocol used by Niri.
-        environment.variables.QT_IM_MODULE = "fcitx";
-      };
+      fcitx5.nixos pkgs "rime" [ rimeWithFrost ];
 
     home =
       _:
@@ -58,64 +32,30 @@ in
         rimeWithFrost = mkRimeWithFrost pkgs personalPackages.rime-frost;
       in
       {
-        # XDG autostart services are not restarted by Home Manager's service switch.
-        home.activation.restartFcitx =
-          lib.hm.dag.entryAfter
-            [
-              "onFilesChange"
-              "reloadSystemd"
-            ]
-            ''
-              if ${pkgs.systemd}/bin/systemctl --user is-active --quiet app-org.fcitx.Fcitx5@autostart.service; then
-                run ${pkgs.systemd}/bin/systemctl --user restart app-org.fcitx.Fcitx5@autostart.service
-              fi
-            '';
+        imports = [ fcitx5.home ];
 
-        # Fcitx5-Qt renders the candidate window inside Qt applications and
-        # only reads this user-level file, not /etc/xdg/fcitx5.
-        xdg = {
-          configFile."fcitx5/config".text = lib.generators.toINI { } {
-            "Hotkey/TriggerKeys"."0" = "Super+space";
-            # Do not let Fcitx consume Left Shift before Rime sees it.
-            # Rime maps both Shift keys to the same ascii_mode toggle.
-            "Hotkey/AltTriggerKeys"."0" = "";
-          };
-
-          configFile."fcitx5/conf/keyboard.conf".text = lib.generators.toINI { } {
-            # Disable Ctrl+Alt+H/J to avoid collisions with Herdr navigation.
-            "Hint Trigger" = { };
-            "One Time Hint Trigger" = { };
-          };
-
-          configFile."fcitx5/conf/classicui.conf".text = ''
-            Theme=mellow-wechat
-            DarkTheme=mellow-wechat-dark
-            UseDarkTheme=True
+        xdg.dataFile."fcitx5/rime/default.custom.yaml" = {
+          text = ''
+            # shared-data: ${rimeWithFrost}
+            patch:
+              schema_list:
+                - schema: rime_frost
           '';
 
-          dataFile."fcitx5/rime/default.custom.yaml" = {
-            text = ''
-              # shared-data: ${rimeWithFrost}
-              patch:
-                schema_list:
-                  - schema: rime_frost
-            '';
+          # Rime compares mtimes, while Nix store files are dated 1970. Rebuild
+          # the generated cache explicitly whenever this managed file changes.
+          onChange = ''
+            rime_data_dir=${lib.escapeShellArg "${config.xdg.dataHome}/fcitx5/rime"}
 
-            # Rime compares mtimes, while Nix store files are dated 1970. Rebuild
-            # the generated cache explicitly whenever this managed file changes.
-            onChange = ''
-              rime_data_dir=${lib.escapeShellArg "${config.xdg.dataHome}/fcitx5/rime"}
+            rm -rf "$rime_data_dir/build"
+            ${pkgs.librime}/bin/rime_deployer \
+              --build "$rime_data_dir" "${rimeWithFrost}/share/rime-data" "$rime_data_dir/build"
 
-              rm -rf "$rime_data_dir/build"
-              ${pkgs.librime}/bin/rime_deployer \
-                --build "$rime_data_dir" "${rimeWithFrost}/share/rime-data" "$rime_data_dir/build"
-
-              (
-                cd "$rime_data_dir"
-                ${pkgs.librime}/bin/rime_deployer --set-active-schema rime_frost
-              )
-            '';
-          };
+            (
+              cd "$rime_data_dir"
+              ${pkgs.librime}/bin/rime_deployer --set-active-schema rime_frost
+            )
+          '';
         };
       };
   };

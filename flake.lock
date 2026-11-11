@@ -1166,6 +1166,7 @@
         "so1ve": "so1ve",
         "waydroid-script": "waydroid-script",
         "we-layerd": "we-layerd",
+        "wowtype": "wowtype",
         "yanhekit": "yanhekit"
       }
     },
@@ -1438,6 +1439,27 @@
         "owner": "Aromatic05",
         "ref": "v0.2.9",
         "repo": "we-layerd",
+        "type": "github"
+      }
+    },
+    "wowtype": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794324046,
+        "narHash": "sha256-5J0nD33tBpGxH1anf86MwsmjNv6GWfz/YUDt8nyyZqQ=",
+        "owner": "Gloridust",
+        "repo": "WowType",
+        "rev": "6707d6aa2753359796d96b346743a88fddb2fd50",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Gloridust",
+        "ref": "v0.3.10",
+        "repo": "WowType",
         "type": "github"
       }
     },
