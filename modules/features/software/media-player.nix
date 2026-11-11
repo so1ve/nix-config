@@ -18,6 +18,13 @@
 
           scriptOpts.uosc.languages = "zh-hans,slang,en";
 
+          bindings = {
+            LEFT = "seek -5 exact";
+            RIGHT = "seek 5 exact";
+            UP = "add volume 5";
+            DOWN = "add volume -5";
+          };
+
           config = {
             hwdec = "auto-safe";
             osc = false;
