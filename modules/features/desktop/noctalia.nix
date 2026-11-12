@@ -29,24 +29,24 @@
     home =
       _:
       {
-        featureEnabled,
+        # featureEnabled,
         mkDotfilesSource,
-        pkgs,
+        # pkgs,
         ...
       }:
       {
         xdg.configFile."noctalia".source =
-          if featureEnabled "desktop/we-layerd" || featureEnabled "desktop/waywallen" then
-            pkgs.linkFarm "noctalia-config" {
-              assets = mkDotfilesSource "noctalia/assets";
-              "config.toml" = mkDotfilesSource "noctalia/config.toml";
-              "external-wallpaper.toml" = pkgs.writeText "external-wallpaper.toml" ''
-                [wallpaper]
-                enabled = false
-              '';
-            }
-          else
-            mkDotfilesSource "noctalia";
+          # if featureEnabled "desktop/we-layerd" || featureEnabled "desktop/waywallen" then
+          #   pkgs.linkFarm "noctalia-config" {
+          #     assets = mkDotfilesSource "noctalia/assets";
+          #     "config.toml" = mkDotfilesSource "noctalia/config.toml";
+          #     "external-wallpaper.toml" = pkgs.writeText "external-wallpaper.toml" ''
+          #       [wallpaper]
+          #       enabled = false
+          #     '';
+          #   }
+          # else
+          mkDotfilesSource "noctalia";
       };
   };
 

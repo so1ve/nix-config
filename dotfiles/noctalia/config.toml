@@ -43,7 +43,6 @@ directory = "~/.config/noctalia/assets/wallpapers"
 [wallpaper.default]
 path = "~/.config/noctalia/assets/wallpapers/nier-automata-2b-snow.png"
 
-
 [bar.default]
 margin_edge = 4
 background_opacity = 0.72
