@@ -2475,6 +2475,11 @@ map("n", "q", function()
   return vim.fn.reg_recording() ~= "" and "q" or ""
 end, { expr = true, desc = "Stop macro recording" })
 
+-- Keep the built-in q commands for follow mode and command-line windows.
+for _, keys in ipairs({ "q=", "q:", "q/", "q?" }) do
+  map("n", keys, keys)
+end
+
 -- Editing
 map({ "n", "x" }, "x", '"_x', { desc = "Delete without yanking" })
 map({ "i", "c" }, "jj", "<Esc>", { desc = "Exit insert or command-line mode" })
