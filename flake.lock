@@ -1164,6 +1164,7 @@
         "relvi": "relvi",
         "smart-splits-nvim": "smart-splits-nvim",
         "so1ve": "so1ve",
+        "ugoku": "ugoku",
         "waydroid-script": "waydroid-script",
         "we-layerd": "we-layerd",
         "wowtype": "wowtype",
@@ -1372,6 +1373,26 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
+      }
+    },
+    "ugoku": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794497360,
+        "narHash": "sha256-U58bRPlqSb1U/D7aG1ODTTzO3r7ZZPJS2BoPHSz93Mw=",
+        "ref": "refs/heads/main",
+        "rev": "33fe4624640aa875c8a5af8e83d0ea766330aa31",
+        "revCount": 5,
+        "type": "git",
+        "url": "ssh://git@github.com/so1ve/ugoku"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/so1ve/ugoku"
       }
     },
     "utils": {

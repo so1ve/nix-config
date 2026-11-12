@@ -69,7 +69,11 @@
       {
         imports = [ inputs.agent-skills.homeManagerModules.default ];
 
-        home.packages = [ pkgs.uv ];
+        home.packages = [
+          pkgs.uv
+          # the command the ugoku skills run
+          inputs.ugoku.packages.${pkgs.stdenv.hostPlatform.system}.default
+        ];
 
         programs.agent-skills = {
           enable = true;
@@ -80,6 +84,10 @@
             };
             yanhekit = {
               input = "yanhekit";
+              subdir = "skills";
+            };
+            ugoku = {
+              input = "ugoku";
               subdir = "skills";
             };
             local.path = localSkills;

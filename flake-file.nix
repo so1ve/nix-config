@@ -104,6 +104,12 @@ in
         flake = false;
       };
 
+      # private: fetched over SSH with the user's key (a github: URL would need a GitHub token in nix.conf)
+      ugoku = {
+        url = "git+ssh://git@github.com/so1ve/ugoku";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       disko = {
         url = "github:nix-community/disko/latest";
         inputs.nixpkgs.follows = "nixpkgs";

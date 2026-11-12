@@ -134,6 +134,10 @@
       flake = false;
     };
     so1ve.url = "github:so1ve/nur-packages";
+    ugoku = {
+      url = "git+ssh://git@github.com/so1ve/ugoku";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     waydroid-script = {
       url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
       inputs.nixpkgs.follows = "nixpkgs";
