@@ -1900,11 +1900,14 @@ safely("later", function()
 end)
 
 load_plugins("now", "lualine.nvim", function()
+  local lualine = require("lualine")
+  local folder_icon, folder_highlight = icons.get("default", "directory")
+
   local function show_metadata()
     return vim.o.columns >= 120 and vim.bo.buftype == ""
   end
 
-  require("lualine").setup({
+  lualine.setup({
     options = {
       component_separators = "",
     },
@@ -1920,8 +1923,15 @@ load_plugins("now", "lualine.nvim", function()
         },
       },
       lualine_c = {
+        {
+          function()
+            local directory = vim.fn.fnamemodify(vim.fn.getcwd(0), ":t")
+            return (directory:gsub("%%", "%%%%"))
+          end,
+          icon = { folder_icon, color = folder_highlight },
+        },
         { "filetype", icon_only = true, padding = { left = 1, right = 0 } },
-        { "filename", path = 1 },
+        { "filename", path = 1, padding = { left = 0, right = 1 } },
         {
           "diagnostics",
           sources = { "nvim_diagnostic" },
@@ -1940,6 +1950,12 @@ load_plugins("now", "lualine.nvim", function()
       lualine_z = { "%l/%L:%v" },
     },
     inactive_sections = {},
+  })
+
+  autocmd("DirChanged", {
+    callback = function()
+      lualine.refresh({ place = { "statusline" } })
+    end,
   })
 end)
 
