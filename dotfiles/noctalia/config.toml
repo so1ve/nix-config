@@ -41,7 +41,7 @@ enabled = true
 directory = "~/.config/noctalia/assets/wallpapers"
 
 [wallpaper.default]
-path = "~/.config/noctalia/assets/wallpapers/nier-automata-2b-snow.png"
+path = "~/.config/noctalia/assets/wallpapers/arcane-4k-1.png"
 
 [bar.default]
 margin_edge = 4
