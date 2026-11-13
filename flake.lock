@@ -1382,11 +1382,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794497360,
-        "narHash": "sha256-U58bRPlqSb1U/D7aG1ODTTzO3r7ZZPJS2BoPHSz93Mw=",
+        "lastModified": 1794514358,
+        "narHash": "sha256-TzzkgdJiGK0Fw6U+cgld4hBIGF3FaKgUY127lQhKQb4=",
         "ref": "refs/heads/main",
-        "rev": "33fe4624640aa875c8a5af8e83d0ea766330aa31",
-        "revCount": 5,
+        "rev": "8b8a7e43cd76bd9f367cc5eb636cdfd7f7a8c603",
+        "revCount": 9,
         "type": "git",
         "url": "ssh://git@github.com/so1ve/ugoku"
       },
