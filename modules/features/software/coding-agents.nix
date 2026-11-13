@@ -420,7 +420,7 @@
               ];
               agentsFile = ''
                 Before starting any task, read and follow the instructions in
-                ~/Develop/nix-config/dotfiles/agents/AGENTS.md.
+                ~/Develop/projects/so1ve/nix-config/dotfiles/agents/AGENTS.md.
               '';
             };
           };
