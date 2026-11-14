@@ -1000,11 +1000,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794604785,
-        "narHash": "sha256-Gj6pJyGuXUbBtYXbnQqI1vz6j0jOG1H5qGRXm9fPK+8=",
+        "lastModified": 1794608387,
+        "narHash": "sha256-1jPUXA5nWHlOW/K0U/cZdC1tGfI77LpbOr9YaSO8QNY=",
         "owner": "so1ve",
         "repo": "relvi",
-        "rev": "996617c3f68784898de27f7de2b39dff978d31d3",
+        "rev": "ec162ba1baa395a1c1d4aca919b9cc97018f84a0",
         "type": "github"
       },
       "original": {
