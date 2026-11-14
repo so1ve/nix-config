@@ -91,6 +91,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      terranix = {
+        url = "github:terranix/terranix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       agent-skills = {
         url = "github:Kyure-A/agent-skills-nix";
         inputs.nixpkgs.follows = "nixpkgs";

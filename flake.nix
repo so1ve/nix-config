@@ -146,6 +146,10 @@
       flake = false;
     };
     so1ve.url = "github:so1ve/nur-packages";
+    terranix = {
+      url = "github:terranix/terranix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     ugoku = {
       url = "git+ssh://git@github.com/so1ve/ugoku";
       inputs.nixpkgs.follows = "nixpkgs";
