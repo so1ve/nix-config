@@ -128,7 +128,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     oranc = {
-      url = "github:linyinfeng/oranc/e54ede0f6cecf555767d261989d72ed0e7f1775f";
+      url = "github:linyinfeng/oranc";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     quadlet-nix = {
