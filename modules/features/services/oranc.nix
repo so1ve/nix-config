@@ -49,11 +49,9 @@
             bind 127.0.0.1
             @read method GET HEAD
             handle @read {
-              route {
-                rewrite * /ghcr.io/${settings.repository}{path}?
-                reverse_proxy 127.0.0.1:8080 {
-                  header_up -Authorization
-                }
+              reverse_proxy 127.0.0.1:8080 {
+                rewrite /ghcr.io/${settings.repository}{path}?
+                header_up -Authorization
               }
             }
             respond "Method Not Allowed" 405
