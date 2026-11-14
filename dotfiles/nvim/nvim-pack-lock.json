@@ -131,7 +131,7 @@
       "src": "https://github.com/so1ve/tiny-gitref.nvim"
     },
     "tiny-md.nvim": {
-      "rev": "51bf66147af4e8a0d4f5fc938844030a1891303a",
+      "rev": "0766db9f3d03a0bb0360bacec56cbedbfa12158c",
       "src": "https://github.com/so1ve/tiny-md.nvim"
     },
     "tiny-treesitter.nvim": {
