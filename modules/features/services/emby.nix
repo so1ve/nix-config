@@ -3,7 +3,7 @@
 {
   ray.features."services/emby" = {
     requires.allOf = [
-      "virtualisation/podman"
+      "services/media"
       "services/traefik"
     ];
 

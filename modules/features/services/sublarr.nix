@@ -3,7 +3,7 @@
 {
   ray.features."services/sublarr" = {
     requires.allOf = [
-      "virtualisation/podman"
+      "services/media"
       "services/traefik"
     ];
 

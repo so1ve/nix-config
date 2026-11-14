@@ -5,7 +5,7 @@
     multiple = true;
 
     requires.allOf = [
-      "virtualisation/podman"
+      "services/media"
       "services/traefik"
     ];
 

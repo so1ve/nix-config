@@ -12,6 +12,16 @@
         type = lib.types.str;
         description = "QQ account to log in automatically using the saved NapCat session.";
       };
+
+      napcat.uid = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        description = "User ID for NapCat's persistent container data.";
+      };
+
+      napcat.gid = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        description = "Group ID for NapCat's persistent container data.";
+      };
     };
 
     nixos =
@@ -51,8 +61,8 @@
               Environment = {
                 NAPCAT_QUICK_ACCOUNT = settings.account;
                 MODE = "ws";
-                NAPCAT_UID = toString config.users.users.media.uid;
-                NAPCAT_GID = toString config.users.groups.media.gid;
+                NAPCAT_UID = toString settings.napcat.uid;
+                NAPCAT_GID = toString settings.napcat.gid;
                 TZ = config.time.timeZone;
               };
               EnvironmentFile = [ config.age.secrets.napcat-env.path ];

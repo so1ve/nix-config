@@ -2,7 +2,7 @@
 
 {
   ray.features."services/jellyfin-library-poster" = {
-    requires.allOf = [ "virtualisation/podman" ];
+    requires.allOf = [ "services/media" ];
 
     nixos =
       _:

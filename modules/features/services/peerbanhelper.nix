@@ -3,7 +3,7 @@
 {
   ray.features."services/peerbanhelper" = {
     requires.allOf = [
-      "virtualisation/podman"
+      "services/media"
       "services/traefik"
     ];
 

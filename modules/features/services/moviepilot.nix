@@ -4,7 +4,7 @@
   ray.features."services/moviepilot" = {
     requires.allOf = [
       "security/agenix"
-      "virtualisation/podman"
+      "services/media"
       "services/traefik"
     ];
 

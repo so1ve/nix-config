@@ -2,7 +2,7 @@
 
 {
   ray.features."services/flaresolverr" = {
-    requires.allOf = [ "virtualisation/podman" ];
+    requires.allOf = [ "services/media" ];
 
     nixos = _: { config, ... }: {
       virtualisation.quadlet.containers.flaresolverr.containerConfig = {
