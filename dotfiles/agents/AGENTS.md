@@ -55,15 +55,14 @@ implement, clean up, or finish work does not override them.
 <local_builds>
 ## Local builds
 
-- NEVER build or compile a program locally unless it's required to check your
-  changes or the user explicitly approves that specific build in the current
-  conversation context.
-- An implementation request is not build approval. By default, stop before the
-  build, give the user the exact command, and ask them to run it and share the
-  result.
-- Running necessary commands, like `check`, `build` after implementation is ALLOWED,
-  but never run them too frequently. Neccesary builds, like `just write-flake`, are
-  always required.
+- Run local checks, tests, and builds when they are necessary to complete or
+  validate the requested implementation, fix, or review. This includes commands
+  such as `cargo check`, `cargo clippy`, and required generation commands such as
+  `just write-flake`. No separate build approval is needed for that validation.
+- Choose the narrowest useful validation and avoid repeating it unless changes,
+  failures, or unresolved concerns justify another run.
+- Builds unrelated to the requested work require the user's explicit approval.
+  The NixOS rebuild prohibition above still applies to every task.
 - Before running an unfamiliar validation command, determine whether it may
   compile software or realize build derivations. If it may, treat it as a build.
 </local_builds>
