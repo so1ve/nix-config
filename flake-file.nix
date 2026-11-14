@@ -20,6 +20,11 @@ in
     inputs = {
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+      bootvine = {
+        url = "git+https://codeberg.org/wvhulle/bootvine";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
 
       nixos-wsl = {

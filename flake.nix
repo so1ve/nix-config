@@ -57,6 +57,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     biternet-go.url = "github:bitoolkit/biternet-go";
+    bootvine = {
+      url = "git+https://codeberg.org/wvhulle/bootvine";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     chrome-url-router = {
       url = "github:so1ve/chrome-url-router";
       inputs.nixpkgs.follows = "nixpkgs";
