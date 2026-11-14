@@ -1772,17 +1772,17 @@
         "systems": "systems_8"
       },
       "locked": {
-        "lastModified": 1767603363,
-        "narHash": "sha256-zSHZlhHJHWZRE3I5pYWhD4o8aNpa8rTiEtl2qJTuRjw=",
+        "lastModified": 1794658171,
+        "narHash": "sha256-J6IMebq5WLRXHi9zV7wWX91JQkVVKevE1NfRm84Iids=",
         "owner": "casualsnek",
         "repo": "waydroid_script",
-        "rev": "d5289cfd8929e86e7f0dc89ecadcef8b66930eec",
+        "rev": "4a50dabd97fcb632a608b1421105258862a5b994",
         "type": "github"
       },
       "original": {
         "owner": "casualsnek",
         "repo": "waydroid_script",
-        "rev": "d5289cfd8929e86e7f0dc89ecadcef8b66930eec",
+        "rev": "4a50dabd97fcb632a608b1421105258862a5b994",
         "type": "github"
       }
     },

@@ -155,7 +155,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     waydroid-script = {
-      url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
+      url = "github:casualsnek/waydroid_script/4a50dabd97fcb632a608b1421105258862a5b994";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     we-layerd = {
