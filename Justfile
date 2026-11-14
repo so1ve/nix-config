@@ -24,6 +24,10 @@ write-flake:
 update *input:
     nix flake update --accept-flake-config {{quote(input)}}
 
+# Update all or selected container images.
+update-images *image:
+    nix run path:.#update --accept-flake-config -- {{quote(image)}}
+
 # Keep at least 3 generations and recent gcroots, then collect all unreachable store paths.
 gc period="7d" keep="3":
     nh clean all --keep {{ keep }} --keep-since {{ period }} --ask

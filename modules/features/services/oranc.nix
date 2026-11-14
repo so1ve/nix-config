@@ -28,8 +28,6 @@
       {
         imports = [ inputs.oranc.nixosModules.oranc ];
 
-        networking.firewall.interfaces.br-cloudflared.allowedTCPPorts = [ 8081 ];
-
         services.oranc = {
           enable = true;
           package = inputs.oranc.packages.${pkgs.stdenv.hostPlatform.system}.oranc;
@@ -48,6 +46,7 @@
         services.caddy = {
           enable = true;
           virtualHosts."http://${settings.domain}:8081".extraConfig = ''
+            bind 127.0.0.1
             @read method GET HEAD
             handle @read {
               route {

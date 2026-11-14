@@ -13,6 +13,8 @@ definitions merge through the existing feature system.
 Use `just write-flake` after changing flake inputs. More command shortcuts available
 in `just --list`.
 
+Run `just update-images` to update container images in `images/`.
+
 ## LICENSE
 
 [Unlicense](LICENSE). Made with ♥️ by [Ray](https://github.com/so1ve)

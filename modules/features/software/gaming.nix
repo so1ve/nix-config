@@ -49,11 +49,11 @@
 
     "software/hmcl".home =
       _:
-      { inputs, pkgs, ... }:
+      { pkgs, ... }:
       let
         hmclScaled = pkgs.symlinkJoin {
           name = "hmcl-scaled";
-          paths = [ (import inputs.so1ve { inherit pkgs; }).hmcl ];
+          paths = [ pkgs.so1ve.hmcl ];
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
             # Intentionally kept at 2x scaling instead of 1.75 for better font rendering

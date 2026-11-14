@@ -1,10 +1,8 @@
 {
   ray.features."software/kelivo".home =
     _:
-    { inputs, pkgs, ... }:
+    { pkgs, ... }:
     {
-      home.packages = [
-        (import inputs.so1ve { inherit pkgs; }).kelivo
-      ];
+      home.packages = [ pkgs.so1ve.kelivo ];
     };
 }

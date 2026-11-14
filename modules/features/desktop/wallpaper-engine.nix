@@ -26,10 +26,10 @@
 
     home =
       { settings, ... }:
-      { inputs, pkgs, ... }:
+      { pkgs, ... }:
       {
         home.packages = [
-          ((import inputs.so1ve { inherit pkgs; }).waywallen.override {
+          (pkgs.so1ve.waywallen.override {
             inherit (settings) plugins;
           })
         ];

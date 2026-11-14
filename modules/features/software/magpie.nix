@@ -1,12 +1,9 @@
 {
   ray.features."software/magpie".home =
     _:
-    { inputs, pkgs, ... }:
-    let
-      magpie = (import inputs.so1ve { inherit pkgs; }).magpie;
-    in
+    { pkgs, ... }:
     {
-      home.packages = [ magpie ];
+      home.packages = [ pkgs.so1ve.magpie ];
 
       systemd.user.services.magpie = {
         Unit = {
@@ -15,7 +12,7 @@
         };
 
         Service = {
-          ExecStart = "${magpie}/bin/magpie serve --web";
+          ExecStart = "${pkgs.so1ve.magpie}/bin/magpie serve --web";
           Restart = "on-failure";
           RestartSec = 2;
         };

@@ -19,6 +19,10 @@ in
 {
   imports = [ (inputs.import-tree ./modules) ];
 
+  _module.args.images = lib.mapAttrs (name: _: (import (./images + "/${name}/source.nix")).image) (
+    builtins.readDir ./images
+  );
+
   flake-file.outputs-schema.options = {
     checks = lib.mkOption {
       type = lib.types.lazyAttrsOf (lib.types.lazyAttrsOf lib.types.package);
@@ -42,6 +46,15 @@ in
           pkgs.runCommand "feature-registry-tests" { } "touch $out";
       };
     formatter.${system} = pkgs.nixfmt-tree;
-    packages.${system}.deploy-rs = inputs.deploy-rs.packages.${system}.default;
+    packages.${system} = {
+      deploy-rs = inputs.deploy-rs.packages.${system}.default;
+      update = pkgs.writeShellApplication {
+        name = "update-images";
+        runtimeInputs = [ inputs.nix-repin.packages.${system}.default ];
+        text = ''
+          exec nix-repin --packages-root images "$@"
+        '';
+      };
+    };
   };
 }

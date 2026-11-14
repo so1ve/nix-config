@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/emby" = {
@@ -46,7 +46,7 @@
         volumes.emby = { };
 
         containers.emby.containerConfig = {
-          Image = "docker.io/amilys/embyserver:beta";
+          Image = images.emby;
           Network = [ "host" ];
           AddDevice = [ "/dev/dri" ];
           Volume = [

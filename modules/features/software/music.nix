@@ -9,20 +9,16 @@
 
     "software/alger-music-player".home =
       _:
-      { inputs, pkgs, ... }:
+      { pkgs, ... }:
       {
-        home.packages = [
-          (import inputs.so1ve { inherit pkgs; }).alger-music-player
-        ];
+        home.packages = [ pkgs.so1ve.alger-music-player ];
       };
 
     "software/yesplaymusic".home =
       _:
-      { inputs, pkgs, ... }:
+      { pkgs, ... }:
       {
-        home.packages = [
-          (import inputs.so1ve { inherit pkgs; }).yesplaymusic
-        ];
+        home.packages = [ pkgs.so1ve.yesplaymusic ];
       };
 
     "software/netease-cloud-music-gtk".home =

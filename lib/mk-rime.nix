@@ -9,37 +9,29 @@ let
   fcitx5 = import ./mk-fcitx5.nix;
 
   rimePackage =
-    pkgs: personalPackages:
+    pkgs:
     pkgs.fcitx5-rime.override {
-      rimeDataPkgs = [ (dataPackage personalPackages) ];
+      rimeDataPkgs = [ (dataPackage pkgs) ];
     };
 in
 {
   nixos =
     _:
-    { inputs, pkgs, ... }:
-    let
-      personalPackages = import inputs.so1ve { inherit pkgs; };
-    in
-    fcitx5.nixos pkgs "rime" [ (rimePackage pkgs personalPackages) ];
+    { pkgs, ... }:
+    fcitx5.nixos pkgs "rime" [ (rimePackage pkgs) ];
 
   home =
     _:
     {
       config,
-      inputs,
       lib,
       pkgs,
       ...
     }:
     let
-      personalPackages = import inputs.so1ve { inherit pkgs; };
-      rime = rimePackage pkgs personalPackages;
+      rime = rimePackage pkgs;
       model =
-        if languageModel == null then
-          null
-        else
-          "${personalPackages.rime-lmdg}/share/rime-data/${languageModel}";
+        if languageModel == null then null else "${pkgs.so1ve.rime-lmdg}/share/rime-data/${languageModel}";
     in
     {
       imports = [ (fcitx5.home "rime") ];

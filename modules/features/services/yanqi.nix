@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/yanqi" = {
@@ -40,7 +40,7 @@
 
           containers = {
             napcat.containerConfig = {
-              Image = "docker.io/mlikiowa/napcat-docker@sha256:696e9574a0f6fb2f86cbecba8a32048f2a5823117dc9b13c6c02637ad890fa8b";
+              Image = images.napcat;
               Network = [ networks.yanqi.ref ];
               NetworkAlias = [ "napcat" ];
               PublishPort = [ "6100:6099" ];
@@ -63,7 +63,7 @@
                 After = [ containers.napcat.ref ];
               };
               containerConfig = {
-                Image = "ghcr.io/so1ve/yanqi@sha256:eaf60e9505b11fde9cf92cb0ac897c2e6d7b5b70416301a98e2510a3922d58ce";
+                Image = images.yanqi;
                 Network = [ networks.yanqi.ref ];
                 NetworkAlias = [ "yanqi" ];
                 PublishPort = [ "3210:3000" ];

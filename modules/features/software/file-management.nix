@@ -24,11 +24,10 @@
       {
         lib,
         pkgs,
-        inputs,
         ...
       }:
       let
-        peazip = (import inputs.so1ve { inherit pkgs; }).peazip-rar;
+        peazip = pkgs.so1ve.peazip-rar;
 
         mkNautilusScript = name: operation: {
           source = pkgs.writeShellScript "peazip-nautilus-${name}" ''

@@ -1,10 +1,10 @@
 {
   ray.features."software/yanhekt-autoslides".home =
     _:
-    { inputs, pkgs, ... }:
+    { pkgs, ... }:
     {
       home.packages = [
-        (import inputs.so1ve { inherit pkgs; }).yanhekt-autoslides
+        pkgs.so1ve.yanhekt-autoslides
       ];
     };
 }

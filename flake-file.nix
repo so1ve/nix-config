@@ -20,6 +20,11 @@ in
     inputs = {
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+      nix-repin = {
+        url = "github:so1ve/nix-repin";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       bootvine = {
         url = "git+https://codeberg.org/wvhulle/bootvine";
         inputs.nixpkgs.follows = "nixpkgs";

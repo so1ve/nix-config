@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/qbittorrent" = {
@@ -37,7 +37,7 @@
         };
 
         containers.${name}.containerConfig = {
-          Image = "docker.io/linuxserver/qbittorrent@sha256:308d768672fb9e86e800a73504c439176aabe5977bcdf8b99f7561bb603d9b6e";
+          Image = images.qbittorrent;
           Network = [
             "${
               config.virtualisation.quadlet.networks.${settings.lanNetwork}.ref

@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/sublarr" = {
@@ -21,7 +21,7 @@
         volumes.sublarr = { };
 
         containers.sublarr.containerConfig = {
-          Image = "ghcr.io/abrechen2/sublarr:1.20.1";
+          Image = images.sublarr;
           Network = [
             config.virtualisation.quadlet.networks.media.ref
             config.virtualisation.quadlet.networks.traefik.ref

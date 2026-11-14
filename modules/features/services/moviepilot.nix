@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/moviepilot" = {
@@ -36,7 +36,7 @@
               After = [ "podman.socket" ];
             };
             containerConfig = {
-              Image = "docker.io/jxxghp/moviepilot-v3@sha256:c9ab74b94427a18134b9c5e8d6fa0c186f6740c033029b69eceda0a07f4021af";
+              Image = images.moviepilot;
               Network = [
                 config.virtualisation.quadlet.networks.media.ref
                 config.virtualisation.quadlet.networks.traefik.ref

@@ -2,11 +2,7 @@
 
 {
   ray.features."services/forgejo" = {
-    requires.allOf = [
-      "security/agenix"
-      "virtualisation/podman"
-      "services/cloudflared"
-    ];
+    requires.allOf = [ "services/cloudflared" ];
 
     options = {
       autoStart = lib.mkOption {
@@ -23,70 +19,71 @@
 
     nixos =
       { settings, ... }:
-      { config, ... }:
+      { config, pkgs, ... }:
       let
-        inherit (config.virtualisation.quadlet) containers networks;
+        cfg = config.services.forgejo;
       in
       {
-        systemd.tmpfiles.rules = [
-          "d /var/lib/forgejo 0700 1000 1000 - -"
-        ];
-
-        virtualisation.quadlet.containers.forgejo = {
-          inherit (settings) autoStart;
-          unitConfig = {
-            Requires = containers.cloudflared.ref;
-            After = containers.cloudflared.ref;
+        services.forgejo = {
+          enable = true;
+          package = pkgs.forgejo;
+          database.path = "${cfg.stateDir}/data/gitea.db";
+          repositoryRoot = "${cfg.stateDir}/git/repositories";
+          lfs = {
+            enable = true;
+            contentDir = "${cfg.stateDir}/git/lfs";
           };
-          serviceConfig = {
-            Restart = "always";
-            TimeoutStartSec = "5min";
-          };
-          containerConfig = {
-            ContainerName = "forgejo";
-            Image = "codeberg.org/forgejo/forgejo:17-rootless";
-            User = "1000:1000";
-            Network = [ networks.cloudflared.ref ];
-            NetworkAlias = [ "forgejo" ];
-            NoNewPrivileges = true;
-            DropCapability = [ "ALL" ];
-            Volume = [
-              "/var/lib/forgejo:/var/lib/gitea"
-              "${./forgejo/templates}:/var/lib/gitea/custom/templates:ro"
-              "${./forgejo/public}:/var/lib/gitea/custom/public:ro"
-            ];
-            Environment = {
-              USER_UID = "1000";
-              USER_GID = "1000";
-              FORGEJO____APP_NAME = settings.domain;
-              FORGEJO__ui__DEFAULT_THEME = "so1ve-auto";
-              FORGEJO__ui__THEMES = "so1ve-auto,so1ve-light,so1ve-dark,forgejo-auto";
-              FORGEJO__server__ROOT_URL = "https://${settings.domain}/";
-              FORGEJO__server__DOMAIN = settings.domain;
-              FORGEJO__server__HTTP_PORT = "3000";
-              FORGEJO__server__DISABLE_SSH = "true";
-              FORGEJO__server__START_SSH_SERVER = "false";
-              FORGEJO__repository__DEFAULT_BRANCH = "main";
-              FORGEJO__repository__DEFAULT_PRIVATE = "public";
-              FORGEJO__repository__DEFAULT_PUSH_CREATE_PRIVATE = "false";
-              FORGEJO__repository__ENABLE_PUSH_CREATE_USER = "true";
-              FORGEJO__repository__ENABLE_PUSH_CREATE_ORG = "true";
-              FORGEJO__server__LFS_START_SERVER = "true";
-              FORGEJO__security__INSTALL_LOCK = "true";
-              FORGEJO__oauth2_client__ACCOUNT_LINKING = "auto";
-              FORGEJO__oauth2_client__ENABLE_AUTO_REGISTRATION = "true";
-              FORGEJO__oauth2_client__UPDATE_AVATAR = "true";
-              FORGEJO__oauth2_client__USERNAME = "preferred_username";
-              FORGEJO__service__DISABLE_REGISTRATION = "true";
-              FORGEJO__service__REQUIRE_SIGNIN_VIEW = "true";
-              FORGEJO__service__ENABLE_INTERNAL_SIGNIN = "false";
-              FORGEJO__service__ENABLE_BASIC_AUTHENTICATION = "false";
+          settings = {
+            DEFAULT.APP_NAME = settings.domain;
+            ui = {
+              DEFAULT_THEME = "so1ve-auto";
+              THEMES = "so1ve-auto,so1ve-light,so1ve-dark,forgejo-auto";
             };
-            EnvironmentFile = [ config.age.secrets.forgejo-env.path ];
+            server = {
+              ROOT_URL = "https://${settings.domain}/";
+              DOMAIN = settings.domain;
+              HTTP_ADDR = "127.0.0.1";
+              HTTP_PORT = 3000;
+              APP_DATA_PATH = cfg.stateDir;
+              DISABLE_SSH = true;
+              START_SSH_SERVER = false;
+            };
+            repository = {
+              DEFAULT_BRANCH = "main";
+              DEFAULT_PRIVATE = "public";
+              DEFAULT_PUSH_CREATE_PRIVATE = false;
+              ENABLE_PUSH_CREATE_USER = true;
+              ENABLE_PUSH_CREATE_ORG = true;
+            };
+            session.PROVIDER_CONFIG = "${cfg.stateDir}/data/sessions";
+            picture = {
+              AVATAR_UPLOAD_PATH = "${cfg.stateDir}/data/avatars";
+              REPOSITORY_AVATAR_UPLOAD_PATH = "${cfg.stateDir}/data/repo-avatars";
+            };
+            attachment.PATH = "${cfg.stateDir}/data/attachments";
+            log.ROOT_PATH = "${cfg.stateDir}/data/log";
+            oauth2_client = {
+              ACCOUNT_LINKING = "auto";
+              ENABLE_AUTO_REGISTRATION = true;
+              UPDATE_AVATAR = true;
+              USERNAME = "preferred_username";
+            };
+            service = {
+              DISABLE_REGISTRATION = true;
+              REQUIRE_SIGNIN_VIEW = true;
+              ENABLE_INTERNAL_SIGNIN = false;
+              ENABLE_BASIC_AUTHENTICATION = false;
+            };
           };
         };
 
-        systemd.services.forgejo.restartTriggers = [ config.age.secrets.forgejo-env.file ];
+        systemd.services.forgejo = {
+          wantedBy = lib.mkForce (lib.optional settings.autoStart "multi-user.target");
+          serviceConfig.BindReadOnlyPaths = [
+            "${./forgejo/templates}:${cfg.customDir}/templates"
+            "${./forgejo/public}:${cfg.customDir}/public"
+          ];
+        };
       };
   };
 }

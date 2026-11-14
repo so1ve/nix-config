@@ -88,7 +88,7 @@
           ...
         }:
         let
-          herdr = (import inputs.so1ve { inherit pkgs; }).herdr;
+          inherit (pkgs.so1ve) herdr;
           herdrSkill = pkgs.runCommand "herdr-skill-${herdr.version}" { } ''
             ${herdr}/bin/herdr --skill > "$out"
           '';

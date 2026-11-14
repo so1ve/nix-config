@@ -39,9 +39,7 @@ let
               inherit config;
               copy = host.isServer;
             };
-            focusOrLaunch = import ./mk-focus-or-launch.nix {
-              inherit inputs pkgs;
-            };
+            focusOrLaunch = import ./mk-focus-or-launch.nix { inherit pkgs; };
           };
         };
       backupFileExtension = "home-manager.backup";
@@ -62,9 +60,11 @@ in
 inputs.nixpkgs.lib.nixosSystem {
   inherit (host) system;
   specialArgs = specialArgsFor host;
-  modules =
-    nixosModules
-    ++ host.modules
-    ++ optional (homeModules != [ ]) inputs.home-manager.nixosModules.home-manager
-    ++ optional (homeModules != [ ]) (homeManagerModule host homeModules);
+  modules = [
+    { nixpkgs.overlays = [ inputs.so1ve.overlays.default ]; }
+  ]
+  ++ nixosModules
+  ++ host.modules
+  ++ optional (homeModules != [ ]) inputs.home-manager.nixosModules.home-manager
+  ++ optional (homeModules != [ ]) (homeManagerModule host homeModules);
 }

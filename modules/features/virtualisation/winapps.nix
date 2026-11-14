@@ -1,3 +1,5 @@
+{ images, ... }:
+
 {
   ray.features."virtualisation/winapps" = {
     requires.allOf = [ "virtualisation/podman" ];
@@ -53,7 +55,9 @@
         ];
 
         xdg.configFile = {
-          "winapps/compose.yaml".source = ./winapps/compose.yaml;
+          "winapps/compose.yaml".text = builtins.replaceStrings [ "@image@" ] [ images.windows ] (
+            builtins.readFile ./winapps/compose.yaml
+          );
           "winapps/oem".source = "${inputs.winapps}/oem";
           "winapps/winapps.conf".source = winappsConfig;
         };

@@ -1,4 +1,4 @@
-{ inputs, pkgs }:
+{ pkgs }:
 
 pkgs.writeShellApplication {
   name = "focus-or-launch";
@@ -6,7 +6,7 @@ pkgs.writeShellApplication {
     pkgs.jq
     # FIXME: Switch back to pkgs.niri after the upstream PR is merged:
     # https://github.com/niri-wm/niri/pull/3305 or https://github.com/niri-wm/niri/pull/4147
-    (import inputs.so1ve { inherit pkgs; }).niri
+    pkgs.so1ve.niri
   ];
   text = ''
     if [ "$#" -lt 2 ]; then

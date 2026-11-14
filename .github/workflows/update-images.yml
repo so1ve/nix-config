@@ -1,0 +1,62 @@
+name: Update Container Images
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-images
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: accept-flake-config = true
+
+      - name: Update images
+        id: update
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          failed=0
+
+          for source in images/*/source.ts; do
+            image="$(basename "$(dirname "$source")")"
+            echo "::group::$image"
+            if ! nix run .#update -- "$image"; then
+              echo "::error::Failed to update $image"
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+
+      - name: Commit updated images
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git add -- images/*/source.nix
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit --message "chore(images): update container digests"
+          git push origin "HEAD:$DEFAULT_BRANCH"
+
+      - name: Report failed updates
+        if: steps.update.outputs.failed == '1'
+        run: exit 1

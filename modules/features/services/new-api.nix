@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/new-api" = {
@@ -33,19 +33,26 @@
           "d /var/lib/new-api/postgres 0755 root root - -"
         ];
 
-        networking.firewall.interfaces.br-new-api = {
+        networking.firewall.interfaces = lib.genAttrs [ "br-new-api" "br-new-api-app" ] (_: {
           allowedTCPPorts = [ 53 ];
           allowedUDPPorts = [ 53 ];
-        };
+        });
 
         virtualisation.quadlet = {
-          networks.new-api.networkConfig = {
-            NetworkName = "new-api";
-            InterfaceName = "br-new-api";
-            Options = [
-              "isolate=true"
-              "no_default_route=true"
-            ];
+          networks = {
+            new-api-app.networkConfig = {
+              NetworkName = "new-api-app";
+              InterfaceName = "br-new-api-app";
+              Options = [ "isolate=true" ];
+            };
+            new-api.networkConfig = {
+              NetworkName = "new-api";
+              InterfaceName = "br-new-api";
+              Options = [
+                "isolate=true"
+                "no_default_route=true"
+              ];
+            };
           };
 
           containers = {
@@ -61,9 +68,10 @@
               };
               containerConfig = {
                 ContainerName = "new-api";
-                Image = "docker.io/calciumion/new-api:latest";
+                Image = images.new-api;
+                PublishPort = [ "127.0.0.1:3001:3000" ];
                 Network = [
-                  networks.cloudflared.ref
+                  networks.new-api-app.ref
                   networks.new-api.ref
                 ];
                 NoNewPrivileges = true;
@@ -90,7 +98,7 @@
               };
               containerConfig = {
                 ContainerName = "new-api-postgres";
-                Image = "docker.io/library/postgres:latest";
+                Image = images.postgres;
                 Network = [ networks.new-api.ref ];
                 NetworkAlias = [ "postgres" ];
                 NoNewPrivileges = true;
@@ -113,7 +121,7 @@
               };
               containerConfig = {
                 ContainerName = "new-api-redis";
-                Image = "docker.io/library/redis:latest";
+                Image = images.redis;
                 Network = [ networks.new-api.ref ];
                 NetworkAlias = [ "redis" ];
                 NoNewPrivileges = true;

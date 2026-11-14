@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/vaultwarden" = {
@@ -22,7 +22,7 @@
           volumes.vaultwarden = { };
 
           containers.vaultwarden.containerConfig = {
-            Image = "docker.io/vaultwarden/server:1.37.5";
+            Image = images.vaultwarden;
             Network = [ config.virtualisation.quadlet.networks.traefik.ref ];
             PublishPort = [ "8222:80" ];
             Volume = [ "${config.virtualisation.quadlet.volumes.vaultwarden.ref}:/data" ];

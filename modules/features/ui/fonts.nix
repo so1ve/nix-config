@@ -3,14 +3,13 @@
     nixos =
       _:
       {
-        inputs,
         lib,
         pkgs,
         ...
       }:
       {
         fonts.packages = [
-          (import inputs.so1ve { inherit pkgs; }).r-maple-mono-nf-cn
+          pkgs.so1ve.r-maple-mono-nf-cn
           pkgs.noto-fonts-cjk-sans
           pkgs.noto-fonts-cjk-serif
         ];

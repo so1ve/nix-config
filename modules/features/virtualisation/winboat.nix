@@ -17,9 +17,9 @@
 
     home =
       _:
-      { inputs, pkgs, ... }:
+      { pkgs, ... }:
       {
-        home.packages = [ (import inputs.so1ve { inherit pkgs; }).winboat-unstable ];
+        home.packages = [ pkgs.so1ve.winboat-unstable ];
       };
   };
 }

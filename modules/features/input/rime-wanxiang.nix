@@ -5,8 +5,8 @@
     languageModel = "wanxiang-lts-zh-hans.gram";
 
     dataPackage =
-      packages:
-      packages.rime-wanxiang.overrideAttrs (old: {
+      pkgs:
+      pkgs.so1ve.rime-wanxiang.overrideAttrs (old: {
         postPatch = (old.postPatch or "") + ''
           for schema in wanxiang.schema.yaml wanxiang_english.schema.yaml; do
             substituteInPlace "$schema" \

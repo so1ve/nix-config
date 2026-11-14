@@ -350,7 +350,7 @@
           ...
         }:
         let
-          rea = (import inputs.so1ve { inherit pkgs; }).rea;
+          inherit (pkgs.so1ve) rea;
         in
         {
           imports = [ inputs.so1ve.homeModules.deepseek-harness ];

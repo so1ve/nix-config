@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/traefik" = {
@@ -118,7 +118,7 @@
               After = [ "podman.socket" ] ++ lib.optional dnsProxyEnabled "dnsproxy.service";
             };
             containerConfig = {
-              Image = "docker.io/library/traefik:v3.7.17";
+              Image = images.traefik;
               Network = [ networks.traefik.ref ];
               PublishPort = lib.unique [
                 "0.0.0.0:80:80"

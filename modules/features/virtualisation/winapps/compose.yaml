@@ -2,7 +2,7 @@ name: winapps
 
 services:
   windows:
-    image: ghcr.io/dockur/windows:6.03
+    image: "@image@"
     container_name: WinApps
 
     env_file:

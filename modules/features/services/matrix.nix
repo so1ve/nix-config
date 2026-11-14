@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ images, lib, ... }:
 
 {
   ray.features."services/matrix" = {
@@ -38,19 +38,26 @@
           "d /var/lib/matrix/postgres 0755 root root - -"
         ];
 
-        networking.firewall.interfaces.br-matrix = {
+        networking.firewall.interfaces = lib.genAttrs [ "br-matrix" "br-matrix-app" ] (_: {
           allowedTCPPorts = [ 53 ];
           allowedUDPPorts = [ 53 ];
-        };
+        });
 
         virtualisation.quadlet = {
-          networks.matrix.networkConfig = {
-            NetworkName = "matrix";
-            InterfaceName = "br-matrix";
-            Options = [
-              "isolate=true"
-              "no_default_route=true"
-            ];
+          networks = {
+            matrix-app.networkConfig = {
+              NetworkName = "matrix-app";
+              InterfaceName = "br-matrix-app";
+              Options = [ "isolate=true" ];
+            };
+            matrix.networkConfig = {
+              NetworkName = "matrix";
+              InterfaceName = "br-matrix";
+              Options = [
+                "isolate=true"
+                "no_default_route=true"
+              ];
+            };
           };
 
           containers = {
@@ -64,8 +71,9 @@
               };
               containerConfig = {
                 ContainerName = "tuwunel";
-                Image = "docker.io/jevolk/tuwunel:latest";
-                Network = [ networks.cloudflared.ref ];
+                Image = images.tuwunel;
+                Network = [ networks.matrix-app.ref ];
+                PublishPort = [ "127.0.0.1:8008:8008" ];
                 NoNewPrivileges = true;
                 DropCapability = [ "ALL" ];
                 StopTimeout = 1800;
@@ -91,9 +99,9 @@
               containerConfig = {
                 # The restored homeserver's appservice registration uses this name.
                 ContainerName = "mautrix";
-                Image = "dock.mau.dev/mautrix/telegram:v26.10";
+                Image = images.mautrix-telegram;
                 Network = [
-                  networks.cloudflared.ref
+                  networks.matrix-app.ref
                   networks.matrix.ref
                 ];
                 NoNewPrivileges = true;
@@ -109,7 +117,7 @@
               };
               containerConfig = {
                 ContainerName = "mautrix-postgres";
-                Image = "docker.io/library/postgres:latest";
+                Image = images.postgres;
                 Network = [ networks.matrix.ref ];
                 NoNewPrivileges = true;
                 Volume = [ "/var/lib/matrix/postgres:/var/lib/postgresql" ];

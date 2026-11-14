@@ -2,10 +2,7 @@
 
 {
   ray.features."services/cloudflared" = {
-    requires.allOf = [
-      "security/agenix"
-      "virtualisation/podman"
-    ];
+    requires.allOf = [ "security/agenix" ];
 
     options.autoStart = lib.mkOption {
       type = lib.types.bool;
@@ -15,40 +12,27 @@
 
     nixos =
       { settings, ... }:
-      { config, ... }:
+      { config, pkgs, ... }:
       {
-        networking.firewall.interfaces.br-cloudflared = {
-          allowedTCPPorts = [ 53 ];
-          allowedUDPPorts = [ 53 ];
-        };
-
-        virtualisation.quadlet = {
-          networks.cloudflared.networkConfig = {
-            NetworkName = "cloudflared";
-            InterfaceName = "br-cloudflared";
-            Options = [ "isolate=true" ];
-          };
-
-          containers.cloudflared = {
-            inherit (settings) autoStart;
-            serviceConfig = {
-              Restart = "always";
-              TimeoutStartSec = "5min";
-            };
-            containerConfig = {
-              ContainerName = "cloudflared";
-              Image = "docker.io/cloudflare/cloudflared:latest";
-              Network = [ config.virtualisation.quadlet.networks.cloudflared.ref ];
-              NoNewPrivileges = true;
-              DropCapability = [ "ALL" ];
-              ReadOnly = true;
-              EnvironmentFile = [ config.age.secrets.cloudflared-env.path ];
-              Exec = "tunnel --metrics 127.0.0.1:2000 run";
-            };
+        systemd.services.cloudflared = {
+          description = "Cloudflare Tunnel";
+          wantedBy = lib.optional settings.autoStart "multi-user.target";
+          wants = [ "network-online.target" ];
+          after = [ "network-online.target" ];
+          restartTriggers = [ config.age.secrets.cloudflared-env.file ];
+          serviceConfig = {
+            ExecStart = "${lib.getExe pkgs.cloudflared} tunnel --no-autoupdate --metrics 127.0.0.1:2000 run";
+            EnvironmentFile = [ config.age.secrets.cloudflared-env.path ];
+            Restart = "always";
+            RestartSec = "5s";
+            DynamicUser = true;
+            NoNewPrivileges = true;
+            CapabilityBoundingSet = "";
+            ProtectSystem = "strict";
+            ProtectHome = true;
+            PrivateTmp = true;
           };
         };
-
-        systemd.services.cloudflared.restartTriggers = [ config.age.secrets.cloudflared-env.file ];
       };
   };
 }
