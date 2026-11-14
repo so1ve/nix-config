@@ -1,0 +1,54 @@
+diff --git a/src/registry.rs b/src/registry.rs
+--- a/src/registry.rs
++++ b/src/registry.rs
+@@ -54,6 +54,7 @@ pub struct OciItem {
+ pub struct LayerInfo {
+     pub reference: Reference,
+     pub digest: String,
++    pub size: i64,
+     pub content_type: String,
+ }
+ 
+@@ -206,6 +207,7 @@ pub async fn get_layer_info(
+     let info = LayerInfo {
+         reference,
+         digest: layer_manifest.digest.clone(),
++        size: layer_manifest.size,
+         content_type: content_type.clone(),
+     };
+     Ok(Some(info))
+diff --git a/src/server.rs b/src/server.rs
+--- a/src/server.rs
++++ b/src/server.rs
+@@ -69,6 +69,7 @@ async fn get_key(
+     let LayerInfo {
+         reference,
+         digest,
++        size,
+         content_type,
+     } = get_layer_info(&mut registry_ctx, &location)
+         .await?
+@@ -80,6 +81,7 @@ async fn get_key(
+         .map_err(Error::OciDistribution)?;
+     Response::builder()
+         .status(StatusCode::OK)
++        .header(header::CONTENT_LENGTH, size)
+         .header(header::CONTENT_TYPE, content_type)
+         .body(Body::from_stream(blob_stream))
+         .map_err(Error::Http)
+@@ -98,6 +100,7 @@ async fn head_key(
+     let LayerInfo {
+         reference: _,
+         digest: _,
++        size,
+         content_type,
+     } = get_layer_info(&mut registry_ctx, &location)
+         .await?
+@@ -104,6 +107,7 @@ async fn head_key(
+         .ok_or(Error::ReferenceNotFound(location.clone()))?;
+     Response::builder()
+         .status(StatusCode::OK)
++        .header(header::CONTENT_LENGTH, size)
+         .header(header::CONTENT_TYPE, content_type)
+         .body(Body::empty())
+         .map_err(Error::Http)

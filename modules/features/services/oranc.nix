@@ -30,7 +30,11 @@
 
         services.oranc = {
           enable = true;
-          package = inputs.oranc.packages.${pkgs.stdenv.hostPlatform.system}.oranc;
+          package = inputs.oranc.packages.${pkgs.stdenv.hostPlatform.system}.oranc.overrideAttrs (old: {
+            # FIXME: Remove after https://github.com/linyinfeng/oranc/pull/40 is merged and released
+            # Let the CDN see the blob size before it starts caching the response.
+            patches = (old.patches or [ ]) ++ [ ./oranc/content-length.patch ];
+          });
           listen = "127.0.0.1:8080";
           log = "oranc=warn";
         };
