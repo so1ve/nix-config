@@ -2,6 +2,7 @@
   ray.registry = {
     nixCacheSettings = {
       extra-substituters = [
+        "https://cache.so1ve.dev"
         # "https://cache.xinux.uz"
         "https://cache.lantian.pub/lantian"
         "https://cache.numtide.com"
@@ -11,6 +12,7 @@
         "https://so1ve.cachix.org"
       ];
       extra-trusted-public-keys = [
+        "cache.so1ve.dev-1:SijyzF9iE/VZwMXgMpd/HrNX9iItDZ1tdiNdeGakQGY="
         # "cache.xinux.uz:BXCrtqejFjWzWEB9YuGB7X2MV4ttBur1N8BkwQRdH+0="
         "lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ="
         "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="

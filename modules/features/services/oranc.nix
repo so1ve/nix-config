@@ -1,0 +1,65 @@
+{ lib, ... }:
+
+{
+  ray.features."services/oranc" = {
+    requires.allOf = [ "services/cloudflared" ];
+
+    options = {
+      autoStart = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Start the oranc cache proxy automatically.";
+      };
+
+      domain = lib.mkOption {
+        type = lib.types.str;
+        description = "HTTPS domain of the public Nix binary cache.";
+      };
+
+      repository = lib.mkOption {
+        type = lib.types.str;
+        description = "Public GHCR repository containing the cache, as owner/package.";
+      };
+    };
+
+    nixos =
+      { settings, ... }:
+      { inputs, pkgs, ... }:
+      {
+        imports = [ inputs.oranc.nixosModules.oranc ];
+
+        networking.firewall.interfaces.br-cloudflared.allowedTCPPorts = [ 8081 ];
+
+        services.oranc = {
+          enable = true;
+          package = inputs.oranc.packages.${pkgs.stdenv.hostPlatform.system}.oranc;
+          listen = "127.0.0.1:8080";
+          log = "oranc=warn";
+        };
+
+        systemd.services.oranc = {
+          wantedBy = lib.mkForce (lib.optional settings.autoStart "multi-user.target");
+          serviceConfig = {
+            Restart = "always";
+            RestartSec = "5s";
+          };
+        };
+
+        services.caddy = {
+          enable = true;
+          virtualHosts."http://${settings.domain}:8081".extraConfig = ''
+            @read method GET HEAD
+            handle @read {
+              route {
+                rewrite * /ghcr.io/${settings.repository}{path}?
+                reverse_proxy 127.0.0.1:8080 {
+                  header_up -Authorization
+                }
+              }
+            }
+            respond "Method Not Allowed" 405
+          '';
+        };
+      };
+  };
+}

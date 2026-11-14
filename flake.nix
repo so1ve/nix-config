@@ -19,6 +19,7 @@
 
   nixConfig = {
     extra-substituters = [
+      "https://cache.so1ve.dev"
       "https://cache.lantian.pub/lantian"
       "https://cache.numtide.com"
       "https://codex-desktop-linux.cachix.org"
@@ -27,6 +28,7 @@
       "https://so1ve.cachix.org"
     ];
     extra-trusted-public-keys = [
+      "cache.so1ve.dev-1:SijyzF9iE/VZwMXgMpd/HrNX9iItDZ1tdiNdeGakQGY="
       "lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ="
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "codex-desktop-linux.cachix.org-1:nX/xy6AdK9hQE24A8ALGjkCKj2ObFmcnemiL5Cid4nk="
@@ -123,6 +125,10 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     noctalia-greeter = {
       url = "github:noctalia-dev/noctalia-greeter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    oranc = {
+      url = "github:linyinfeng/oranc/e54ede0f6cecf555767d261989d72ed0e7f1775f";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     quadlet-nix = {
