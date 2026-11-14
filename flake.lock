@@ -1427,11 +1427,11 @@
         "treefmt-nix": "treefmt-nix_5"
       },
       "locked": {
-        "lastModified": 1794659431,
-        "narHash": "sha256-ZmDdgNQXQDcPsUAun3TC971ODCUjE6dVyi/A526lg8Y=",
+        "lastModified": 1794671177,
+        "narHash": "sha256-81fUAbbw4klw/QifSjsmrehIC3wIIuuAYkSgoJzsYok=",
         "owner": "so1ve",
         "repo": "nur-packages",
-        "rev": "07a0a9f5d0f086c0fe457af54dd971aef7623e8c",
+        "rev": "794900cfba85d499a095a1b3812d42b3c2c65bc1",
         "type": "github"
       },
       "original": {
