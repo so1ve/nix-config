@@ -161,18 +161,7 @@ in
   };
 
   config.outputs = _: {
-    packages.${system} = {
-      dns-config = terraformConfig;
-      dns = dnsCommand;
-
-      dns-plan = pkgs.writeShellScriptBin "dns-plan" ''
-        exec ${lib.getExe dnsCommand} plan "$@"
-      '';
-
-      dns-apply = pkgs.writeShellScriptBin "dns-apply" ''
-        exec ${lib.getExe dnsCommand} apply "$@"
-      '';
-    };
+    packages.${system}.dns = dnsCommand;
 
     checks.${system}.dns =
       let
