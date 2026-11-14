@@ -13,7 +13,7 @@ let
   projectNodePackage = pkgs.node-bin.fromProject projectDirectory;
   projectBunPackage = pkgs.bun-bin.fromProject projectDirectory;
   projectDenoPackage = pkgs.deno-bin.fromProject projectDirectory;
-  nodePackage = if projectNodePackage == null then pkgs.node-bin.latest else projectNodePackage;
+  nodePackage = if projectNodePackage == null then pkgs.node-bin.lts else projectNodePackage;
 in
 {
   options.ray.devenv.frontend.directory = lib.mkOption {
