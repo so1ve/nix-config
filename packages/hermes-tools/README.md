@@ -33,6 +33,9 @@ agent does not perform campus login itself.
 
 Nix builds a wheel and bundles it with the locked runtime requirements, skills,
 and monitor scripts. The Hermes container syncs that bundle into its Python
-environment on startup. `bootstrap.py` imports credentials from the old controller
-once, removes retired jobs, and registers the mail and Lexue monitors.
+environment on startup.
+
+On first startup, Hermes gets default mail and Lexue monitors if the persistent
+profile has no `cron/jobs.json`. Hermes owns the jobs after that. Use `hermes cron`
+to change their schedules, pause them, or remove them.
 

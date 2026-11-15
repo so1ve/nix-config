@@ -76,6 +76,41 @@
         # Give uv a new wheel path when the package changes without a version bump.
         personalBundle = "/etc/hermes/${baseNameOf personalPackage.outPath}";
         personalEnvironment = "/opt/data/.local/share/hermes-personal";
+        cronJob = id: name: expr: monitor: prompt: {
+          inherit id name prompt;
+          schedule = {
+            kind = "cron";
+            inherit expr;
+            display = expr;
+          };
+          timezone = "Asia/Shanghai";
+          deliver = "local";
+          failure_deliver = "local";
+          workdir = "/opt/data";
+          skills = [ "personal-assistant" ];
+          monitor_script = "personal/${monitor}";
+          interpreter = "${personalEnvironment}/bin/python";
+          continuity = true;
+          catch_up = false;
+          enabled = true;
+          state = "scheduled";
+          repeat = {
+            times = null;
+            completed = 0;
+          };
+        };
+        personalCron = pkgs.writeText "hermes-personal-cron.json" (
+          builtins.toJSON {
+            jobs = [
+              (cronJob "f3035e0210eb" "Hermes · 邮件" "*/10 * * * *" "mail-check.py"
+                "请子 Agent 查看本次变化的邮件，找出需要 Ray 留意的事项。"
+              )
+              (cronJob "0af105382801" "Hermes · 乐学" "*/30 * * * *" "lexue-check.py"
+                "请子 Agent 比较本次和上次的乐学日历，找出新增、变更或取消的截止事项。"
+              )
+            ];
+          }
+        );
         hermesConfig = (pkgs.formats.yaml { }).generate "hermes-config.yaml" (
           lib.recursiveUpdate (lib.optionalAttrs settings.personal.enable {
             mcp_servers.personal = {
@@ -110,7 +145,20 @@
               cd ${personalBundle}
               "$uv" pip sync --python ${personalEnvironment}/bin/python --require-hashes requirements.txt
             )
-            ${personalEnvironment}/bin/python -m hermes_personal.bootstrap
+
+            if [ ! -e "$HERMES_HOME/cron/jobs.json" ]; then
+              if ! (
+                umask 077
+                cd "$HERMES_HOME" &&
+                mkdir -p cron &&
+                seed=$(mktemp cron/.jobs.XXXXXX) &&
+                trap 'rm -f "$seed"' EXIT &&
+                cat /etc/hermes/personal-cron.json > "$seed" &&
+                { ln -T "$seed" cron/jobs.json || [ -f cron/jobs.json ]; }
+              ); then
+                printf '%s\n' 'Could not initialize the personal Hermes cron jobs.' >&2
+              fi
+            fi
           ''}
 
           exec hermes gateway run
@@ -167,6 +215,7 @@
                 ++ lib.optionals settings.personal.enable [
                   "${personalPackage}:${personalBundle}:ro"
                   "${personalConfig}:/etc/hermes/personal.json:ro"
+                  "${personalCron}:/etc/hermes/personal-cron.json:ro"
                   "${personalPackage}/skills/personal-assistant:/opt/data/skills/personal-assistant:ro"
                   "${personalPackage}/scripts:/opt/data/scripts/personal:ro"
                   "${personalPackage}/hooks/proactive-chat:/opt/data/hooks/proactive-chat:ro"
