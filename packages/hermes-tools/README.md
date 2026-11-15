@@ -1,5 +1,14 @@
 # Hermes personal tools
 
+The NixOS [personal tools module](../../modules/features/services/hermes/_personal.nix)
+mounts the tools, installs their Python dependencies, and supplies the default
+cron jobs and encrypted backup timer. The host feature settings supply the mail
+accounts and the backup destination.
+
+Hermes applies the Nix-generated `/etc/hermes/config.yaml` over its writable
+`/opt/data/config.yaml`. Change managed settings in the host's `services/hermes`
+feature. Hermes can save settings whose keys are left to the profile.
+
 This package contains only the two integrations Hermes cannot provide itself:
 
 - BIT SSO login with an SMS challenge that can span MCP tool calls.
