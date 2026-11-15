@@ -15,8 +15,8 @@
           PublishPort = [ "9696:9696" ];
           Volume = [ "${config.virtualisation.quadlet.volumes.prowlarr.ref}:/config" ];
           Environment = {
-            PUID = toString config.users.users.media.uid;
-            PGID = toString config.users.groups.media.gid;
+            PUID = "1000";
+            PGID = "1000";
             TZ = config.time.timeZone;
           };
         };

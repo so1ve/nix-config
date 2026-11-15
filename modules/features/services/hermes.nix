@@ -32,10 +32,11 @@
         description = "Shared personality for Telegram and QQ.";
       };
 
-      napcat.webPort = lib.mkOption {
-        type = lib.types.port;
-        default = 6101;
-        description = "Host port for NapCat's web interface.";
+      napcat = {
+        webPort = lib.mkOption {
+          type = lib.types.port;
+          description = "Host port for NapCat's web interface.";
+        };
       };
     };
 

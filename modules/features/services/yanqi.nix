@@ -13,20 +13,11 @@
         description = "QQ account to log in automatically using the saved NapCat session.";
       };
 
-      napcat.uid = lib.mkOption {
-        type = lib.types.ints.unsigned;
-        description = "User ID for NapCat's persistent container data.";
-      };
-
-      napcat.gid = lib.mkOption {
-        type = lib.types.ints.unsigned;
-        description = "Group ID for NapCat's persistent container data.";
-      };
-
-      napcat.webPort = lib.mkOption {
-        type = lib.types.port;
-        default = 6100;
-        description = "Host port for NapCat's web interface.";
+      napcat = {
+        webPort = lib.mkOption {
+          type = lib.types.port;
+          description = "Host port for NapCat's web interface.";
+        };
       };
     };
 
@@ -67,8 +58,8 @@
               Environment = {
                 NAPCAT_QUICK_ACCOUNT = settings.account;
                 MODE = "ws";
-                NAPCAT_UID = toString settings.napcat.uid;
-                NAPCAT_GID = toString settings.napcat.gid;
+                NAPCAT_UID = "1000";
+                NAPCAT_GID = "1000";
                 TZ = config.time.timeZone;
               };
               EnvironmentFile = [ config.age.secrets.yanqi-napcat-env.path ];

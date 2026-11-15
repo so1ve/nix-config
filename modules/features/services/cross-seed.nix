@@ -6,18 +6,15 @@
 
     nixos = _: { config, ... }: {
       virtualisation.quadlet = {
-        volumes.cross-seed.volumeConfig = {
-          User = config.users.users.media.uid;
-          Group = config.users.groups.media.gid;
-        };
+        volumes.cross-seed = { };
 
         containers.cross-seed.containerConfig = {
           Image = images.cross-seed;
-          User = "${toString config.users.users.media.uid}:${toString config.users.groups.media.gid}";
+          User = "1000:1000";
           Network = [ config.virtualisation.quadlet.networks.media.ref ];
           NetworkAlias = [ "cross-seed" ];
           PublishPort = [ "2468:2468" ];
-          Volume = [ "${config.virtualisation.quadlet.volumes.cross-seed.ref}:/config" ];
+          Volume = [ "${config.virtualisation.quadlet.volumes.cross-seed.ref}:/config:U" ];
           Exec = "daemon";
         };
       };
