@@ -15,6 +15,7 @@ from .config import home
 
 YANHEKIT = "https://aita.yanhekt.cn"
 LEXUE = "https://lexue.bit.edu.cn"
+ECLASS = "https://zy-eclass.bit.edu.cn"
 
 
 class VerificationRequired(RuntimeError):
@@ -102,7 +103,7 @@ def open_service(client, url, sms_callback=None):
     return result.response
 
 
-def _yanhekt_authenticated(client):
+def yanhekt_headers(client):
     token = next(
         (
             cookie.value
@@ -113,11 +114,16 @@ def _yanhekt_authenticated(client):
         "",
     )
     jwt = re.search(r"eyJ[\w-]+\.[\w-]+\.[\w-]+", unquote(token))
-    if not jwt:
+    return {"Authorization": "Bearer " + jwt[0]} if jwt else {}
+
+
+def _yanhekt_authenticated(client):
+    headers = yanhekt_headers(client)
+    if not headers:
         return False
     response = client.get(
         YANHEKIT + "/userapi/v1/infosimple",
-        headers={"Authorization": "Bearer " + jwt[0]},
+        headers=headers,
         timeout=45,
     )
     if response.status_code in {401, 403}:
@@ -139,7 +145,7 @@ class CampusLogin:
             return dict(self.state)
 
     def start(self, service: str = "yanhekt") -> dict:
-        assert service in {"yanhekt", "lexue"}
+        assert service in {"yanhekt", "lexue", "eclass"}
         with self.condition:
             if self.state["status"] in {"starting", "verification_required", "verifying"}:
                 return dict(self.state)
@@ -178,6 +184,8 @@ class CampusLogin:
             with session() as client:
                 if service == "lexue":
                     open_service(client, LEXUE + "/my/", sms_callback=self._verification)
+                elif service == "eclass":
+                    open_service(client, ECLASS + "/user/courses", sms_callback=self._verification)
                 elif not _yanhekt_authenticated(client):
                     # Follow Yanhekt's sign-in entry before CAS so its callback issues _token.
                     client.get(

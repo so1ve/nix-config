@@ -41,6 +41,12 @@
           description = "Non-secret personal tool configuration.";
         };
 
+        coursesDirectory = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "Host directory for course recordings, slides, transcripts and notes.";
+        };
+
         backupDirectory = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
@@ -121,8 +127,7 @@
           };
 
           volumes = {
-            # Keep data under Podman's existing "hermes" volume instead of systemd-hermes.
-            hermes.volumeConfig.VolumeName = "hermes";
+            hermes = { };
             hermes-napcat-qq = { };
             hermes-napcat-config = { };
           };

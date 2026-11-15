@@ -7,6 +7,10 @@ def test_public_surface_is_small():
         "campus_login_submit",
         "campus_status",
         "lexue_calendar",
+        "eclass_calendar",
+        "yanhekt_calendar",
+        "eclass_courses",
+        "eclass_materials",
         "lexue_courses",
         "mail_list",
     }

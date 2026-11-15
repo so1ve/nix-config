@@ -71,15 +71,19 @@ def test_login_reuses_accepted_yanhekt_cookie(monkeypatch, yanhekt_session):
     assert campus.CampusLogin().start()["status"] == "authenticated"
 
 
-def test_lexue_login_does_not_require_yanhekt(monkeypatch, yanhekt_session):
-    def open_lexue(client, url, sms_callback):
-        assert url == campus.LEXUE + "/my/"
+@pytest.mark.parametrize(
+    ("service", "url"),
+    [("lexue", campus.LEXUE + "/my/"), ("eclass", campus.ECLASS + "/user/courses")],
+)
+def test_learning_login_does_not_require_yanhekt(monkeypatch, yanhekt_session, service, url):
+    def open_lexue(client, target, sms_callback):
+        assert target == url
         return object()
 
     monkeypatch.setattr(campus, "open_service", open_lexue)
-    assert campus.CampusLogin().start("lexue") == {
+    assert campus.CampusLogin().start(service) == {
         "status": "authenticated",
-        "service": "lexue",
+        "service": service,
     }
 
 

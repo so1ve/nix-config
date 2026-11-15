@@ -25,8 +25,8 @@ def campus_status() -> dict:
 
 
 @mcp.tool()
-def campus_login_start(service: Literal["yanhekt", "lexue"] = "yanhekt") -> dict:
-    """Prepare a session for Yanhekt or Lexue using the shared BIT login.
+def campus_login_start(service: Literal["yanhekt", "lexue", "eclass"] = "yanhekt") -> dict:
+    """Prepare a session for Yanhekt, Lexue or new Eclass using the shared BIT login.
 
     Return verification_required to the coordinator so it can ask the user. The returned service
     identifies the pending login when another worker has already started authentication.
@@ -74,6 +74,44 @@ def lexue_calendar(
         return calendar(year, month, course_id)
     except (OSError, RuntimeError, ValueError) as error:
         raise ToolError(f"{type(error).__name__}: {error}") from error
+
+
+@mcp.tool()
+def eclass_calendar() -> list[dict]:
+    """Read assignments and exams with due dates from new Lexue (Eclass)."""
+    from .eclass import calendar
+
+    try:
+        return calendar()
+    except (OSError, RuntimeError, ValueError) as error:
+        raise ToolError(f"{type(error).__name__}: {error}") from error
+
+
+@mcp.tool()
+def yanhekt_calendar() -> list[dict]:
+    """Read AITA assignment deadlines for the user's latest enrolled term."""
+    from .yanhekt import calendar
+
+    try:
+        return calendar()
+    except (OSError, RuntimeError, ValueError) as error:
+        raise ToolError(f"{type(error).__name__}: {error}") from error
+
+
+@mcp.tool()
+def eclass_courses() -> list[dict]:
+    """List enrolled courses on new Lexue (Eclass)."""
+    from .eclass import courses
+
+    return courses()
+
+
+@mcp.tool()
+def eclass_materials(course_id: str) -> list[dict]:
+    """Read published course resources, including available video files and download links."""
+    from .eclass import materials
+
+    return materials(course_id)
 
 
 @mcp.tool()

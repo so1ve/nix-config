@@ -49,6 +49,21 @@ let
         (cronJob "0af105382801" "Hermes · 乐学" "*/30 * * * *" "lexue-check.py"
           "请子 Agent 比较本次和上次的乐学日历，找出新增、变更或取消的截止事项。"
         )
+        (
+          (cronJob "9407d6793d40" "Hermes · 截止提醒" "7,22,37,52 * * * *" "" "")
+          // {
+            monitor_script = null;
+            script = "personal/deadline-check.py";
+            no_agent = true;
+            skills = [ ];
+            continuity = false;
+            deliver = "telegram";
+            failure_deliver = "telegram";
+          }
+        )
+        (cronJob "f6e49fcd9c51" "Hermes · 课程" "13 * * * *" "course-check.py"
+          "请子 Agent 检查本次新增或变更的课程资料和回放，优先新乐学，缺失时回退延河录播。按个人事务技能保存课程总结和作业。首次运行只建立基线，后续处理新课次和上次未完成的课次。"
+        )
       ];
     }
   );
@@ -82,6 +97,9 @@ let
         printf '%s\n' 'Could not initialize the personal Hermes cron jobs.' >&2
       fi
     fi
+
+    python3 /opt/data/scripts/personal/setup-notifications.py ||
+      printf '%s\n' 'Could not install the Hermes notification jobs.' >&2
   '';
   backupEnabled = personal.backupDirectory != null;
 in
@@ -109,14 +127,25 @@ in
         ++ map (name: "${yanhekit}/skills/${name}:/opt/data/skills/${name}:ro") (
           builtins.attrNames (builtins.readDir "${inputs.yanhekit}/skills")
         )
+        ++ lib.optional (personal.coursesDirectory != null) "${personal.coursesDirectory}:/courses"
       );
       Environment = {
         HERMES_PERSONAL_CONFIG = toolsConfig;
         BIT_CREDENTIALS = campusCredentials;
+        HERMES_COURSES_DIR = if personal.coursesDirectory == null then "/opt/data/courses" else "/courses";
       };
     };
 
-    systemd.services.${hermes.serviceName}.restartTriggers = lib.mkAfter [ hermes-campus.file ];
+    systemd.services.${hermes.serviceName} = {
+      restartTriggers = lib.mkAfter [ hermes-campus.file ];
+      unitConfig.RequiresMountsFor = lib.optional (
+        personal.coursesDirectory != null
+      ) personal.coursesDirectory;
+    };
+
+    systemd.tmpfiles.rules = lib.optional (
+      personal.coursesDirectory != null
+    ) "d ${personal.coursesDirectory} 0750 10000 10000 -";
 
     systemd.services.hermes-backup = lib.mkIf backupEnabled {
       description = "Encrypt a native Hermes backup";
