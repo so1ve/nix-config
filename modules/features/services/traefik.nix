@@ -8,6 +8,8 @@
     ];
 
     options = {
+      dashboard = lib.mkEnableOption "the Traefik dashboard on port 8080 at the configured container bind addresses";
+
       httpsPort = lib.mkOption {
         type = lib.types.port;
         default = 443;
@@ -40,48 +42,56 @@
         inherit (config.virtualisation.quadlet) containers networks volumes;
         dnsProxyEnabled = settings.dnsProxy != null;
         staticConfig = pkgs.writeText "traefik.json" (
-          builtins.toJSON {
-            entryPoints = {
-              web = {
-                address = ":80";
-                http.aliasHeadersStrategy = "delete";
-                http.redirections.entryPoint = {
-                  to = ":${toString settings.httpsPort}";
-                  scheme = "https";
-                  permanent = true;
-                };
-              };
-              websecure = {
-                address = ":443";
-                asDefault = true;
-                http.aliasHeadersStrategy = "delete";
-                http.tls.certResolver = "letsencrypt";
-              };
-            };
-            providers = {
-              docker = {
-                endpoint = "unix:///var/run/docker.sock";
-                exposedByDefault = false;
-                network = networks.traefik.podmanName;
-              };
-            };
-            certificatesResolvers.letsencrypt.acme = {
-              email = settings.acmeEmail;
-              storage = "/data/acme.json";
-              dnsChallenge = {
-                provider = "cloudflare";
-              }
-              // settings.dnsChallenge;
-            };
-            log.level = "WARN";
-            global = {
-              checkNewVersion = false;
-              sendAnonymousUsage = false;
-            };
-          }
+          builtins.toJSON config.services.traefik.staticConfigOptions
         );
       in
       {
+        services.traefik.staticConfigOptions = {
+          entryPoints = {
+            web = {
+              address = ":80";
+              http.aliasHeadersStrategy = "delete";
+              http.redirections.entryPoint = {
+                to = ":${toString settings.httpsPort}";
+                scheme = "https";
+                permanent = true;
+              };
+            };
+            websecure = {
+              address = ":443";
+              asDefault = true;
+              http.aliasHeadersStrategy = "delete";
+              http.tls.certResolver = "letsencrypt";
+            };
+          };
+          providers = {
+            docker = {
+              endpoint = "unix:///var/run/docker.sock";
+              exposedByDefault = false;
+              network = networks.traefik.podmanName;
+            };
+          };
+          certificatesResolvers.letsencrypt.acme = {
+            email = settings.acmeEmail;
+            storage = "/data/acme.json";
+            dnsChallenge = {
+              provider = "cloudflare";
+            }
+            // settings.dnsChallenge;
+          };
+          log.level = "WARN";
+          global = {
+            checkNewVersion = false;
+            sendAnonymousUsage = false;
+          };
+        }
+        // lib.optionalAttrs settings.dashboard {
+          api = {
+            dashboard = true;
+            insecure = true;
+          };
+        };
+
         services.dnsproxy = lib.mkIf dnsProxyEnabled {
           enable = true;
           settings = {
@@ -120,14 +130,16 @@
             containerConfig = {
               Image = images.traefik;
               Network = [ networks.traefik.ref ];
-              PublishPort = lib.unique [
-                "0.0.0.0:80:80"
-                "[::]:80:80"
-                "0.0.0.0:443:443"
-                "[::]:443:443"
-                "0.0.0.0:${toString settings.httpsPort}:443"
-                "[::]:${toString settings.httpsPort}:443"
-              ];
+              PublishPort =
+                lib.unique [
+                  "0.0.0.0:80:80"
+                  "[::]:80:80"
+                  "0.0.0.0:443:443"
+                  "[::]:443:443"
+                  "0.0.0.0:${toString settings.httpsPort}:443"
+                  "[::]:${toString settings.httpsPort}:443"
+                ]
+                ++ lib.optional settings.dashboard "8080:8080";
               Volume = [
                 "${staticConfig}:/etc/traefik/traefik.json:ro"
                 "${volumes.traefik-acme.ref}:/data"

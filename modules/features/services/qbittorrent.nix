@@ -12,6 +12,11 @@
     options = {
       domain = lib.mkOption { type = lib.types.str; };
 
+      webPort = lib.mkOption {
+        type = lib.types.port;
+        description = "Host port for the web interface.";
+      };
+
       mediaRoot = lib.mkOption {
         type = lib.types.str;
         description = "Host media and download directory mounted at /data.";
@@ -30,6 +35,8 @@
     };
 
     nixos = { name, settings }: { config, ... }: {
+      services.traefik.staticConfigOptions.entryPoints.${name}.address = ":${toString settings.webPort}";
+
       virtualisation.quadlet = {
         volumes = {
           ${name} = { };
@@ -64,10 +71,17 @@
           Label = {
             "traefik.enable" = "true";
             "traefik.http.routers.${name}.rule" = "Host(`${settings.domain}`)";
+            "traefik.http.routers.${name}-local.entrypoints" = name;
+            "traefik.http.routers.${name}-local.rule" = "PathPrefix(`/`)";
+            "traefik.http.routers.${name}-local.service" = name;
             "traefik.http.services.${name}.loadbalancer.server.port" = "9092";
             "traefik.http.services.${name}.loadbalancer.passhostheader" = "false";
           };
         };
+
+        containers.traefik.containerConfig.PublishPort = [
+          "${toString settings.webPort}:${toString settings.webPort}"
+        ];
       };
     };
   };
