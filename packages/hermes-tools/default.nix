@@ -15,6 +15,8 @@ runCommand "hermes-personal-tools"
         ./README.md
         (lib.fileset.fileFilter (file: file.hasExt "py") ./src)
         (lib.fileset.fileFilter (file: file.hasExt "py") ./scripts)
+        ./hooks/proactive-chat/HOOK.yaml
+        ./hooks/proactive-chat/handler.py
         ./skills
       ];
     };
@@ -31,5 +33,5 @@ runCommand "hermes-personal-tools"
     wheel=$(basename "$out"/*.whl)
     hash=$(sha256sum "$out/$wheel" | cut -d ' ' -f 1)
     printf '\n./%s --hash=sha256:%s\n' "$wheel" "$hash" >> "$out/requirements.txt"
-    cp -r scripts skills "$out/"
+    cp -r hooks scripts skills "$out/"
   ''

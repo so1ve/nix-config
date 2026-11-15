@@ -169,6 +169,7 @@
                   "${personalConfig}:/etc/hermes/personal.json:ro"
                   "${personalPackage}/skills/personal-assistant:/opt/data/skills/personal-assistant:ro"
                   "${personalPackage}/scripts:/opt/data/scripts/personal:ro"
+                  "${personalPackage}/hooks/proactive-chat:/opt/data/hooks/proactive-chat:ro"
                   "${config.age.secrets.hermes-campus.path}:/run/hermes/campus.json:ro"
                 ]
                 ++ lib.optionals settings.personal.enable (

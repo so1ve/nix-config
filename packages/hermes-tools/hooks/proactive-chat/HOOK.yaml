@@ -1,0 +1,4 @@
+name: proactive-chat
+description: Randomize the next wakeup after a proactive Telegram heartbeat.
+events:
+  - agent:start
