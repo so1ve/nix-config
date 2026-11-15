@@ -105,6 +105,9 @@ let
 in
 {
   config = lib.mkIf personal.enable {
+    # hermes container user.
+    age.secrets.hermes-campus.owner = "10000";
+
     assertions = [
       {
         assertion = !backupEnabled || personal.backupRecipient != null;

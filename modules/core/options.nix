@@ -121,6 +121,12 @@ let
           default = [ ];
           description = "Host-specific NixOS modules.";
         };
+
+        extraSpecialArgs = mkOption {
+          type = types.attrsOf types.raw;
+          default = { };
+          description = "Additional arguments passed to NixOS and Home Manager modules.";
+        };
       };
     }
   );

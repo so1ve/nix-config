@@ -12,18 +12,21 @@ let
     inherit lib;
   };
 
-  specialArgsFor = host: {
-    inherit inputs;
-    featureEnabled = featureRegistry.enabled host.features;
-    user = config.ray.registry.users.${host.username};
-    inherit (host)
-      hostname
-      homeStateVersion
-      stateVersion
-      system
-      username
-      ;
-  };
+  specialArgsFor =
+    host:
+    host.extraSpecialArgs
+    // {
+      inherit inputs;
+      featureEnabled = featureRegistry.enabled host.features;
+      user = config.ray.registry.users.${host.username};
+      inherit (host)
+        hostname
+        homeStateVersion
+        stateVersion
+        system
+        username
+        ;
+    };
 
   homeManagerModule = host: homeModules: {
     home-manager = {
