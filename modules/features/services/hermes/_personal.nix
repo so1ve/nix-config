@@ -165,8 +165,16 @@ in
         set -euo pipefail
         podman exec --user 10000:10000 ${hermes.podmanName} \
           mkdir -p /opt/data/backups
-        podman exec --user 10000:10000 ${hermes.podmanName} \
-          hermes backup --keep 7 --output /opt/data/backups/hermes.zip
+        podman exec --user 10000:10000 -i ${hermes.podmanName} \
+          python3 - backup --keep 7 --output /opt/data/backups/hermes.zip <<'PY'
+        from functools import partial
+        import zipfile
+        from hermes_cli.main import main
+
+        # Nix store files have epoch timestamps; ZIP dates start in 1980.
+        zipfile.ZipFile = partial(zipfile.ZipFile, strict_timestamps=False)
+        main()
+        PY
         backup_dir=${lib.escapeShellArg personal.backupDirectory}
         mkdir -p "$backup_dir"
         target="$backup_dir/hermes-$(date +%F-%H%M%S).zip.age"
