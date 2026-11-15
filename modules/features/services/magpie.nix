@@ -4,7 +4,12 @@
 
     nixos =
       _:
-      { config, pkgs, ... }:
+      {
+        config,
+        inputs,
+        pkgs,
+        ...
+      }:
       let
         webPort = 3430;
       in
@@ -26,6 +31,7 @@
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
           path = [
+            inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli
             pkgs.bash
             pkgs.curl
           ];
