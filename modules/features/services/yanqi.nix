@@ -49,7 +49,7 @@
           };
 
           containers = {
-            napcat.containerConfig = {
+            yanqi-napcat.containerConfig = {
               Image = images.napcat;
               Network = [ networks.yanqi.ref ];
               NetworkAlias = [ "napcat" ];
@@ -70,8 +70,8 @@
 
             yanqi = {
               unitConfig = {
-                Wants = [ containers.napcat.ref ];
-                After = [ containers.napcat.ref ];
+                Wants = [ containers.yanqi-napcat.ref ];
+                After = [ containers.yanqi-napcat.ref ];
               };
               containerConfig = {
                 Image = images.yanqi;
@@ -86,7 +86,7 @@
           };
         };
 
-        systemd.services.${containers.napcat.serviceName}.restartTriggers = [
+        systemd.services.${containers.yanqi-napcat.serviceName}.restartTriggers = [
           config.age.secrets.napcat-env.file
         ];
       };
