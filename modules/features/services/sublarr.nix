@@ -2,14 +2,9 @@
 
 {
   ray.features."services/sublarr" = {
-    requires.allOf = [
-      "services/media"
-      "services/traefik"
-    ];
+    requires.allOf = [ "services/media" ];
 
     options = {
-      domain = lib.mkOption { type = lib.types.str; };
-
       mediaRoot = lib.mkOption {
         type = lib.types.str;
         description = "Host media directory mounted at /video.";
@@ -22,10 +17,7 @@
 
         containers.sublarr.containerConfig = {
           Image = images.sublarr;
-          Network = [
-            config.virtualisation.quadlet.networks.media.ref
-            config.virtualisation.quadlet.networks.traefik.ref
-          ];
+          Network = [ config.virtualisation.quadlet.networks.media.ref ];
           NetworkAlias = [ "sublarr" ];
           PublishPort = [ "5765:5765" ];
           Volume = [
@@ -38,11 +30,6 @@
             TZ = config.time.timeZone;
             SUBLARR_MEDIA_PATH = "/video";
             SUBLARR_STATS_ENDPOINT = "";
-          };
-          Label = {
-            "traefik.enable" = "true";
-            "traefik.http.routers.sublarr.rule" = "Host(`${settings.domain}`)";
-            "traefik.http.services.sublarr.loadbalancer.server.port" = "5765";
           };
         };
       };
