@@ -116,7 +116,6 @@
           volumes.traefik-acme = { };
 
           networks.traefik.networkConfig = {
-            NetworkName = "traefik";
             InterfaceName = "br-traefik";
             IPv6 = true;
           };

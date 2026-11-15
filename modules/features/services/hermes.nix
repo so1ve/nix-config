@@ -116,12 +116,12 @@
 
         virtualisation.quadlet = {
           networks.hermes.networkConfig = {
-            NetworkName = "hermes";
             InterfaceName = "br-hermes";
             Options = [ "isolate=true" ];
           };
 
           volumes = {
+            # Keep data under Podman's existing "hermes" volume instead of systemd-hermes.
             hermes.volumeConfig.VolumeName = "hermes";
             hermes-napcat-qq = { };
             hermes-napcat-config = { };

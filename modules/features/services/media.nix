@@ -32,7 +32,6 @@
       };
 
       virtualisation.quadlet.networks.media.networkConfig = {
-        NetworkName = "media";
         InterfaceName = "br-media";
         IPv6 = true;
       };

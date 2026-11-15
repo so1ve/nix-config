@@ -41,7 +41,6 @@
           };
 
           networks.yanqi.networkConfig = {
-            NetworkName = "yanqi";
             InterfaceName = "br-yanqi";
           };
 

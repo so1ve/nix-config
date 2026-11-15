@@ -46,12 +46,10 @@
         virtualisation.quadlet = {
           networks = {
             matrix-app.networkConfig = {
-              NetworkName = "matrix-app";
               InterfaceName = "br-matrix-app";
               Options = [ "isolate=true" ];
             };
             matrix.networkConfig = {
-              NetworkName = "matrix";
               InterfaceName = "br-matrix";
               Options = [
                 "isolate=true"

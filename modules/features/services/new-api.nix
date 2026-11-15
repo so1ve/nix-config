@@ -41,12 +41,10 @@
         virtualisation.quadlet = {
           networks = {
             new-api-app.networkConfig = {
-              NetworkName = "new-api-app";
               InterfaceName = "br-new-api-app";
               Options = [ "isolate=true" ];
             };
             new-api.networkConfig = {
-              NetworkName = "new-api";
               InterfaceName = "br-new-api";
               Options = [
                 "isolate=true"
