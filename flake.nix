@@ -98,6 +98,10 @@
       url = "github:qu8n/herdr-automatic-rename";
       flake = false;
     };
+    hermes-onebot = {
+      url = "github:mario841859784/hermes-plugin-onebot";
+      flake = false;
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";

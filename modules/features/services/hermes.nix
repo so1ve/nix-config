@@ -19,13 +19,44 @@
         default = null;
         description = "Dedicated QQ account for quick login, or null to log in through NapCat's WebUI.";
       };
+
+      settings = lib.mkOption {
+        type = lib.types.attrs;
+        default = { };
+        description = "Hermes config.yaml settings.";
+      };
+
+      soul = lib.mkOption {
+        type = lib.types.lines;
+        default = "";
+        description = "Shared personality for Telegram and QQ.";
+      };
     };
 
     nixos =
       { settings, ... }:
-      { config, ... }:
+      {
+        config,
+        inputs,
+        pkgs,
+        ...
+      }:
       let
         inherit (config.virtualisation.quadlet) containers networks volumes;
+        hermesConfig = (pkgs.formats.yaml { }).generate "hermes-config.yaml" settings.settings;
+        soul = pkgs.writeText "hermes-soul.md" settings.soul;
+        start = pkgs.writeText "hermes-start.sh" ''
+          set -eu
+
+          plugin="$HERMES_HOME/plugins/onebot-platform"
+          if [ ! -d "$plugin/.git" ] || [ "$(git -C "$plugin" rev-parse HEAD)" != "${inputs.hermes-onebot.rev}" ]; then
+            hermes plugins install --force --enable --yes-deps \
+              --ref ${inputs.hermes-onebot.rev} \
+              https://github.com/mario841859784/hermes-plugin-onebot.git
+          fi
+
+          exec hermes gateway run
+        '';
       in
       {
         networking.firewall.interfaces.br-hermes = {
@@ -58,11 +89,16 @@
                 ContainerName = "hermes";
                 Image = images.hermes;
                 Network = [ networks.hermes.ref ];
-                Volume = [ "${volumes.hermes.ref}:/opt/data" ];
+                Volume = [
+                  "${volumes.hermes.ref}:/opt/data"
+                  "${hermesConfig}:/etc/hermes/config.yaml:ro"
+                  "${start}:/etc/hermes/start.sh:ro"
+                ]
+                ++ lib.optional (settings.soul != "") "${soul}:/opt/data/SOUL.md:ro";
                 Environment.TZ = config.time.timeZone;
                 EnvironmentFile = [ config.age.secrets.hermes-env.path ];
                 NoNewPrivileges = true;
-                Exec = "gateway run";
+                Exec = "sh /etc/hermes/start.sh";
               };
             };
 
@@ -78,6 +114,7 @@
                 Volume = [
                   "${volumes.hermes-napcat-qq.ref}:/app/.config/QQ"
                   "${volumes.hermes-napcat-config.ref}:/app/napcat/config"
+                  "${config.age.secrets.hermes-napcat-config.path}:/app/templates/ws.json:ro"
                 ];
                 Environment = {
                   NAPCAT_UID = "1000";
@@ -98,6 +135,7 @@
           ${containers.hermes.serviceName}.restartTriggers = [ config.age.secrets.hermes-env.file ];
           ${containers.hermes-napcat.serviceName}.restartTriggers = [
             config.age.secrets.hermes-napcat-env.file
+            config.age.secrets.hermes-napcat-config.file
           ];
         };
       };

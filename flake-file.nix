@@ -81,6 +81,11 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      hermes-onebot = {
+        url = "github:mario841859784/hermes-plugin-onebot";
+        flake = false;
+      };
+
       oranc = {
         url = "github:linyinfeng/oranc";
         inputs.nixpkgs.follows = "nixpkgs";

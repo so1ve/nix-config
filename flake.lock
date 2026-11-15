@@ -699,6 +699,22 @@
         "type": "github"
       }
     },
+    "hermes-onebot": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794475305,
+        "narHash": "sha256-nnop7YyvuMfxp9t8oX4EqkK1bMwmhQJV8ICvnlSILnI=",
+        "owner": "mario841859784",
+        "repo": "hermes-plugin-onebot",
+        "rev": "83110624b84971d98bee6e021595c66a895d8ad8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mario841859784",
+        "repo": "hermes-plugin-onebot",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1393,6 +1409,7 @@
         "flake-file": "flake-file",
         "ghostty-cursor-shaders": "ghostty-cursor-shaders",
         "herdr-automatic-rename": "herdr-automatic-rename",
+        "hermes-onebot": "hermes-onebot",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "latchshot": "latchshot",
