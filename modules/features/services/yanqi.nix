@@ -22,6 +22,12 @@
         type = lib.types.ints.unsigned;
         description = "Group ID for NapCat's persistent container data.";
       };
+
+      napcat.webPort = lib.mkOption {
+        type = lib.types.port;
+        default = 6100;
+        description = "Host port for NapCat's web interface.";
+      };
     };
 
     nixos =
@@ -53,7 +59,7 @@
               Image = images.napcat;
               Network = [ networks.yanqi.ref ];
               NetworkAlias = [ "napcat" ];
-              PublishPort = [ "6100:6099" ];
+              PublishPort = [ "${toString settings.napcat.webPort}:6099" ];
               Volume = [
                 "${volumes.yanqi-napcat-qq.ref}:/app/.config/QQ"
                 "${volumes.yanqi-napcat-config.ref}:/app/napcat/config"

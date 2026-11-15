@@ -31,6 +31,12 @@
         default = "";
         description = "Shared personality for Telegram and QQ.";
       };
+
+      napcat.webPort = lib.mkOption {
+        type = lib.types.port;
+        default = 6101;
+        description = "Host port for NapCat's web interface.";
+      };
     };
 
     nixos =
@@ -111,7 +117,7 @@
                 Image = images.napcat;
                 Network = [ networks.hermes.ref ];
                 NetworkAlias = [ "napcat" ];
-                PublishPort = [ "6101:6099" ];
+                PublishPort = [ "${toString settings.napcat.webPort}:6099" ];
                 Volume = [
                   "${volumes.hermes-napcat-qq.ref}:/app/.config/QQ"
                   "${volumes.hermes-napcat-config.ref}:/app/napcat/config"
