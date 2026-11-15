@@ -11,7 +11,7 @@ def test_native_create_uses_positional_schedule_and_prompt(monkeypatch):
             "Hermes · 邮件",
             "*/10 * * * *",
             "prompt",
-            monitor="/opt/data/scripts/personal/mail-check.py",
+            monitor="personal/mail-check.py",
             interpreter="/opt/data/.local/share/hermes-personal/bin/python",
         )
     command = run.call_args.args[0]
@@ -30,7 +30,7 @@ def test_existing_job_is_edited_in_place(monkeypatch):
             "Hermes · 邮件",
             "*/10 * * * *",
             "prompt",
-            monitor="/opt/data/scripts/personal/mail-check.py",
+            monitor="personal/mail-check.py",
             interpreter="/opt/data/.local/share/hermes-personal/bin/python",
         )
     command = run.call_args.args[0]
@@ -53,10 +53,15 @@ def test_register_jobs_removes_fixed_greetings(tmp_path, monkeypatch):
 
     commands = [call.args[0] for call in run.call_args_list]
     assert [command[3] for command in commands if command[2] == "remove"] == ["old", "current"]
-    created = [
-        command[command.index("--name") + 1] for command in commands if command[2] == "create"
+    created = [command for command in commands if command[2] == "create"]
+    assert [command[command.index("--name") + 1] for command in created] == [
+        "Hermes · 邮件",
+        "Hermes · 乐学",
     ]
-    assert created == ["Hermes · 邮件", "Hermes · 乐学"]
+    assert [command[command.index("--monitor-script") + 1] for command in created] == [
+        "personal/mail-check.py",
+        "personal/lexue-check.py",
+    ]
 
 
 def test_old_credentials_and_cookies_are_migrated_once(tmp_path, monkeypatch):

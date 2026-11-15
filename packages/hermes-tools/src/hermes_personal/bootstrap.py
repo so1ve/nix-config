@@ -107,19 +107,18 @@ def _apply_job(name, schedule, prompt, *, monitor, interpreter):
 
 def register_jobs():
     _remove_legacy_jobs()
-    scripts = home() / "scripts/personal"
     _apply_job(
         "Hermes · 邮件",
         "*/10 * * * *",
         MAIL_PROMPT,
-        monitor=scripts / "mail-check.py",
+        monitor="personal/mail-check.py",
         interpreter=sys.executable,
     )
     _apply_job(
         "Hermes · 乐学",
         "*/30 * * * *",
         LEXUE_PROMPT,
-        monitor=scripts / "lexue-check.py",
+        monitor="personal/lexue-check.py",
         interpreter=sys.executable,
     )
 
