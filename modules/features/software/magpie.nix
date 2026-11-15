@@ -1,9 +1,19 @@
 {
   ray.features."software/magpie".home =
     _:
-    { pkgs, ... }:
+    { inputs, pkgs, ... }:
+    let
+      agy = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli;
+      startMagpie = pkgs.writeShellScript "start-magpie" ''
+        export PATH="${agy}/bin:$PATH"
+        exec ${pkgs.so1ve.magpie}/bin/magpie serve --web
+      '';
+    in
     {
-      home.packages = [ pkgs.so1ve.magpie ];
+      home.packages = [
+        pkgs.so1ve.magpie
+        agy
+      ];
 
       systemd.user.services.magpie = {
         Unit = {
@@ -12,7 +22,7 @@
         };
 
         Service = {
-          ExecStart = "${pkgs.so1ve.magpie}/bin/magpie serve --web";
+          ExecStart = "${startMagpie}";
           Restart = "on-failure";
           RestartSec = 2;
         };
