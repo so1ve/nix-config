@@ -1,0 +1,38 @@
+diff --git a/skills/yanhekit/scripts/yanhekit.py b/skills/yanhekit/scripts/yanhekit.py
+--- a/skills/yanhekit/scripts/yanhekit.py
++++ b/skills/yanhekit/scripts/yanhekit.py
+@@ -59,9 +59,10 @@ def signed_in():
+   upgrade_to_campus()
+   client = Yanhekt()
+   if not client.authenticate():
+-    import server
+-
+-    server.sign_in(client)
++    raise RuntimeError(
++      'Yanhekt authentication required. Use the personal MCP campus_login_start tool; '
++      'complete any SMS challenge through campus_login_submit, then retry this command.'
++    )
+   return client
+ 
+ 
+@@ -167,7 +168,7 @@ def parse():
+   targets.add_argument('paths', nargs='+', type=absolute, metavar='target', help='Course or lecture folders')
+   targets.add_argument('--latest', type=positive, metavar='N', help='Only the last N lectures of each course folder')
+ 
+-  commands.add_parser('login', help='Sign in, opening the local sign-in page only when saved credentials fail')
++  commands.add_parser('login', help='Check the session prepared by the personal MCP campus login tools')
+   listing = commands.add_parser('courses', help='List enrolled courses by term: id, title, teacher')
+   listing.add_argument('--term', help='Only this term, such as 2026-2027-1')
+   lookup = commands.add_parser('search', help='Search every course on the platform, one page per call')
+diff --git a/skills/yanhekit/SKILL.md b/skills/yanhekit/SKILL.md
+--- a/skills/yanhekit/SKILL.md
++++ b/skills/yanhekit/SKILL.md
+@@ -34,7 +34,7 @@ Commands take targets: a course folder stands for its lectures not dropped, and `do
+ 
+ ### Start
+ 
+-1. Run `login` in the background. It signs in with the saved session, the remembered SSO session or the saved password, and only when all fail opens a local sign-in page and prints its URL for the user. Never ask for or handle the password yourself.
++1. In Hermes, the delegated worker prepares the session with `mcp__personal__campus_login_start` before online commands. It reuses valid cookies and reads the age-managed credentials itself. If it returns `verification_required`, report the masked phone to the coordinating agent, then use `campus_login_submit` for the user's reply on the same MCP connection. Continue after `authenticated`. Do not open a WebUI or read credentials. A later authentication error means renewing through these tools and retrying the requested command.
+ 2. Find the course with `courses` (enrolled courses, latest term first) or `search` (the whole platform); ask only when several courses match.
+ 3. Run `add <course>` for a new course. For an existing course folder, read `课程总结.md` and run `status` instead.
+ 

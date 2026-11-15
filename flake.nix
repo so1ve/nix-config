@@ -171,7 +171,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     yanhekit = {
-      url = "github:windlandneko/yanhekit";
+      url = "github:bitoolkit/yanhekit";
       flake = false;
     };
   };

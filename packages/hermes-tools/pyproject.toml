@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hermes-personal-tools"
+version = "0.2.0"
+description = "Small MCP tools for Hermes campus services"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "beautifulsoup4>=4.12,<5",
+  "bit-login==4.0.0",
+  "mcp>=2,<3",
+  "requests>=2.32,<3",
+]
+
+[project.scripts]
+hermes-personal = "hermes_personal.cli:main"
+hermes-personal-mcp = "hermes_personal.server:main"
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.14,<1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hermes_personal"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

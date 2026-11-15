@@ -1855,15 +1855,15 @@
     "yanhekit": {
       "flake": false,
       "locked": {
-        "lastModified": 1792436023,
-        "narHash": "sha256-/OuSC+WIdDDXv+yEZLAp0SqKHrwXkl2lcZ72XKOHh4I=",
-        "owner": "windlandneko",
+        "lastModified": 1793641714,
+        "narHash": "sha256-fMRODN+2CXeyKru6BH4xFt/KtU//HBq1lxoAgkk5tnY=",
+        "owner": "bitoolkit",
         "repo": "yanhekit",
-        "rev": "a85de3ab6b0dfad6b4440775a6057ccab2881270",
+        "rev": "e736c1e7665f9e78520e70190c1a215ee74cf9bc",
         "type": "github"
       },
       "original": {
-        "owner": "windlandneko",
+        "owner": "bitoolkit",
         "repo": "yanhekit",
         "type": "github"
       }
