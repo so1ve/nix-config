@@ -1,19 +1,16 @@
-{ lib, ... }:
-
 {
   ray.features."services/magpie" = {
     requires.allOf = [ "security/agenix" ];
 
-    options.gatewayAddress = lib.mkOption {
-      type = lib.types.str;
-      default = "127.0.0.1:3425";
-      description = "Listen address and port of the model gateway.";
-    };
-
     nixos =
-      { settings, ... }:
+      _:
       { config, pkgs, ... }:
+      let
+        webPort = 3430;
+      in
       {
+        networking.firewall.allowedTCPPorts = [ webPort ];
+
         users.groups.magpie = { };
         users.users.magpie = {
           isSystemUser = true;
@@ -34,7 +31,7 @@
           ];
           environment = {
             HOME = "/var/lib/magpie";
-            MAGPIE_ADDR = settings.gatewayAddress;
+            MAGPIE_ADDR = "0.0.0.0:3425";
           };
           restartTriggers = [ config.age.secrets.magpie-env.file ];
           serviceConfig = {
@@ -44,7 +41,7 @@
             StateDirectoryMode = "0700";
             WorkingDirectory = "/var/lib/magpie";
             EnvironmentFile = config.age.secrets.magpie-env.path;
-            ExecStart = "${pkgs.so1ve.magpie}/bin/magpie serve --web=127.0.0.1:3430";
+            ExecStart = "${pkgs.so1ve.magpie}/bin/magpie serve --web=0.0.0.0:${toString webPort}";
             Restart = "on-failure";
             RestartSec = 2;
             UMask = "0077";

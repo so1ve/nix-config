@@ -89,7 +89,6 @@
                 TimeoutStartSec = "30min";
               };
               containerConfig = {
-                ContainerName = "hermes";
                 Image = images.hermes;
                 Network = [ networks.hermes.ref ];
                 Volume = [
@@ -109,11 +108,10 @@
               inherit (settings) autoStart;
               serviceConfig.Restart = "always";
               containerConfig = {
-                ContainerName = "hermes-napcat";
                 Image = images.napcat;
                 Network = [ networks.hermes.ref ];
                 NetworkAlias = [ "napcat" ];
-                PublishPort = [ "127.0.0.1:6101:6099" ];
+                PublishPort = [ "6101:6099" ];
                 Volume = [
                   "${volumes.hermes-napcat-qq.ref}:/app/.config/QQ"
                   "${volumes.hermes-napcat-config.ref}:/app/napcat/config"

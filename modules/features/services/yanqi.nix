@@ -67,6 +67,7 @@
               };
               EnvironmentFile = [ config.age.secrets.napcat-env.path ];
             };
+
             yanqi = {
               unitConfig = {
                 Wants = [ containers.napcat.ref ];
