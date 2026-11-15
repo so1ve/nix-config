@@ -15,8 +15,9 @@
       };
 
       account = lib.mkOption {
-        type = lib.types.str;
-        description = "Dedicated QQ account to log in using NapCat's saved session.";
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Dedicated QQ account for quick login, or null to log in through NapCat's WebUI.";
       };
     };
 
@@ -79,11 +80,13 @@
                   "${volumes.hermes-napcat-config.ref}:/app/napcat/config"
                 ];
                 Environment = {
-                  NAPCAT_QUICK_ACCOUNT = settings.account;
                   NAPCAT_UID = "1000";
                   NAPCAT_GID = "1000";
                   MODE = "ws";
                   TZ = config.time.timeZone;
+                }
+                // lib.optionalAttrs (settings.account != null) {
+                  NAPCAT_QUICK_ACCOUNT = settings.account;
                 };
                 EnvironmentFile = [ config.age.secrets.hermes-napcat-env.path ];
               };
