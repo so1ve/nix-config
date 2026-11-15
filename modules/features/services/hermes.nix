@@ -84,7 +84,10 @@
                 Wants = [ containers.hermes-napcat.ref ];
                 After = [ containers.hermes-napcat.ref ];
               };
-              serviceConfig.Restart = "always";
+              serviceConfig = {
+                Restart = "always";
+                TimeoutStartSec = "30min";
+              };
               containerConfig = {
                 ContainerName = "hermes";
                 Image = images.hermes;
