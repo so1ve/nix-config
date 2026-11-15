@@ -39,8 +39,8 @@
         virtualisation.quadlet = {
           volumes = {
             yanqi = { };
-            napcat-qq = { };
-            napcat-config = { };
+            yanqi-napcat-qq = { };
+            yanqi-napcat-config = { };
           };
 
           networks.yanqi.networkConfig = {
@@ -55,8 +55,8 @@
               NetworkAlias = [ "napcat" ];
               PublishPort = [ "6100:6099" ];
               Volume = [
-                "${volumes.napcat-qq.ref}:/app/.config/QQ"
-                "${volumes.napcat-config.ref}:/app/napcat/config"
+                "${volumes.yanqi-napcat-qq.ref}:/app/.config/QQ"
+                "${volumes.yanqi-napcat-config.ref}:/app/napcat/config"
               ];
               Environment = {
                 NAPCAT_QUICK_ACCOUNT = settings.account;
@@ -65,7 +65,7 @@
                 NAPCAT_GID = toString settings.napcat.gid;
                 TZ = config.time.timeZone;
               };
-              EnvironmentFile = [ config.age.secrets.napcat-env.path ];
+              EnvironmentFile = [ config.age.secrets.yanqi-napcat-env.path ];
             };
 
             yanqi = {
@@ -87,7 +87,7 @@
         };
 
         systemd.services.${containers.yanqi-napcat.serviceName}.restartTriggers = [
-          config.age.secrets.napcat-env.file
+          config.age.secrets.yanqi-napcat-env.file
         ];
       };
   };
