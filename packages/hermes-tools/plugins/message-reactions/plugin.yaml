@@ -1,0 +1,7 @@
+name: message-reactions
+version: "0.1.0"
+description: Add an emoji reaction to the current Telegram message.
+provides_tools:
+  - react_to_current_message
+capabilities:
+  - gateway.platform_actions

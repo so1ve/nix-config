@@ -125,6 +125,7 @@ in
           "${personalPackage}/skills/personal-assistant:/opt/data/skills/personal-assistant:ro"
           "${personalPackage}/scripts:/opt/data/scripts/personal:ro"
           "${personalPackage}/hooks/proactive-chat:/opt/data/hooks/proactive-chat:ro"
+          "${personalPackage}/plugins/message-reactions:/opt/data/plugins/message-reactions:ro"
           "${hermes-campus.path}:${campusCredentials}:ro"
         ]
         ++ map (name: "${yanhekit}/skills/${name}:/opt/data/skills/${name}:ro") (

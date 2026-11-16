@@ -51,6 +51,13 @@ Existing profiles get the added deadline and course jobs once through
 `hermes cron create`. After registration, Hermes owns their lifecycle as well.
 
 Notifications use the Telegram home chat set with `/sethome`.
+The `message-reactions` SDK plugin lets Hermes react to the current Telegram
+message without sending text. Add `message-reactions` to `plugins.enabled` and grant
+`plugins.entries.message-reactions.allow_platform_actions`. Set
+`platforms.<platform>.channel_overrides.<chat_id>.allow_silence` for conversations
+where a completed `[SILENT]` turn should produce no text. This permission does not
+hide failed or interrupted replies.
+
 The mail monitor wakes Hermes when unread message IDs change. The child agent
 reviews new messages, and the coordinator sends one summary when Ray needs to
 act through the native message tool. A separate script-only job checks old Lexue,
