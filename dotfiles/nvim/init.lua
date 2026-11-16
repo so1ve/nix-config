@@ -202,6 +202,7 @@ vim.pack.add({
 vim.pack.add({
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("so1ve/tiny-age.nvim"),
+  gh("so1ve/tiny-gitignore.nvim"),
   gh("so1ve/tiny-gitref.nvim"),
   gh("stevearc/conform.nvim"),
   gh("folke/persistence.nvim"),
@@ -376,71 +377,11 @@ autocmd("FileType", {
 -- # Ignored Files             #
 -- #############################
 
-local ignore_root
-local ignored_paths = {}
+load_plugins("now", { "tiny-gitignore.nvim" }, function()
+  require("tiny-gitignore").setup()
+end)
 
-local function ignored_files_changed()
-  vim.api.nvim_exec_autocmds("User", { pattern = "RayGitIgnoreCacheUpdated" })
-end
-
-local function normalize_ignored_path(path)
-  return vim.fs.normalize(path):gsub("/+$", "")
-end
-
-local function relative_ignored_path(path)
-  path = normalize_ignored_path(path)
-  if ignore_root and path:sub(1, #ignore_root + 1) == ignore_root .. "/" then
-    return path:sub(#ignore_root + 2)
-  end
-  return path:gsub("^%./", "")
-end
-
-local function refresh_ignored()
-  local git_root = vim.fs.root(vim.fn.getcwd(), ".git")
-  ignore_root = git_root and normalize_ignored_path(git_root)
-
-  if not ignore_root then
-    ignored_paths = {}
-    ignored_files_changed()
-    return
-  end
-
-  local refresh_root = ignore_root
-  vim.system(
-    { "git", "-C", ignore_root, "ls-files", "--ignored", "--others", "--exclude-standard", "--directory", "-z" },
-    { text = true },
-    vim.schedule_wrap(function(result)
-      if ignore_root ~= refresh_root then
-        return
-      end
-
-      ignored_paths = result.code == 0 and { [".git"] = true } or {}
-      for path in (result.stdout or ""):gmatch("[^%z]+") do
-        ignored_paths[relative_ignored_path(path)] = true
-      end
-      ignored_files_changed()
-    end)
-  )
-end
-
-local function is_ignored(path)
-  path = relative_ignored_path(path)
-  while path ~= "" do
-    if ignored_paths[path] then
-      return true
-    end
-    path = path:match("(.+)/[^/]+$") or ""
-  end
-
-  return false
-end
-
-refresh_ignored()
-autocmd("DirChanged", { callback = refresh_ignored })
-autocmd("BufWritePost", {
-  pattern = { ".gitignore", "*/.gitignore", ".git/info/exclude", "*/.git/info/exclude" },
-  callback = refresh_ignored,
-})
+local is_ignored = require("tiny-gitignore").is_ignored
 
 -- #############################
 -- # Completion                #
@@ -1763,7 +1704,7 @@ safely("now", function()
   })
 
   autocmd("User", {
-    pattern = "RayGitIgnoreCacheUpdated",
+    pattern = "TinyGitignoreCacheUpdated",
     callback = function()
       files.refresh(opts)
     end,
