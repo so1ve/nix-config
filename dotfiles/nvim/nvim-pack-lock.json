@@ -126,6 +126,10 @@
       "rev": "9466b3b95dbc517956f32a943223bf3cfa572c37",
       "src": "https://github.com/so1ve/tiny-comment.nvim"
     },
+    "tiny-gitignore.nvim": {
+      "rev": "c903c79ce1c23a59388a5b8df6ec28b0bbf13f1d",
+      "src": "https://github.com/so1ve/tiny-gitignore.nvim"
+    },
     "tiny-gitref.nvim": {
       "rev": "16343a4abcf6b3d06f14c0e95a4d191a764ad02c",
       "src": "https://github.com/so1ve/tiny-gitref.nvim"
