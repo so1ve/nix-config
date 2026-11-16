@@ -6,7 +6,6 @@
       _:
       {
         config,
-        inputs,
         pkgs,
         ...
       }:
@@ -31,7 +30,7 @@
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
           path = [
-            inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli
+            pkgs.so1ve.antigravity-cli
             pkgs.bash
             pkgs.curl
           ];

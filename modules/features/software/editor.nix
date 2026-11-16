@@ -41,7 +41,7 @@
       _:
       { pkgs, ... }:
       {
-        home.packages = [ pkgs.antigravity-ide ];
+        home.packages = [ pkgs.so1ve.antigravity-ide ];
       };
   };
 }

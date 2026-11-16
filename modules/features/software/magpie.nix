@@ -1,9 +1,9 @@
 {
   ray.features."software/magpie".home =
     _:
-    { inputs, pkgs, ... }:
+    { pkgs, ... }:
     let
-      agy = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli;
+      agy = pkgs.so1ve.antigravity-cli;
       startMagpie = pkgs.writeShellScript "start-magpie" ''
         export PATH="${agy}/bin:$PATH"
         exec ${pkgs.so1ve.magpie}/bin/magpie serve --web
