@@ -191,19 +191,22 @@ local gh = function(repo)
 end
 
 vim.pack.add({
+  gh("so1ve/tiny-treesitter.nvim"),
   gh("nvim-mini/mini.nvim"),
   gh("folke/snacks.nvim"),
   gh("mrjones2014/codesettings.nvim"),
   gh("Julian/lean.nvim"),
   gh("saghen/filler-begone.nvim"),
-  gh("so1ve/tiny-treesitter.nvim"),
 }, { confirm = false, load = true })
 
 vim.pack.add({
-  { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("so1ve/tiny-age.nvim"),
   gh("so1ve/tiny-gitignore.nvim"),
   gh("so1ve/tiny-gitref.nvim"),
+  gh("so1ve/tiny-comment.nvim"),
+  gh("so1ve/tiny-md.nvim"),
+  { src = gh("so1ve/codesnap.nvim"), version = "v3.0.0-beta.1" },
+  { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("stevearc/conform.nvim"),
   gh("folke/persistence.nvim"),
   gh("nvim-lualine/lualine.nvim"),
@@ -218,7 +221,6 @@ vim.pack.add({
   gh("DrKJeff16/wezterm-types"),
   gh("Saecki/crates.nvim"),
   gh("mrjones2014/smart-splits.nvim"),
-  { src = gh("so1ve/codesnap.nvim"), version = "v3.0.0-beta.1" },
   gh("MeanderingProgrammer/render-markdown.nvim"),
   gh("neovim/nvim-lspconfig"),
   gh("b0o/schemastore.nvim"),
@@ -228,8 +230,6 @@ vim.pack.add({
   gh("nvim-treesitter/nvim-treesitter-context"),
   gh("windwp/nvim-ts-autotag"),
   gh("folke/trouble.nvim"),
-  gh("so1ve/tiny-comment.nvim"),
-  gh("so1ve/tiny-md.nvim"),
   gh("so1ve/code-action-menu.nvim"),
   gh("so1ve/noicelet.nvim"),
   gh("so1ve/panels.nvim"),
