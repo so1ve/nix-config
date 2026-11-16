@@ -20,46 +20,6 @@
         description = "Dedicated QQ account for quick login, or null to log in through NapCat's WebUI.";
       };
 
-      settings = lib.mkOption {
-        type = lib.types.attrs;
-        default = { };
-        description = "Hermes config.yaml settings.";
-      };
-
-      soul = lib.mkOption {
-        type = lib.types.lines;
-        default = "";
-        description = "Shared personality for Telegram and QQ.";
-      };
-
-      personal = {
-        enable = lib.mkEnableOption "BIT campus, read-only mail and Lexue tools";
-
-        config = lib.mkOption {
-          type = lib.types.attrs;
-          default = { };
-          description = "Non-secret personal tool configuration.";
-        };
-
-        coursesDirectory = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Host directory for course recordings, slides, transcripts and notes.";
-        };
-
-        backupDirectory = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Host directory for encrypted native Hermes backups.";
-        };
-
-        backupRecipient = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Age recipient used to encrypt native Hermes backups.";
-        };
-      };
-
       napcat = {
         webPort = lib.mkOption {
           type = lib.types.port;
@@ -78,16 +38,6 @@
       }:
       let
         inherit (config.virtualisation.quadlet) containers networks volumes;
-        personalEnvironment = "/opt/data/.local/share/hermes-personal";
-        hermesConfig = (pkgs.formats.yaml { }).generate "hermes-config.yaml" (
-          lib.recursiveUpdate (lib.optionalAttrs settings.personal.enable {
-            mcp_servers.personal = {
-              command = "${personalEnvironment}/bin/hermes-personal-mcp";
-              timeout = 300;
-            };
-          }) settings.settings
-        );
-        soul = pkgs.writeText "hermes-soul.md" settings.soul;
         start = pkgs.writeText "hermes-start.sh" ''
           set -eu
 
@@ -101,20 +51,10 @@
               https://github.com/mario841859784/hermes-plugin-onebot.git
           fi
 
-          ${lib.optionalString settings.personal.enable ''
-            sh /etc/hermes/personal-start.sh "$uv"
-          ''}
-
           exec hermes gateway run
         '';
       in
       {
-        imports = [
-          (import ./hermes/_personal.nix {
-            inherit (settings) personal;
-            inherit personalEnvironment;
-          })
-        ];
         networking.firewall.interfaces.br-hermes = {
           allowedTCPPorts = [ 53 ];
           allowedUDPPorts = [ 53 ];
@@ -148,10 +88,8 @@
                 Network = [ networks.hermes.ref ];
                 Volume = [
                   "${volumes.hermes.ref}:/opt/data"
-                  "${hermesConfig}:/etc/hermes/config.yaml:ro"
                   "${start}:/etc/hermes/start.sh:ro"
-                ]
-                ++ lib.optional (settings.soul != "") "${soul}:/opt/data/SOUL.md:ro";
+                ];
                 Environment.TZ = config.time.timeZone;
                 EnvironmentFile = [ config.age.secrets.hermes-env.path ];
                 NoNewPrivileges = true;

@@ -125,7 +125,7 @@ in
       };
 
       yanhekit = {
-        url = "github:windlandneko/yanhekit";
+        url = "github:bitoolkit/yanhekit";
         flake = false;
       };
 
