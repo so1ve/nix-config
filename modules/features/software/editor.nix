@@ -45,6 +45,8 @@
           (pkgs.so1ve.antigravity-ide.override {
             commandLineArgs = "--password-store=gnome-libsecret";
           })
+          pkgs.so1ve.antigravity-cli
+          pkgs.so1ve.antigravity-hub
         ];
       };
   };
