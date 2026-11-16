@@ -1,5 +1,8 @@
 { images, lib, ... }:
 
+let
+  mkTraefikHttpsLabels = import ../../../lib/mk-traefik-https-labels.nix;
+in
 {
   ray.features."services/vaultwarden" = {
     requires.allOf = [
@@ -27,10 +30,10 @@
             PublishPort = [ "8222:80" ];
             Volume = [ "${config.virtualisation.quadlet.volumes.vaultwarden.ref}:/data" ];
             Environment.SIGNUPS_ALLOWED = "false";
-            Label = {
-              "traefik.enable" = "true";
-              "traefik.http.routers.vaultwarden.rule" = "Host(`${settings.domain}`)";
-              "traefik.http.services.vaultwarden.loadbalancer.server.port" = "80";
+            Label = mkTraefikHttpsLabels {
+              name = "vaultwarden";
+              inherit (settings) domain;
+              port = 80;
             };
           };
         };

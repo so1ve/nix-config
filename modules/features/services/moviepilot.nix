@@ -1,5 +1,8 @@
 { images, lib, ... }:
 
+let
+  mkTraefikHttpsLabels = import ../../../lib/mk-traefik-https-labels.nix;
+in
 {
   ray.features."services/moviepilot" = {
     requires.allOf = [
@@ -60,10 +63,10 @@
               EnvironmentFile = [ config.age.secrets.moviepilot-env.path ];
               GroupAdd = [ (toString config.users.groups.podman.gid) ];
               HealthCmd = "curl -fsS http://127.0.0.1:3001/health/ready";
-              Label = {
-                "traefik.enable" = "true";
-                "traefik.http.routers.moviepilot.rule" = "Host(`${settings.domain}`)";
-                "traefik.http.services.moviepilot.loadbalancer.server.port" = "3000";
+              Label = mkTraefikHttpsLabels {
+                name = "moviepilot";
+                inherit (settings) domain;
+                port = 3000;
               };
             };
           };

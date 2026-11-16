@@ -1,5 +1,8 @@
 { images, lib, ... }:
 
+let
+  mkTraefikHttpsLabels = import ../../../lib/mk-traefik-https-labels.nix;
+in
 {
   ray.features."services/qbittorrent" = {
     multiple = true;
@@ -68,15 +71,18 @@
             TZ = config.time.timeZone;
             WEBUI_PORT = "9092";
           };
-          Label = {
-            "traefik.enable" = "true";
-            "traefik.http.routers.${name}.rule" = "Host(`${settings.domain}`)";
-            "traefik.http.routers.${name}-local.entrypoints" = name;
-            "traefik.http.routers.${name}-local.rule" = "PathPrefix(`/`)";
-            "traefik.http.routers.${name}-local.service" = name;
-            "traefik.http.services.${name}.loadbalancer.server.port" = "9092";
-            "traefik.http.services.${name}.loadbalancer.passhostheader" = "false";
-          };
+          Label =
+            mkTraefikHttpsLabels {
+              inherit name;
+              inherit (settings) domain;
+              port = 9092;
+            }
+            // {
+              "traefik.http.routers.${name}-local.entrypoints" = name;
+              "traefik.http.routers.${name}-local.rule" = "PathPrefix(`/`)";
+              "traefik.http.routers.${name}-local.service" = name;
+              "traefik.http.services.${name}.loadbalancer.passhostheader" = "false";
+            };
         };
 
         containers.traefik.containerConfig.PublishPort = [

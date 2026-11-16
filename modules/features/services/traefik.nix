@@ -16,6 +16,11 @@
         description = "Public HTTPS port, also used by the HTTP redirect.";
       };
 
+      tlsDomain = lib.mkOption {
+        type = lib.types.str;
+        description = "Base domain for the shared wildcard TLS certificate.";
+      };
+
       acmeEmail = lib.mkOption {
         type = lib.types.str;
         default = "";
@@ -44,6 +49,20 @@
         staticConfig = pkgs.writeText "traefik.json" (
           builtins.toJSON config.services.traefik.staticConfigOptions
         );
+        # The dynamic file provider accepts YAML and TOML. JSON is valid YAML.
+        tlsConfig = pkgs.writeText "traefik-tls.yaml" (
+          builtins.toJSON {
+            tls.stores.default.defaultGeneratedCert = {
+              resolver = "letsencrypt";
+              domain.main = "*.${settings.tlsDomain}";
+            };
+          }
+        );
+        httpsRedirect = {
+          to = ":${toString settings.httpsPort}";
+          scheme = "https";
+          permanent = true;
+        };
       in
       {
         services.traefik.staticConfigOptions = {
@@ -51,20 +70,19 @@
             web = {
               address = ":80";
               http.aliasHeadersStrategy = "delete";
-              http.redirections.entryPoint = {
-                to = ":${toString settings.httpsPort}";
-                scheme = "https";
-                permanent = true;
-              };
+              http.redirections.entryPoint = httpsRedirect;
             };
+
             websecure = {
               address = ":443";
               asDefault = true;
               http.aliasHeadersStrategy = "delete";
-              http.tls.certResolver = "letsencrypt";
+              http.redirections.entryPoint = httpsRedirect;
             };
           };
           providers = {
+            file.filename = "/etc/traefik/tls.yaml";
+
             docker = {
               endpoint = "unix:///var/run/docker.sock";
               exposedByDefault = false;
@@ -141,6 +159,7 @@
                 ++ lib.optional settings.dashboard "8080:8080";
               Volume = [
                 "${staticConfig}:/etc/traefik/traefik.json:ro"
+                "${tlsConfig}:/etc/traefik/tls.yaml:ro"
                 "${volumes.traefik-acme.ref}:/data"
                 "/run/podman/podman.sock:/var/run/docker.sock:ro"
               ];

@@ -1,5 +1,8 @@
 { images, lib, ... }:
 
+let
+  mkTraefikHttpsLabels = import ../../../lib/mk-traefik-https-labels.nix;
+in
 {
   ray.features."services/emby" = {
     requires.allOf = [
@@ -62,10 +65,10 @@
             ];
             TZ = config.time.timeZone;
           };
-          Label = {
-            "traefik.enable" = "true";
-            "traefik.http.routers.emby.rule" = "Host(`${settings.domain}`)";
-            "traefik.http.services.emby.loadbalancer.server.port" = "8096";
+          Label = mkTraefikHttpsLabels {
+            name = "emby";
+            inherit (settings) domain;
+            port = 8096;
           };
         };
       };
