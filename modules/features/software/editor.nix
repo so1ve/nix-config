@@ -41,7 +41,11 @@
       _:
       { pkgs, ... }:
       {
-        home.packages = [ pkgs.so1ve.antigravity-ide ];
+        home.packages = [
+          (pkgs.so1ve.antigravity-ide.override {
+            commandLineArgs = "--password-store=gnome-libsecret";
+          })
+        ];
       };
   };
 }
