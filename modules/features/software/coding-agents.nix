@@ -50,7 +50,12 @@
 
     "software/agent-skills".home =
       _:
-      { inputs, pkgs, ... }:
+      {
+        featureEnabled,
+        inputs,
+        pkgs,
+        ...
+      }:
       {
         imports = [ inputs.agent-skills.homeManagerModules.default ];
 
@@ -90,6 +95,11 @@
             claude = {
               enable = true;
               dest = ".claude/skills";
+              structure = "link";
+            };
+            antigravity = {
+              enable = featureEnabled "software/antigravity";
+              dest = ".gemini/config/skills";
               structure = "link";
             };
           };
