@@ -291,6 +291,23 @@
         '';
       };
 
+    "software/t3code".home =
+      _:
+      {
+        inputs,
+        pkgs,
+        ...
+      }:
+      let
+        t3code = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.t3code;
+      in
+      {
+        home.packages = [
+          t3code
+          t3code.desktop
+        ];
+      };
+
     "software/omp".home =
       _:
       {
