@@ -3,6 +3,9 @@ input {
         xkb {
         }
 
+        repeat-delay 350
+        repeat-rate 40
+
         numlock
     }
 
