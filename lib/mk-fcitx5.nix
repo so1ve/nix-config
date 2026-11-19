@@ -1,5 +1,5 @@
 let
-  theme = "mellow-wechat";
+  theme = "graphite";
 
   profile = inputMethod: {
     "Groups/0" = {
@@ -20,11 +20,13 @@ in
       type = "fcitx5";
 
       fcitx5 = {
-        addons = addons ++ [ pkgs.fcitx5-mellow-themes ];
+        inherit addons;
         waylandFrontend = true;
         settings.inputMethod = profile inputMethod;
       };
     };
+
+    fonts.packages = [ pkgs.lxgw-wenkai-screen ];
 
     # Qt does not support the text-input-v3 protocol used by Niri.
     environment.variables.QT_IM_MODULE = "fcitx";
@@ -38,9 +40,6 @@ in
       pkgs,
       ...
     }:
-    let
-      themes = "${pkgs.fcitx5-mellow-themes}/share/fcitx5/themes";
-    in
     {
       # Preserve profiles written by Fcitx5 even if a previous backup exists.
       home.activation.backupFcitxProfile =
@@ -66,10 +65,7 @@ in
           '';
 
       # Qt client-side candidate windows look for themes in the XDG data paths.
-      xdg.dataFile = {
-        "fcitx5/themes/${theme}".source = "${themes}/${theme}";
-        "fcitx5/themes/${theme}-dark".source = "${themes}/${theme}-dark";
-      };
+      xdg.dataFile."fcitx5/themes/${theme}".source = ../dotfiles/fcitx5/themes/${theme};
 
       # Fcitx5-Qt only reads the user-level config for the candidate window.
       xdg.configFile = {
@@ -93,8 +89,9 @@ in
 
         # Qt's client-side candidate window reads Theme without applying DarkTheme.
         "fcitx5/conf/classicui.conf".text = ''
-          Theme=${theme}-dark
+          Theme=${theme}
           UseDarkTheme=False
+          Font="LXGW WenKai Screen 14"
         '';
       };
     };
