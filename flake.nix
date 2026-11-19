@@ -113,13 +113,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
-    mzwing = {
-      url = "github:mzwing/nur-packages";
-      inputs = {
-        nix-repin.follows = "nix-repin";
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     nix-alien.url = "github:thiagokokada/nix-alien";
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";

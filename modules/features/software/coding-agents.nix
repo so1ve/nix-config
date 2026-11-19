@@ -3,20 +3,8 @@
   ray.features = {
     "software/antigravity".home =
       _:
-      {
-        inputs,
-        lib,
-        mkDotfilesSource,
-        pkgs,
-        ...
-      }:
+      { mkDotfilesSource, pkgs, ... }:
       let
-        agyHud = inputs.mzwing.packages.${pkgs.stdenv.hostPlatform.system}.agy-hud;
-        statusLine = {
-          type = "command";
-          command = lib.getExe agyHud;
-          stack_with_default = false;
-        };
         upstream = pkgs.so1ve.antigravity-hub;
         antigravity = pkgs.symlinkJoin {
           name = "${upstream.name}-fork";
@@ -48,34 +36,9 @@
         home = {
           packages = [
             pkgs.so1ve.antigravity-cli
-            agyHud
             antigravity
           ];
           file.".gemini/AGENTS.md".source = mkDotfilesSource "agents/AGENTS.md";
-
-          # agy rewrites settings.json at startup, so merge statusLine in place
-          # instead of replacing the file with a read-only store symlink.
-          activation.antigravityCliStatusLine = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-            (
-              settings="$HOME/.gemini/antigravity-cli/settings.json"
-              status_line=${lib.escapeShellArg (builtins.toJSON statusLine)}
-              tmp="$(${pkgs.coreutils}/bin/mktemp)"
-              trap '${pkgs.coreutils}/bin/rm -f "$tmp"' EXIT
-
-              if [ -s "$settings" ]; then
-                ${lib.getExe pkgs.jq} --argjson statusLine "$status_line" \
-                  '.statusLine = ((if (.statusLine | type) == "object" then .statusLine else {} end) + $statusLine)' \
-                  "$settings" > "$tmp"
-              else
-                ${lib.getExe pkgs.jq} -n --argjson statusLine "$status_line" \
-                  '{ statusLine: $statusLine }' > "$tmp"
-              fi
-
-              if [ ! -f "$settings" ] || ! ${pkgs.diffutils}/bin/cmp -s "$tmp" "$settings"; then
-                run ${pkgs.coreutils}/bin/install -Dm 0600 "$tmp" "$settings"
-              fi
-            )
-          '';
         };
       };
 
