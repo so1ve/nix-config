@@ -91,7 +91,7 @@ in
         "fcitx5/conf/classicui.conf".text = ''
           Theme=${theme}
           UseDarkTheme=False
-          Font="LXGW WenKai Screen 14"
+          Font="LXGW WenKai Screen 11"
         '';
       };
     };
