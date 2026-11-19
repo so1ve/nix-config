@@ -142,6 +142,14 @@ in
 
       so1ve.url = "github:so1ve/nur-packages";
 
+      mzwing = {
+        url = "github:mzwing/nur-packages";
+        inputs = {
+          nixpkgs.follows = "nixpkgs";
+          nix-repin.follows = "nix-repin";
+        };
+      };
+
       herdr-automatic-rename = {
         url = "github:qu8n/herdr-automatic-rename";
         flake = false;
