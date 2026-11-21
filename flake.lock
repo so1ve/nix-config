@@ -305,23 +305,6 @@
         "type": "github"
       }
     },
-    "deno2nix_2": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1771449470,
-        "narHash": "sha256-ZGKHKRB7K5aUIyJenXwOcX21F2yTXLa19q3YXQM3E48=",
-        "owner": "aMOPel",
-        "repo": "deno2nix",
-        "rev": "adb4dcea663cd61c19e01c8c36dd73db4af358a5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "aMOPel",
-        "ref": "custom-made-fetcher",
-        "repo": "deno2nix",
-        "type": "github"
-      }
-    },
     "deploy-rs": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -966,18 +949,17 @@
     },
     "nix-repin_2": {
       "inputs": {
-        "deno2nix": "deno2nix_2",
         "nixpkgs": [
           "so1ve",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1794682747,
-        "narHash": "sha256-NzYx9ywXksDQvxclTHILbREmSv27SgJse6/8+L5NnrQ=",
+        "lastModified": 1795090847,
+        "narHash": "sha256-ANEXEedcKD1alTB6Ab4lR171hmIDGzb8A3M/fMBUNyE=",
         "owner": "so1ve",
         "repo": "nix-repin",
-        "rev": "e3c42409a922b6da85f64fffd734774226117be1",
+        "rev": "3875a6b06ae6efa50c0adef98cf9ded4f3f7b473",
         "type": "github"
       },
       "original": {
@@ -1481,11 +1463,11 @@
         "treefmt-nix": "treefmt-nix_5"
       },
       "locked": {
-        "lastModified": 1795065817,
-        "narHash": "sha256-10U31dJb4Gi3TGhbmr+ROcn/b8klg0rgyrN+hmo2iHU=",
+        "lastModified": 1795237491,
+        "narHash": "sha256-lo4qLx5jXYYTRO8zUBWTO2GwKx2eKeIU/Cepw/BcnX0=",
         "owner": "so1ve",
         "repo": "nur-packages",
-        "rev": "c3d588361bd2a1e8ae2c8261a4b4c35ff32ad2d9",
+        "rev": "756c6c69588609846fe1b6cdeed4175311e46a48",
         "type": "github"
       },
       "original": {
