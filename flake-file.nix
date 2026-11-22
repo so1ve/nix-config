@@ -86,6 +86,11 @@ in
         flake = false;
       };
 
+      firn = {
+        url = "github:so1ve/firn";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       oranc = {
         url = "github:linyinfeng/oranc";
         inputs.nixpkgs.follows = "nixpkgs";

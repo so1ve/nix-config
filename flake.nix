@@ -89,6 +89,10 @@
       url = "github:nix-community/disko/latest";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    firn = {
+      url = "github:so1ve/firn";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     flake-file.url = "github:denful/flake-file";
     ghostty-cursor-shaders = {
       url = "github:sahaj-b/ghostty-cursor-shaders";

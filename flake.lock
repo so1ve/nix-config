@@ -370,6 +370,26 @@
         "type": "github"
       }
     },
+    "firn": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795383662,
+        "narHash": "sha256-OzBJ0+fWfdMsFBzzxw8eUdxakpyCyATI16EfBaxp7XM=",
+        "owner": "so1ve",
+        "repo": "firn",
+        "rev": "0b716dbc9ee41799cafd8a2420ce0031fa6a73f5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "firn",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -1388,6 +1408,7 @@
         "deploy-rs": "deploy-rs",
         "direnv-instant": "direnv-instant",
         "disko": "disko",
+        "firn": "firn",
         "flake-file": "flake-file",
         "ghostty-cursor-shaders": "ghostty-cursor-shaders",
         "herdr-automatic-rename": "herdr-automatic-rename",

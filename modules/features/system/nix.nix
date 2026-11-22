@@ -18,10 +18,7 @@ let
         seen
       else
         builtins.foldl' collectInputs (seen // { ${key} = input.outPath; }) (
-          if input ? inputs && builtins.isAttrs input.inputs then
-            builtins.attrValues input.inputs
-          else
-            [ ]
+          if input ? inputs && builtins.isAttrs input.inputs then builtins.attrValues input.inputs else [ ]
         );
 
   flakeInputs = builtins.attrValues (
@@ -57,6 +54,7 @@ in
         };
 
         environment.systemPackages = [
+          inputs.firn.packages.${pkgs.stdenv.hostPlatform.system}.default
           inputs.nix-alien.packages.${pkgs.stdenv.hostPlatform.system}.nix-alien
         ];
 
