@@ -91,11 +91,6 @@ in
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-      oranc = {
-        url = "github:linyinfeng/oranc";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
-
       deploy-rs = {
         url = "github:serokell/deploy-rs";
         inputs.nixpkgs.follows = "nixpkgs";

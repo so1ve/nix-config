@@ -137,10 +137,6 @@
       url = "github:noctalia-dev/noctalia-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    oranc = {
-      url = "github:linyinfeng/oranc";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     quadlet-nix = {
       url = "github:mirkolenz/quadlet-nix/v1";
       inputs.nixpkgs.follows = "nixpkgs";
