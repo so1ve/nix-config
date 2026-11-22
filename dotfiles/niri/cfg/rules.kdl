@@ -84,6 +84,11 @@ window-rule {
     // Turing Complete
     match title=r#"^Turing Complete$"#
 
+    // Gamescope & Arknights: Endfield
+    match app-id=r#"^gamescope$"#
+    match app-id=r#"(?i)^endfield(?:\.exe)?$"#
+    match title=r#"(?i)^(arknights:\s*endfield|明日方舟：终末地|鹰角(?:网络)?启动器)"#
+
     open-on-workspace "game"
 }
 

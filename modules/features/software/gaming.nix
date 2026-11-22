@@ -5,13 +5,26 @@
         _:
         { pkgs, ... }:
         {
+          boot.kernelModules = [ "ntsync" ];
+
+          environment.systemPackages = with pkgs; [
+            lsfg-vk
+            lsfg-vk-ui
+          ];
+
+          hardware.graphics.extraPackages = [ pkgs.lsfg-vk ];
+
           programs = {
             gamemode.enable = true;
             gamescope.enable = true;
 
             steam = {
               enable = true;
-              extraCompatPackages = [ pkgs.proton-ge-bin ];
+              extraPackages = [ pkgs.lsfg-vk ];
+              extraCompatPackages = with pkgs; [
+                dwproton-bin
+                proton-ge-bin
+              ];
             };
           };
         };
