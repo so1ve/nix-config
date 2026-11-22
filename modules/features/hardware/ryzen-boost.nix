@@ -33,7 +33,7 @@
             else
               apply_stock
             fi
-            sleep 10
+            sleep 2
           done
         '';
 
@@ -42,7 +42,7 @@
           case "''${1:-status}" in
             on|start)
               systemctl start ryzen-boost.service
-              echo "ryzen-boost: active (42W/48W @ 85C on AC, auto-refreshed every 10s)"
+              echo "ryzen-boost: active (42W/48W @ 85C on AC, auto-refreshed every 2s)"
               ;;
             off|stop)
               systemctl stop ryzen-boost.service
