@@ -5,12 +5,46 @@
   ...
 }:
 
+let
+  collectInputs =
+    seen: input:
+    if !(builtins.isAttrs input) || !(input ? outPath) then
+      seen
+    else
+      let
+        key = builtins.unsafeDiscardStringContext input.outPath;
+      in
+      if seen ? ${key} then
+        seen
+      else
+        builtins.foldl' collectInputs (seen // { ${key} = input.outPath; }) (
+          if input ? inputs && builtins.isAttrs input.inputs then
+            builtins.attrValues input.inputs
+          else
+            [ ]
+        );
+
+  flakeInputs = builtins.attrValues (
+    builtins.foldl' collectInputs { } (
+      builtins.attrValues (
+        builtins.removeAttrs inputs [
+          "self"
+          "nix-config"
+        ]
+      )
+    )
+  );
+in
 {
   ray.features."system/nix" = {
-    options.settings = lib.mkOption {
-      type = lib.types.attrs;
-      default = { };
-      description = "Native nix.settings values overriding the feature defaults.";
+    options = {
+      keepFlakeInputs = lib.mkEnableOption "keeping external flake inputs as GC roots";
+
+      settings = lib.mkOption {
+        type = lib.types.attrs;
+        default = { };
+        description = "Native nix.settings values overriding the feature defaults.";
+      };
     };
 
     nixos =
@@ -44,6 +78,8 @@
           dates = "weekly";
           options = "--delete-older-than 7d";
         };
+
+        system.extraDependencies = lib.optionals settings.keepFlakeInputs flakeInputs;
 
         nixpkgs.config.allowUnfree = true;
       };
