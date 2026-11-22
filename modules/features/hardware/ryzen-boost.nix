@@ -19,7 +19,10 @@
           }
 
           apply_stock() {
-            "$ryzenadj" --stapm-limit=29000 --fast-limit=35000 --slow-limit=29000 --tctl-temp=80 >/dev/null 2>&1 || true
+            "$ryzenadj" \
+              --stapm-limit=29000 --fast-limit=35000 --slow-limit=29000 \
+              --apu-slow-limit=29000 --skin-temp-limit=29000 --apu-skin-temp=45 \
+              --tctl-temp=80 >/dev/null 2>&1 || true
           }
 
           if [ "''${1:-}" = "reset" ]; then
@@ -29,7 +32,10 @@
 
           while true; do
             if ac_online; then
-              "$ryzenadj" --stapm-limit=42000 --fast-limit=48000 --slow-limit=42000 --tctl-temp=85 >/dev/null 2>&1 || true
+              "$ryzenadj" \
+                --stapm-limit=42000 --fast-limit=48000 --slow-limit=42000 \
+                --apu-slow-limit=42000 --skin-temp-limit=42000 --apu-skin-temp=55 \
+                --tctl-temp=85 >/dev/null 2>&1 || true
             else
               apply_stock
             fi

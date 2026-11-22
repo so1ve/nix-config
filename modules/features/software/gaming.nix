@@ -4,10 +4,18 @@
       nixos =
         _:
         { pkgs, ... }:
+        let
+          endfieldWrap = pkgs.writeShellApplication {
+            name = "endfield-wrap";
+            runtimeInputs = [ pkgs.procps ];
+            text = builtins.readFile ./gaming/endfield-wrap.sh;
+          };
+        in
         {
           boot.kernelModules = [ "ntsync" ];
 
           environment.systemPackages = with pkgs; [
+            endfieldWrap
             lsfg-vk
             lsfg-vk-ui
           ];

@@ -2,9 +2,9 @@
   ray.features."system/performance" = {
     nixos = _: {
       boot.kernel.sysctl = {
-        "vm.swappiness" = 100;
+        "vm.swappiness" = 60;
         "vm.page-cluster" = 0;
-        "vm.vfs_cache_pressure" = 50;
+        "vm.vfs_cache_pressure" = 100;
       };
 
       services.scx-loader = {
@@ -23,7 +23,7 @@
       zramSwap = {
         enable = true;
         algorithm = "zstd";
-        memoryPercent = 50;
+        memoryPercent = 100;
         priority = 100;
       };
     };
