@@ -2566,7 +2566,7 @@ end, { desc = "Line diagnostics" })
 
 -- Git
 map("n", "<leader>gr", function()
-  refresh_ignored()
+  require("tiny-gitignore").refresh()
   vim.notify("Refreshed ignored files", vim.log.levels.INFO, { title = "Git Ignore" })
 end, { desc = "Refresh ignored files" })
 
