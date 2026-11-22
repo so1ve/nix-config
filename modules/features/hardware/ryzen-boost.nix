@@ -102,6 +102,7 @@
 
         systemd.services.ryzen-boost = {
           description = "Ryzen APU sustained power boost on AC (keepalive against EC reset)";
+          wantedBy = [ "multi-user.target" ];
           path = [ pkgs.coreutils ];
           serviceConfig = {
             Type = "simple";
@@ -112,10 +113,8 @@
           };
         };
 
-        programs.gamemode.settings.custom = {
-          start = "${pkgs.systemd}/bin/systemctl --no-block start ryzen-boost.service";
-          end = "${pkgs.systemd}/bin/systemctl --no-block stop ryzen-boost.service";
-        };
+        programs.gamemode.settings.custom.start =
+          "${pkgs.systemd}/bin/systemctl --no-block start ryzen-boost.service";
       };
   };
 }
