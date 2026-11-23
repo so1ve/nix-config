@@ -16,18 +16,16 @@ apply_stock() {
 }
 
 if [ "${1:-}" = "reset" ]; then
-  apply_stock
+  if ac_online; then
+    apply_stock
+  fi
   exit 0
 fi
 
-while true; do
-  if ac_online; then
-    ryzenadj \
-      --stapm-limit=42000 --fast-limit=48000 --slow-limit=42000 \
-      --apu-slow-limit=42000 --skin-temp-limit=42000 --apu-skin-temp=55 \
-      --tctl-temp=85 >/dev/null 2>&1 || true
-  else
-    apply_stock
-  fi
+while ac_online; do
+  ryzenadj \
+    --stapm-limit=42000 --fast-limit=48000 --slow-limit=42000 \
+    --apu-slow-limit=42000 --skin-temp-limit=42000 --apu-skin-temp=55 \
+    --tctl-temp=85 >/dev/null 2>&1 || true
   sleep 2
 done

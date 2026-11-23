@@ -1,11 +1,29 @@
+ac_online() {
+  for ps in /sys/class/power_supply/*; do
+    if [ -r "$ps/type" ] && [ "$(cat "$ps/type" 2>/dev/null)" = "Mains" ] \
+      && [ -r "$ps/online" ] && [ "$(cat "$ps/online" 2>/dev/null)" = "1" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 case "${1:-status}" in
   on|start)
+    if ! ac_online; then
+      echo "ryzen-boost: inactive (on battery; requires AC power)"
+      exit 1
+    fi
     systemctl start ryzen-boost.service
     echo "ryzen-boost: active (42W/48W @ 85C on AC, auto-refreshed every 2s)"
     ;;
   off|stop)
     systemctl stop ryzen-boost.service
-    echo "ryzen-boost: inactive (restored stock 29W)"
+    if ac_online; then
+      echo "ryzen-boost: inactive (restored stock 29W)"
+    else
+      echo "ryzen-boost: inactive (on battery)"
+    fi
     ;;
   status)
     state="$(systemctl is-active ryzen-boost.service 2>/dev/null || true)"

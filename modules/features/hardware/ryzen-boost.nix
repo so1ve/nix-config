@@ -82,6 +82,7 @@
         systemd.services.ryzen-boost = {
           description = "Ryzen APU sustained power boost on AC (keepalive against EC reset)";
           wantedBy = [ "multi-user.target" ];
+          unitConfig.ConditionACPower = true;
           serviceConfig = {
             Type = "simple";
             ExecStart = "${ryzenBoostApply}/bin/ryzen-boost-apply";
@@ -90,6 +91,11 @@
             RestartSec = "5s";
           };
         };
+
+        services.udev.extraRules = ''
+          ACTION=="change", SUBSYSTEM=="power_supply", ENV{POWER_SUPPLY_TYPE}=="Mains", ENV{POWER_SUPPLY_ONLINE}=="1", RUN+="${pkgs.systemd}/bin/systemctl --no-block start ryzen-boost.service"
+          ACTION=="change", SUBSYSTEM=="power_supply", ENV{POWER_SUPPLY_TYPE}=="Mains", ENV{POWER_SUPPLY_ONLINE}=="0", RUN+="${pkgs.systemd}/bin/systemctl --no-block stop ryzen-boost.service"
+        '';
 
         programs.gamemode.settings.custom.start =
           "${pkgs.systemd}/bin/systemctl --no-block start ryzen-boost.service";
