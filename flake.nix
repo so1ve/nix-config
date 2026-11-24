@@ -21,7 +21,7 @@
     extra-substituters = [
       "https://cache.so1ve.dev"
       "https://cache.lantian.pub/lantian"
-      "https://cache.numtide.com"
+      "https://cache.numtide.com?priority=50"
       "https://codex-desktop-linux.cachix.org"
       "https://nix-community.cachix.org"
       "https://noctalia.cachix.org"
