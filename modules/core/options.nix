@@ -74,6 +74,12 @@ let
           description = "Copy store paths directly from the deploying host instead of substituting on the target.";
         };
 
+        remoteBuild = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Build the system closure on the target host instead of locally.";
+        };
+
         system = mkOption {
           type = types.enum [ "x86_64-linux" ];
           default = "x86_64-linux";
