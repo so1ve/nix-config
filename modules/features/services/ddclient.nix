@@ -12,6 +12,12 @@
         description = "Options passed to the native NixOS ddclient module.";
       };
 
+      ipv6Interface = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Interface from which to pick the newest non-temporary global IPv6 address (by preferred lifetime) via cmdv6.";
+      };
+
       environmentSecrets = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
@@ -24,12 +30,42 @@
       {
         config,
         featureEnabled,
+        pkgs,
         ...
       }:
-      {
-        services.ddclient = settings.settings // {
-          enable = true;
+      let
+        detectIpv6 = pkgs.writeShellApplication {
+          name = "ddclient-detect-ipv6";
+          runtimeInputs = [
+            pkgs.iproute2
+            pkgs.jq
+          ];
+          text = ''
+            ip -6 -j addr show dev ${lib.escapeShellArg settings.ipv6Interface} scope global \
+              | jq -r '
+                  [ .[].addr_info[]
+                    | select(
+                        .family == "inet6"
+                        and (.deprecated // false | not)
+                        and (.temporary // false | not)
+                        and (.local | test("^(fc|fd|fe[89ab])"; "i") | not)
+                      )
+                  ]
+                  | sort_by(-(.preferred_life_time // 0), (.local | length))
+                  | .[0].local // empty
+                '
+          '';
         };
+      in
+      {
+        services.ddclient =
+          settings.settings
+          // lib.optionalAttrs (settings.ipv6Interface != null) {
+            usev6 = "cmdv6, cmdv6=${lib.getExe detectIpv6}";
+          }
+          // {
+            enable = true;
+          };
 
         systemd.services.ddclient = {
           serviceConfig.EnvironmentFile = map (

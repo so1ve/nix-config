@@ -1,9 +1,21 @@
 cpu=$(awk -F: '/^model name/{gsub(/^[ \t]+/, "", $2); print $2; exit}' /proc/cpuinfo 2>/dev/null || true)
 ipv4=$(ip -4 -o addr show scope global 2>/dev/null \
   | awk '$2 !~ /^(lo|tailscale|docker|podman|br-|veth|cni|virbr|wg|tun|tap)/ {sub(/\/.*/, "", $4); print $4; exit}' || true)
-ipv6=$(ip -6 -o addr show scope global -deprecated -temporary 2>/dev/null \
-  | awk '$2 !~ /^(lo|tailscale|docker|podman|br-|veth|cni|virbr|wg|tun|tap)/ && $4 !~ /^(fd|fc)/ {sub(/\/.*/, "", $4); print length($4), $4}' \
-  | sort -n | awk 'NR==1 {print $2}' || true)
+ipv6=$(ip -6 -j addr show scope global 2>/dev/null \
+  | jq -r '
+      [ .[]
+        | select(.ifname | test("^(lo|tailscale|docker|podman|br-|veth|cni|virbr|wg|tun|tap)") | not)
+        | .addr_info[]
+        | select(
+            .family == "inet6"
+            and (.deprecated // false | not)
+            and (.temporary // false | not)
+            and (.local | test("^(fc|fd|fe[89ab])"; "i") | not)
+          )
+      ]
+      | sort_by(-(.preferred_life_time // 0), (.local | length))
+      | .[0].local // empty
+    ' 2>/dev/null || true)
 nixos_ver=$(cat /run/current-system/nixos-version 2>/dev/null || true)
 gen_link=$(readlink /nix/var/nix/profiles/system 2>/dev/null || true)
 gen_num=$(printf '%s' "$gen_link" | sed -n 's/^system-\([0-9]*\)-link$/\1/p')
