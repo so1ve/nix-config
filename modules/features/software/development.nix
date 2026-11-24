@@ -61,21 +61,35 @@
           ct = "cargo pretty test";
         };
 
-        programs.fish.interactiveShellInit = lib.mkIf config.home.shell.enableFishIntegration ''
-          ${lib.getExe' pkgs.ni "nr"} --completion-fish | source
-        '';
-
         programs.direnv-instant = {
           enable = true;
           settings.mux_delay = 30;
         };
 
-        xdg.configFile."direnv/direnv.toml".text = ''
-          [global]
-          hide_env_diff = true
-        '';
+        xdg.configFile = {
+          "direnv/direnv.toml".text = ''
+            [global]
+            hide_env_diff = true
+          '';
 
-        xdg.configFile."devenv/ray".source = mkDotfilesSource "devenv";
+          "devenv/ray".source = mkDotfilesSource "devenv";
+
+          "fish/completions/nr.fish" = {
+            enable = config.home.shell.enableFishIntegration;
+            text = ''
+              function _nr_completion
+                set -l tokens (commandline -xpc)
+                if test (count $tokens) -ge 1
+                  set tokens $tokens[2..-1]
+                end
+                ${lib.getExe' pkgs.ni "nr"} --completion --programmatic $tokens 2>/dev/null
+              end
+
+              complete -c nr -f
+              complete -c nr -n 'test -f package.json' -a '(_nr_completion)' -d 'package.json scripts'
+            '';
+          };
+        };
       };
   };
 }
