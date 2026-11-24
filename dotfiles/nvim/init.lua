@@ -987,12 +987,14 @@ local function uses_direct_typescript_7(project_root)
   return tonumber(package.version:match("^(%d+)")) >= 7
 end
 
+local default_typescript_root_dir
+
 local function typescript_root_dir(server_name, direct)
-  local find_typescript_root = vim.lsp.config.vtsls.root_dir
+  default_typescript_root_dir = default_typescript_root_dir or vim.lsp.config.vtsls.root_dir
   local server_root_dir = vim.lsp.config[server_name].root_dir
 
   return function(bufnr, on_dir)
-    find_typescript_root(bufnr, function(project_root)
+    default_typescript_root_dir(bufnr, function(project_root)
       if uses_direct_typescript_7(project_root) ~= direct then
         return
       end
