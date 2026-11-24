@@ -916,6 +916,10 @@ local function expand_rust_macro(client, bufnr)
   )
 end
 
+local inlay_hint_filetypes = {
+  "rust",
+}
+
 local function configure_lsp_buffer(event)
   local bufnr = event.buf
   local client = vim.lsp.get_client_by_id(event.data.client_id)
@@ -947,7 +951,9 @@ local function configure_lsp_buffer(event)
   end
 
   if client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, bufnr) then
-    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    if vim.tbl_contains(inlay_hint_filetypes, vim.bo[bufnr].filetype) then
+      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    end
     buf_map("<leader>ci", function()
       local is_enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr })
       vim.lsp.inlay_hint.enable(not is_enabled, { bufnr = bufnr })
