@@ -26,6 +26,7 @@
       { settings, ... }:
       {
         config,
+        featureEnabled,
         ...
       }:
       {
@@ -106,6 +107,16 @@
             PrivateTmp = true;
           };
         };
+      }
+      // lib.optionalAttrs (featureEnabled "services/uptarn-agent") {
+        ray.uptarn.unitChecks = [
+          {
+            key = "sing-box";
+            label = "sing-box";
+            group = "services";
+            unit = "sing-box.service";
+          }
+        ];
       };
   };
 }

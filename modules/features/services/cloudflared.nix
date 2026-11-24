@@ -12,7 +12,12 @@
 
     nixos =
       { settings, ... }:
-      { config, pkgs, ... }:
+      {
+        config,
+        featureEnabled,
+        pkgs,
+        ...
+      }:
       {
         systemd.services.cloudflared = {
           description = "Cloudflare Tunnel";
@@ -32,6 +37,14 @@
             ProtectHome = true;
             PrivateTmp = true;
           };
+        };
+      }
+      // lib.optionalAttrs (featureEnabled "services/uptarn-agent") {
+        ray.uptarn.unitChecks = lib.optional settings.autoStart {
+          key = "cloudflared";
+          label = "Cloudflared";
+          group = "network";
+          unit = "cloudflared.service";
         };
       };
   };

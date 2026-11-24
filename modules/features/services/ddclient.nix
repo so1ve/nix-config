@@ -19,17 +19,35 @@
       };
     };
 
-    nixos = { settings, ... }: { config, ... }: {
-      services.ddclient = settings.settings // {
-        enable = true;
-      };
+    nixos =
+      { settings, ... }:
+      {
+        config,
+        featureEnabled,
+        ...
+      }:
+      {
+        services.ddclient = settings.settings // {
+          enable = true;
+        };
 
-      systemd.services.ddclient = {
-        serviceConfig.EnvironmentFile = map (
-          name: config.age.secrets.${name}.path
-        ) settings.environmentSecrets;
-        restartTriggers = map (name: config.age.secrets.${name}.file) settings.environmentSecrets;
+        systemd.services.ddclient = {
+          serviceConfig.EnvironmentFile = map (
+            name: config.age.secrets.${name}.path
+          ) settings.environmentSecrets;
+          restartTriggers = map (name: config.age.secrets.${name}.file) settings.environmentSecrets;
+        };
+      }
+      // lib.optionalAttrs (featureEnabled "services/uptarn-agent") {
+        ray.uptarn.unitChecks = [
+          {
+            key = "ddclient";
+            label = "DDNS";
+            group = "network";
+            unit = "ddclient.service";
+            timer = "ddclient.timer";
+          }
+        ];
       };
-    };
   };
 }
