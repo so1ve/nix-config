@@ -1693,11 +1693,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795525909,
-        "narHash": "sha256-HG6pQcTX3mFaxBdVVTMuVd5bIKLkczPSYnhF8qG9T4w=",
+        "lastModified": 1795530397,
+        "narHash": "sha256-87Tfe9oz7F9/f2pi0mnG3Ibc7NePtjWGod5YuEx2GCM=",
         "owner": "so1ve",
         "repo": "uptarn",
-        "rev": "48759f8154d078822431b5b33f921219e61f1118",
+        "rev": "88d9e7b0b257e14321f7a4550e2b5773a2ab65d2",
         "type": "github"
       },
       "original": {
