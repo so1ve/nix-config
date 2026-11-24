@@ -9,7 +9,8 @@ gen_link=$(readlink /nix/var/nix/profiles/system 2>/dev/null || true)
 gen_num=$(printf '%s' "$gen_link" | sed -n 's/^system-\([0-9]*\)-link$/\1/p')
 gen_str=""
 if [ -n "$gen_num" ]; then
-  gen_date=$(date -r "/nix/var/nix/profiles/$gen_link" +%Y-%m-%d 2>/dev/null || true)
+  gen_ts=$(stat -c %Y "/nix/var/nix/profiles/$gen_link" 2>/dev/null || true)
+  gen_date=$([ -n "$gen_ts" ] && date -d "@$gen_ts" +%Y-%m-%d 2>/dev/null || true)
   if [ -n "$gen_date" ]; then
     gen_str="#$gen_num ($gen_date)"
   else
