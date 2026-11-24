@@ -3,12 +3,14 @@
     home =
       _:
       {
+        inputs,
         mkDotfilesSource,
         pkgs,
         ...
       }:
       {
         home.packages = with pkgs; [
+          inputs.uptarn.packages.${pkgs.stdenv.hostPlatform.system}.uptarn
           btop
           fastfetch
           fd
