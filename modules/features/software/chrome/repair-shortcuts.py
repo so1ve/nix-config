@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Repair managed PWA shortcuts left behind by temporary Playwright profiles."""
+"""Repair managed PWA shortcuts left behind by temporary Chrome profiles."""
 
 import json
 import os
@@ -20,6 +20,20 @@ app_names = {app["custom_name"] for app in apps}
 temporary_roots = {Path("/tmp")}
 if os.environ.get("TMPDIR"):
     temporary_roots.add(Path(os.environ["TMPDIR"]))
+headless_roots = {Path.home() / ".config" / "google-chrome-headless"}
+for env_var in ("CHROME_CONFIG_HOME", "XDG_CONFIG_HOME"):
+    if value := os.environ.get(env_var):
+        headless_roots.add(Path(value) / "google-chrome-headless")
+
+
+def is_temporary_profile(profile: Path) -> bool:
+    return (
+        profile.parent in temporary_roots
+        and profile.name.startswith("playwright_chromiumdev_profile-")
+    ) or (
+        profile.parent in headless_roots
+        and profile.name.startswith("scoped_dir")
+    )
 
 # Keep token offsets so removing an argument preserves all other file contents.
 token_pattern = re.compile(r'''(?:[^\s'"\\]|\\.|"(?:[^"\\]|\\.)*"|'[^']*')+''')
@@ -61,9 +75,7 @@ for path in sorted(applications.glob("chrome-*-Default.desktop")):
         else:
             continue
         profile = Path(directory)
-        if profile.parent not in temporary_roots or not profile.name.startswith(
-            "playwright_chromiumdev_profile-"
-        ):
+        if not is_temporary_profile(profile):
             continue
         start = matches[index].start()
         while start > 0 and command[1][start - 1] in " \t":
@@ -84,7 +96,7 @@ for path in sorted(applications.glob("chrome-*-Default.desktop")):
 
 if changes:
     backup_root.mkdir(parents=True, exist_ok=True)
-    backup = Path(tempfile.mkdtemp(prefix="playwright-shortcuts-", dir=backup_root))
+    backup = Path(tempfile.mkdtemp(prefix="chrome-shortcuts-", dir=backup_root))
     for path, _ in changes:
         shutil.copy2(path, backup / path.name)
     for path, updated in changes:

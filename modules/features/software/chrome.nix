@@ -109,7 +109,7 @@
         };
       in
       {
-        # Migrate shortcuts previously overwritten by temporary Playwright profiles.
+        # Migrate shortcuts previously overwritten by temporary Chrome profiles.
         home.activation.repairChromeWebAppShortcuts = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
           run ${lib.getExe pkgs.python3} ${./chrome/repair-shortcuts.py} \
             ${webApps} \
