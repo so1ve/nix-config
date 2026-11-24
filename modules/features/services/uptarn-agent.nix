@@ -46,6 +46,12 @@
         description = "Summarize quadlet Podman container unit states; defaults to virtualisation.podman.enable.";
       };
 
+      hostInfo = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Report host IPv4/IPv6, CPU model, NixOS version, and generation in System info.";
+      };
+
       settings = lib.mkOption {
         type = lib.types.attrs;
         default = { };
@@ -97,10 +103,27 @@
           key = "tailscale";
           label = "Tailscale";
           group = "network";
+          format = "json";
           command = [
             "sh"
             "-c"
-            "systemctl is-active --quiet tailscaled.service || { echo 'tailscaled inactive'; exit 1; }; line=$(tailscale status --peers=false 2>&1) || { echo \"$line\"; exit 1; }; ip=$(echo \"$line\" | awk 'NR==1 {print $1}'); [ -n \"$ip\" ] && echo \"$ip\" || { echo 'not connected'; exit 1; }"
+            ''
+              if ! systemctl is-active --quiet tailscaled.service; then
+                printf '{"checks":[{"key":"tailscale","label":"Tailscale","group":"network","status":"fail","summary":"stopped"}]}\n'
+                exit 0
+              fi
+              line=$(tailscale status --peers=false 2>&1) || {
+                msg=$(printf '%s' "$line" | head -n 1 | tr '"\n\r' "'  ")
+                printf '{"checks":[{"key":"tailscale","label":"Tailscale","group":"network","status":"fail","summary":"%s"}]}\n' "$msg"
+                exit 0
+              }
+              ip=$(printf '%s\n' "$line" | awk 'NR==1 {print $1}')
+              if [ -n "$ip" ]; then
+                printf '{"checks":[{"key":"tailscale","label":"Tailscale","group":"network","status":"ok","summary":"active"}],"info":[{"key":"tailscale_ip","label":"Tailscale IP","group":"network","value":"%s"}]}\n' "$ip"
+              else
+                printf '{"checks":[{"key":"tailscale","label":"Tailscale","group":"network","status":"fail","summary":"disconnected"}]}\n'
+              fi
+            ''
           ];
         };
 
@@ -151,8 +174,60 @@
           ];
         };
 
+        hostInfoExec = lib.optional settings.hostInfo {
+          key = "host_info";
+          label = "Host Info";
+          format = "json";
+          command = [
+            "sh"
+            "-c"
+            ''
+              cpu=$(awk -F: '/^model name/{gsub(/^[ \t]+/, "", $2); print $2; exit}' /proc/cpuinfo 2>/dev/null)
+              ipv4=$(ip -4 -o addr show scope global 2>/dev/null \
+                | awk '$2 !~ /^(lo|tailscale|docker|podman|br-|veth|cni|virbr|wg|tun|tap)/ {sub(/\/.*/, "", $4); print $4; exit}')
+              ipv6=$(ip -6 -o addr show scope global -deprecated -temporary 2>/dev/null \
+                | awk '$2 !~ /^(lo|tailscale|docker|podman|br-|veth|cni|virbr|wg|tun|tap)/ && $4 !~ /^(fd|fc)/ {sub(/\/.*/, "", $4); print length($4), $4}' \
+                | sort -n | awk 'NR==1 {print $2}')
+              nixos_ver=$(cat /run/current-system/nixos-version 2>/dev/null || true)
+              gen_link=$(readlink /nix/var/nix/profiles/system 2>/dev/null || true)
+              gen_num=$(printf '%s' "$gen_link" | sed -n 's/^system-\([0-9]*\)-link$/\1/p')
+              gen_str=""
+              if [ -n "$gen_num" ]; then
+                gen_date=$(date -r "/nix/var/nix/profiles/$gen_link" +%Y-%m-%d 2>/dev/null || true)
+                if [ -n "$gen_date" ]; then
+                  gen_str="#$gen_num ($gen_date)"
+                else
+                  gen_str="#$gen_num"
+                fi
+              fi
+
+              jq -n \
+                --arg cpu "$cpu" \
+                --arg ipv4 "$ipv4" \
+                --arg ipv6 "$ipv6" \
+                --arg nixos_ver "$nixos_ver" \
+                --arg gen_str "$gen_str" \
+                '{
+                  info: [
+                    (if $cpu != "" then { key: "cpu_model", label: "CPU Model", group: "system", value: $cpu } else empty end),
+                    (if $ipv4 != "" then { key: "ipv4", label: "IPv4", group: "network", value: $ipv4 } else empty end),
+                    (if $ipv6 != "" then { key: "ipv6", label: "IPv6", group: "network", value: $ipv6 } else empty end),
+                    (if $nixos_ver != "" then { key: "nixos_version", label: "NixOS", group: "system", value: $nixos_ver } else empty end),
+                    (if $gen_str != "" then { key: "generation", label: "Generation", group: "system", value: $gen_str } else empty end)
+                  ]
+                }'
+            ''
+          ];
+        };
+
         mergedSettings = settings.settings // {
-          exec = systemdExec ++ rebootExec ++ tailscaleExec ++ podmanExec ++ (settings.settings.exec or [ ]);
+          exec =
+            systemdExec
+            ++ rebootExec
+            ++ tailscaleExec
+            ++ podmanExec
+            ++ hostInfoExec
+            ++ (settings.settings.exec or [ ]);
         };
       in
       {
@@ -167,7 +242,12 @@
             pkgs.bash
             pkgs.coreutils
             pkgs.gawk
+            pkgs.gnused
             pkgs.systemd
+          ]
+          ++ lib.optionals settings.hostInfo [
+            pkgs.iproute2
+            pkgs.jq
           ]
           ++ lib.optional enableTailscaleCheck pkgs.tailscale
           ++ settings.extraPackages;
