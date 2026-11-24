@@ -68,6 +68,12 @@ let
           description = "Identify this host as a server";
         };
 
+        fastConnection = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Copy store paths directly from the deploying host instead of substituting on the target.";
+        };
+
         system = mkOption {
           type = types.enum [ "x86_64-linux" ];
           default = "x86_64-linux";

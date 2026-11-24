@@ -1,7 +1,7 @@
 { inputs }:
 
 host: nixos: {
-  inherit (host) hostname;
+  inherit (host) hostname fastConnection;
   sshUser = host.username;
   interactiveSudo = nixos.config.security.sudo-rs.wheelNeedsPassword;
 
