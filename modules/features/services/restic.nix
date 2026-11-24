@@ -139,7 +139,49 @@
 
         systemd.services.${unit} = {
           unitConfig.RequiresMountsFor = [ mountPoint ];
-          serviceConfig.RuntimeDirectoryMode = "0700";
+          serviceConfig = {
+            RuntimeDirectoryMode = "0700";
+          }
+          // lib.optionalAttrs (config.services ? uptarn-agent && config.services.uptarn-agent.enable) {
+            ExecStopPost =
+              let
+                agentCfg = config.services.uptarn-agent;
+                reportJob = pkgs.writeShellScript "${unit}-uptarn-report" ''
+                  set -u
+                  status="ok"
+                  summary="backup succeeded"
+                  detail=""
+                  if [[ "''${SERVICE_RESULT:-}" != "success" ]]; then
+                    status="fail"
+                    summary="backup failed (''${SERVICE_RESULT:-unknown}, exit ''${EXIT_STATUS:-?})"
+                    detail="$(${lib.getExe' pkgs.systemd "journalctl"} -u ${lib.escapeShellArg "${unit}.service"} -n 25 --no-pager --output=cat 2>/dev/null | ${lib.getExe' pkgs.coreutils "tail"} -c 1800 || true)"
+                  fi
+                  token="$(${lib.getExe' pkgs.coreutils "tr"} -d '\r\n' < ${lib.escapeShellArg agentCfg.tokenFile})"
+                  payload="$(${lib.getExe pkgs.jq} -nc \
+                    --arg job_key ${lib.escapeShellArg "${host}-restic"} \
+                    --arg node_id ${lib.escapeShellArg (if agentCfg.nodeId != null then agentCfg.nodeId else host)} \
+                    --arg label ${lib.escapeShellArg "${host} Restic"} \
+                    --arg status "$status" \
+                    --arg summary "$summary" \
+                    --arg detail "$detail" \
+                    '{
+                      job_key: $job_key,
+                      node_id: $node_id,
+                      label: $label,
+                      interval_secs: 86400,
+                      grace_secs: 7200,
+                      status: $status,
+                      summary: $summary
+                    } + (if $detail != "" then { detail: $detail } else {} end)')"
+                  ${lib.getExe pkgs.curl} -fsS --max-time 15 \
+                    -X POST "${agentCfg.hubUrl}/api/v1/ingest/job" \
+                    -H "Authorization: Bearer $token" \
+                    -H "Content-Type: application/json" \
+                    -d "$payload" >/dev/null || echo "uptarn job report failed" >&2
+                '';
+              in
+              [ "+${reportJob}" ];
+          };
         };
       };
   };

@@ -1373,6 +1373,7 @@
         "so1ve": "so1ve",
         "terranix": "terranix",
         "ugoku": "ugoku",
+        "uptarn": "uptarn",
         "waydroid-script": "waydroid-script",
         "we-layerd": "we-layerd",
         "wowtype": "wowtype",
@@ -1683,6 +1684,26 @@
       "original": {
         "type": "git",
         "url": "ssh://git@github.com/so1ve/ugoku"
+      }
+    },
+    "uptarn": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795524387,
+        "narHash": "sha256-/oIYPalgLYKo1sM4NLOslU8Ife51nER5cNIpIJVgm5M=",
+        "owner": "so1ve",
+        "repo": "uptarn",
+        "rev": "deab837cffb070ebbd1a1078f7e448c3fa044a66",
+        "type": "github"
+      },
+      "original": {
+        "owner": "so1ve",
+        "repo": "uptarn",
+        "type": "github"
       }
     },
     "utils": {
