@@ -19,6 +19,12 @@ let
         description = "Registered Uptarn node identifier.";
       };
 
+      group = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Optional display group name for the node.";
+      };
+
       isPublic = mkOption {
         type = types.nullOr types.bool;
         default = null;
@@ -41,13 +47,21 @@ let
       };
 
       name = mkOption {
-        type = types.str;
-        description = "Display name of the monitor.";
+        type = types.nullOr types.str;
+        default = null;
+        description = "Display name of the monitor (required for hub-managed HTTP monitors; omit for agent-managed overrides).";
+      };
+
+      group = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Optional display group name for the monitor.";
       };
 
       url = mkOption {
-        type = types.str;
-        description = "HTTP(S) endpoint URL to probe.";
+        type = types.nullOr types.str;
+        default = null;
+        description = "HTTP(S) endpoint URL to probe (omit to override group/visibility on an agent-managed monitor).";
       };
 
       publicUrl = mkOption {
@@ -103,9 +117,9 @@ let
       };
 
       isPublic = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Whether the monitor appears on the public status page.";
+        type = types.nullOr types.bool;
+        default = null;
+        description = "Whether the monitor appears on the public status page (defaults to true for hub monitors; null leaves agent-managed visibility unchanged).";
       };
     };
   };
@@ -113,7 +127,7 @@ let
   renderNode =
     node:
     {
-      inherit (node) id;
+      inherit (node) id group;
       primary_mount = node.primaryMount;
     }
     // lib.optionalAttrs (node.isPublic != null) {
@@ -122,28 +136,43 @@ let
 
   renderMonitor =
     mon:
-    {
-      inherit (mon)
-        id
-        name
-        url
-        method
-        enabled
-        ;
-      expected_status_min = mon.expectedStatusMin;
-      timeout_ms = mon.timeoutMs;
-      interval_secs = mon.intervalSecs;
-      is_public = mon.isPublic;
-    }
-    // lib.optionalAttrs (mon.publicUrl != null) {
-      public_url = mon.publicUrl;
-    }
-    // lib.optionalAttrs (mon.expectedStatusMax != null) {
-      expected_status_max = mon.expectedStatusMax;
-    }
-    // lib.optionalAttrs (mon.expectedBody != null) {
-      expected_body = mon.expectedBody;
-    };
+    if mon.url == null then
+      {
+        inherit (mon) id group;
+      }
+      // lib.optionalAttrs (mon.isPublic != null) {
+        is_public = mon.isPublic;
+      }
+      // lib.optionalAttrs (mon.publicUrl != null) {
+        public_url = mon.publicUrl;
+      }
+    else
+      assert lib.assertMsg (
+        mon.name != null
+      ) "ray.uptarn.monitors.${mon.id}: name is required when url is set";
+      {
+        inherit (mon)
+          id
+          name
+          group
+          url
+          method
+          enabled
+          ;
+        expected_status_min = mon.expectedStatusMin;
+        timeout_ms = mon.timeoutMs;
+        interval_secs = mon.intervalSecs;
+        is_public = if mon.isPublic == null then true else mon.isPublic;
+      }
+      // lib.optionalAttrs (mon.publicUrl != null) {
+        public_url = mon.publicUrl;
+      }
+      // lib.optionalAttrs (mon.expectedStatusMax != null) {
+        expected_status_max = mon.expectedStatusMax;
+      }
+      // lib.optionalAttrs (mon.expectedBody != null) {
+        expected_body = mon.expectedBody;
+      };
 
   syncSpec =
     lib.optionalAttrs (cfg.hubUrl != null) {
