@@ -203,6 +203,7 @@ in
             ++ tailscaleExec
             ++ podmanExec
             ++ unitExecs
+            ++ config.ray.uptarn.execChecks
             ++ hostInfoExec
             ++ (settings.settings.exec or [ ]);
         };
@@ -210,10 +211,18 @@ in
       {
         imports = [ inputs.uptarn.nixosModules.agent ];
 
-        options.ray.uptarn.unitChecks = lib.mkOption {
-          type = lib.types.listOf unitCheckType;
-          default = [ ];
-          description = "Systemd unit checks registered by other NixOS features.";
+        options.ray.uptarn = {
+          unitChecks = lib.mkOption {
+            type = lib.types.listOf unitCheckType;
+            default = [ ];
+            description = "Systemd unit checks registered by other NixOS features.";
+          };
+
+          execChecks = lib.mkOption {
+            type = lib.types.listOf lib.types.attrs;
+            default = [ ];
+            description = "Custom [[exec]] checks registered by other NixOS features.";
+          };
         };
 
         config = {
