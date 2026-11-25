@@ -19,6 +19,7 @@
       { settings, ... }:
       {
         config,
+        featureEnabled,
         pkgs,
         ...
       }:
@@ -28,6 +29,49 @@
           containers.tuwunel.ref
           containers.mautrix-postgres.ref
         ];
+        mautrixCheck = lib.getExe (
+          pkgs.writeShellApplication {
+            name = "uptarn-check-mautrix";
+            runtimeInputs = [
+              pkgs.bind.host
+              pkgs.curl
+              pkgs.gawk
+              pkgs.iproute2
+              pkgs.systemd
+            ];
+            text = ''
+              if ! systemctl is-active --quiet ${lib.escapeShellArg "${containers.mautrix.serviceName}.service"}; then
+                echo "mautrix service inactive"
+                exit 1
+              fi
+
+              if ! systemctl is-active --quiet ${lib.escapeShellArg "${containers.mautrix-postgres.serviceName}.service"}; then
+                echo "mautrix-postgres service inactive"
+                exit 1
+              fi
+
+              dns=$(ip -4 -o addr show dev br-matrix-app 2>/dev/null | awk '{sub(/\/.*/, "", $4); print $4; exit}' || true)
+              if [ -z "$dns" ]; then
+                echo "br-matrix-app down"
+                exit 1
+              fi
+
+              mautrix_ip=$(host -W 1 -t A mautrix "$dns" 2>/dev/null | awk '/ has address /{print $4; exit}' || true)
+              if [ -z "$mautrix_ip" ]; then
+                echo "mautrix DNS unresolved"
+                exit 1
+              fi
+
+              code=$(curl -sS --max-time 2 -o /dev/null -w '%{http_code}' "http://$mautrix_ip:29317/_matrix/mau/ready" 2>/dev/null || true)
+              if [ "$code" != "200" ]; then
+                echo "mautrix not ready (HTTP ''${code:-000})"
+                exit 1
+              fi
+
+              echo "ready"
+            '';
+          }
+        );
       in
       {
         systemd.tmpfiles.rules = [
@@ -149,6 +193,17 @@
           };
           mautrix-postgres.restartTriggers = [ config.age.secrets.mautrix-postgres-env.file ];
         };
+      }
+      // lib.optionalAttrs (featureEnabled "services/uptarn-agent" && settings.autoStart) {
+        ray.uptarn.monitors = [
+          {
+            key = "mautrix";
+            name = "Mautrix Telegram";
+            type = "exec";
+            target = "mautrix + postgres";
+            command = [ mautrixCheck ];
+          }
+        ];
       };
   };
 }

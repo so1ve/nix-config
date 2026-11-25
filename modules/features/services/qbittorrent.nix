@@ -37,58 +37,86 @@ in
       macAddress = lib.mkOption { type = lib.types.str; };
     };
 
-    nixos = { name, settings }: { config, ... }: {
-      services.traefik.staticConfigOptions.entryPoints.${name}.address = ":${toString settings.webPort}";
+    nixos =
+      { name, settings }:
+      {
+        config,
+        featureEnabled,
+        ...
+      }:
+      let
+        defaultHostIps =
+          config.virtualisation.containers.containersConf.settings.network.default_host_ips or [ ];
+        probeHost = if defaultHostIps != [ ] then lib.head defaultHostIps else "127.0.0.1";
+        monitorName =
+          if lib.hasPrefix "qbittorrent-" name then
+            "qBittorrent (${lib.removePrefix "qbittorrent-" name})"
+          else
+            name;
+      in
+      {
+        services.traefik.staticConfigOptions.entryPoints.${name}.address = ":${toString settings.webPort}";
 
-      virtualisation.quadlet = {
-        volumes = {
-          ${name} = { };
-          vuetorrent = { };
-        };
-
-        containers.${name}.containerConfig = {
-          Image = images.qbittorrent;
-          Network = [
-            "${
-              config.virtualisation.quadlet.networks.${settings.lanNetwork}.ref
-            }:ip=${settings.ipv4Address},ip6=${settings.ipv6Address},mac=${settings.macAddress}"
-            config.virtualisation.quadlet.networks.media.ref
-            config.virtualisation.quadlet.networks.traefik.ref
-          ];
-          Sysctl = [
-            "net.ipv6.conf.eth0.autoconf=1"
-            "net.ipv6.conf.eth0.accept_ra=2"
-          ];
-          NetworkAlias = [ name ];
-          Volume = [
-            "${config.virtualisation.quadlet.volumes.${name}.ref}:/config"
-            "${config.virtualisation.quadlet.volumes.vuetorrent.ref}:/vuetorrent"
-            "${settings.mediaRoot}:/data"
-          ];
-          Environment = {
-            PUID = toString config.users.users.media.uid;
-            PGID = toString config.users.groups.media.gid;
-            TZ = config.time.timeZone;
-            WEBUI_PORT = "9092";
+        virtualisation.quadlet = {
+          volumes = {
+            ${name} = { };
+            vuetorrent = { };
           };
-          Label =
-            mkTraefikHttpsLabels {
-              inherit name;
-              inherit (settings) domain;
-              port = 9092;
-            }
-            // {
-              "traefik.http.routers.${name}-local.entrypoints" = name;
-              "traefik.http.routers.${name}-local.rule" = "PathPrefix(`/`)";
-              "traefik.http.routers.${name}-local.service" = name;
-              "traefik.http.services.${name}.loadbalancer.passhostheader" = "false";
-            };
-        };
 
-        containers.traefik.containerConfig.PublishPort = [
-          "${toString settings.webPort}:${toString settings.webPort}"
+          containers.${name}.containerConfig = {
+            Image = images.qbittorrent;
+            Network = [
+              "${
+                config.virtualisation.quadlet.networks.${settings.lanNetwork}.ref
+              }:ip=${settings.ipv4Address},ip6=${settings.ipv6Address},mac=${settings.macAddress}"
+              config.virtualisation.quadlet.networks.media.ref
+              config.virtualisation.quadlet.networks.traefik.ref
+            ];
+            Sysctl = [
+              "net.ipv6.conf.eth0.autoconf=1"
+              "net.ipv6.conf.eth0.accept_ra=2"
+            ];
+            NetworkAlias = [ name ];
+            Volume = [
+              "${config.virtualisation.quadlet.volumes.${name}.ref}:/config"
+              "${config.virtualisation.quadlet.volumes.vuetorrent.ref}:/vuetorrent"
+              "${settings.mediaRoot}:/data"
+            ];
+            Environment = {
+              PUID = toString config.users.users.media.uid;
+              PGID = toString config.users.groups.media.gid;
+              TZ = config.time.timeZone;
+              WEBUI_PORT = "9092";
+            };
+            Label =
+              mkTraefikHttpsLabels {
+                inherit name;
+                inherit (settings) domain;
+                port = 9092;
+              }
+              // {
+                "traefik.http.routers.${name}-local.entrypoints" = name;
+                "traefik.http.routers.${name}-local.rule" = "PathPrefix(`/`)";
+                "traefik.http.routers.${name}-local.service" = name;
+                "traefik.http.services.${name}.loadbalancer.passhostheader" = "false";
+              };
+          };
+
+          containers.traefik.containerConfig.PublishPort = [
+            "${toString settings.webPort}:${toString settings.webPort}"
+          ];
+        };
+      }
+      // lib.optionalAttrs (featureEnabled "services/uptarn-agent") {
+        ray.uptarn.monitors = [
+          {
+            key = name;
+            name = monitorName;
+            type = "http";
+            from = "agent";
+            url = "http://${probeHost}:${toString settings.webPort}/";
+          }
         ];
       };
-    };
   };
 }

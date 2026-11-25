@@ -1,3 +1,5 @@
+{ lib, ... }:
+
 {
   ray.features."services/magpie" = {
     requires.allOf = [ "security/agenix" ];
@@ -6,6 +8,7 @@
       _:
       {
         config,
+        featureEnabled,
         pkgs,
         ...
       }:
@@ -56,6 +59,17 @@
             ProtectSystem = "strict";
           };
         };
+      }
+      // lib.optionalAttrs (featureEnabled "services/uptarn-agent") {
+        ray.uptarn.monitors = [
+          {
+            key = "magpie";
+            name = "Magpie";
+            type = "http";
+            from = "agent";
+            url = "http://127.0.0.1:3425/";
+          }
+        ];
       };
   };
 }
