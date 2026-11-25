@@ -347,11 +347,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795501337,
-        "narHash": "sha256-EUOCXXnOtp1/KduC39y+yaG1QRHTBPBGn41A3lo0sxU=",
+        "lastModified": 1795575368,
+        "narHash": "sha256-4dfvk9ODl3OGDqn0PlANlU9GZ30zPfvfTtV2Ar6Ltis=",
         "owner": "so1ve",
         "repo": "firn",
-        "rev": "229ec29b28a1ef880a77f0016d5273d5dfda648e",
+        "rev": "eafa59204457f6cd8a3d75e2184c4d0f5305d2c2",
         "type": "github"
       },
       "original": {
