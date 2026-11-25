@@ -235,6 +235,7 @@ in
 
           systemd.services.uptarn-agent.restartTriggers = [
             config.age.secrets.${settings.tokenSecret}.file
+            config.environment.etc."uptarn/agent.toml".source
           ];
         };
       };
