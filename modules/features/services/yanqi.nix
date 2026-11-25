@@ -89,7 +89,7 @@
       in
       {
         networking.firewall.interfaces.br-yanqi = {
-          allowedTCPPorts = [ 53 ];
+          allowedTCPPorts = [ 53 ] ++ lib.optional (featureEnabled "services/magpie") 3425;
           allowedUDPPorts = [ 53 ];
         };
 
