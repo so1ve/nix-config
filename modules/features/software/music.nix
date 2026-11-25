@@ -18,7 +18,14 @@
       _:
       { pkgs, ... }:
       {
-        home.packages = [ pkgs.so1ve.yesplaymusic ];
+        home.packages = [
+          (pkgs.so1ve.yesplaymusic.withPlugins (
+            p: with p; [
+              netease
+              qqmusic
+            ]
+          ))
+        ];
       };
 
     "software/netease-cloud-music-gtk".home =
