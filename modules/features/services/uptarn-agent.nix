@@ -51,13 +51,13 @@ in
       extraPackages = lib.mkOption {
         type = lib.types.listOf lib.types.package;
         default = [ ];
-        description = "Extra packages added to PATH for custom [[exec]] checks.";
+        description = "Extra packages added to PATH for custom [[checks]] and exec [[monitors]].";
       };
 
       systemdCheck = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Report failed systemd units as an [[exec]] check.";
+        description = "Report failed systemd units as a check.";
       };
 
       rebootCheck = lib.mkOption {
@@ -87,7 +87,7 @@ in
       unitChecks = lib.mkOption {
         type = lib.types.listOf unitCheckType;
         default = [ ];
-        description = "Systemd service or timer checks reported as [[exec]] checks.";
+        description = "Systemd service or timer checks reported as [[checks]].";
       };
 
       settings = lib.mkOption {
@@ -196,17 +196,24 @@ in
           ++ lib.optional (c.timer != null) c.timer;
         }) (config.ray.uptarn.unitChecks ++ settings.unitChecks);
 
-        mergedSettings = settings.settings // {
-          exec =
-            systemdExec
-            ++ rebootExec
-            ++ tailscaleExec
-            ++ podmanExec
-            ++ unitExecs
-            ++ config.ray.uptarn.execChecks
-            ++ hostInfoExec
-            ++ (settings.settings.exec or [ ]);
-        };
+        allMonitors = config.ray.uptarn.monitors ++ (settings.settings.monitors or [ ]);
+
+        mergedSettings =
+          settings.settings
+          // {
+            checks =
+              systemdExec
+              ++ rebootExec
+              ++ tailscaleExec
+              ++ podmanExec
+              ++ unitExecs
+              ++ config.ray.uptarn.checks
+              ++ hostInfoExec
+              ++ (settings.settings.checks or [ ]);
+          }
+          // lib.optionalAttrs (config.ray.uptarn.monitors != [ ] || settings.settings ? monitors) {
+            monitors = allMonitors;
+          };
       in
       {
         imports = [ inputs.uptarn.nixosModules.agent ];
@@ -218,10 +225,16 @@ in
             description = "Systemd unit checks registered by other NixOS features.";
           };
 
-          execChecks = lib.mkOption {
+          checks = lib.mkOption {
             type = lib.types.listOf lib.types.attrs;
             default = [ ];
-            description = "Custom [[exec]] checks registered by other NixOS features.";
+            description = "Custom [[checks]] entries registered by other NixOS features.";
+          };
+
+          monitors = lib.mkOption {
+            type = lib.types.listOf lib.types.attrs;
+            default = [ ];
+            description = "Agent-managed [[monitors]] entries registered by other NixOS features.";
           };
         };
 

@@ -1596,11 +1596,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795542805,
-        "narHash": "sha256-p36OTl31WQTzmCvvWRHOzZ7Rmfjt5OP/9lXTR4KBrVg=",
+        "lastModified": 1795578245,
+        "narHash": "sha256-UCvTFxuqku2INd9wc0UOQHELhlfdRk96yx8NtSAowe0=",
         "owner": "so1ve",
         "repo": "uptarn",
-        "rev": "39fe01559c7a18e21ccea80cfdb9768e5984a95b",
+        "rev": "572c15209945806d1a9f4c35bc2a489528b179d3",
         "type": "github"
       },
       "original": {

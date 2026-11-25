@@ -147,11 +147,12 @@
         ];
       }
       // lib.optionalAttrs (featureEnabled "services/uptarn-agent") {
-        ray.uptarn.execChecks = [
+        ray.uptarn.monitors = [
           {
             key = "yanqi";
-            label = "Yanqi";
-            group = "services";
+            name = "Yanqi";
+            type = "exec";
+            target = "yanqi + napcat";
             command = [ yanqiCheck ];
           }
         ];
