@@ -36,6 +36,26 @@ let
         default = null;
         description = "Mount path used for node disk summary (null sums all reported mounts).";
       };
+
+      trafficResetDay = mkOption {
+        type = types.nullOr (types.ints.between 1 31);
+        default = null;
+        description = "Day of month (1-31 UTC) when monthly traffic counters reset (null leaves unchanged).";
+      };
+    };
+  };
+
+  siteLinkType = types.submodule {
+    options = {
+      label = mkOption {
+        type = types.str;
+        description = "Display label for the status page navigation link.";
+      };
+
+      url = mkOption {
+        type = types.str;
+        description = "Target URL for the status page navigation link.";
+      };
     };
   };
 
@@ -132,6 +152,9 @@ let
     }
     // lib.optionalAttrs (node.isPublic != null) {
       is_public = node.isPublic;
+    }
+    // lib.optionalAttrs (node.trafficResetDay != null) {
+      traffic_reset_day = node.trafficResetDay;
     };
 
   renderMonitor =
@@ -180,6 +203,14 @@ let
     }
     // lib.optionalAttrs (cfg.autoRegister != null) {
       auto_register = cfg.autoRegister;
+    }
+    // lib.optionalAttrs (cfg.siteTitle != null) {
+      site_title = cfg.siteTitle;
+    }
+    // lib.optionalAttrs (cfg.siteLinks != null) {
+      site_links = map (l: {
+        inherit (l) label url;
+      }) cfg.siteLinks;
     }
     // lib.optionalAttrs (cfg.nodes != null) {
       nodes = map renderNode cfg.nodes;
@@ -265,6 +296,18 @@ in
       type = types.nullOr types.bool;
       default = null;
       description = "Declarative auto-registration toggle (null leaves unchanged).";
+    };
+
+    siteTitle = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Optional custom public status page title (null leaves unchanged).";
+    };
+
+    siteLinks = mkOption {
+      type = types.nullOr (types.listOf siteLinkType);
+      default = null;
+      description = "Optional public status page header/footer links (null leaves unchanged).";
     };
 
     secretFile = mkOption {
