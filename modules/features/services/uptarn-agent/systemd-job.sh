@@ -41,13 +41,21 @@ if [ -n "$timer" ]; then
   )
 fi
 
-last_run_at=""
+has_exit=0
 if [[ "$svc_exit_ts" =~ ^[0-9]+$ && "$svc_exit_ts" -gt 0 ]]; then
+  has_exit=1
+fi
+
+has_timer_last=0
+if [[ "$timer_last" =~ ^[0-9]+$ && "$timer_last" -gt 0 ]]; then
+  has_timer_last=1
+fi
+
+last_run_at=""
+if [ "$has_exit" -eq 1 ]; then
   last_run_at=$svc_exit_ts
 elif [[ "$svc_start_ts" =~ ^[0-9]+$ && "$svc_start_ts" -gt 0 ]]; then
   last_run_at=$svc_start_ts
-elif [[ "$timer_last" =~ ^[0-9]+$ && "$timer_last" -gt 0 ]]; then
-  last_run_at=$timer_last
 fi
 
 next_run_at=""
@@ -71,12 +79,20 @@ elif [ "$svc_active" = "failed" ] || { [ -n "$svc_result" ] && [ "$svc_result" !
 elif [ -n "$timer" ] && [ "$timer_active" != "active" ]; then
   status="fail"
   summary="timer ${timer_active:-inactive}"
-elif [ -z "$last_run_at" ]; then
+elif [ "$has_exit" -eq 1 ] && [ "$svc_result" = "success" ] && [ "$svc_exit_status" = "0" ]; then
+  if [ "$has_timer_last" -eq 1 ] && [ "$timer_last" -gt "$svc_exit_ts" ]; then
+    status="pending"
+    summary="triggered, awaiting run"
+  else
+    status="ok"
+    summary="succeeded"
+  fi
+elif [ "$has_timer_last" -eq 1 ]; then
+  status="pending"
+  summary="no completed run since boot"
+else
   status="pending"
   summary="waiting for first run"
-else
-  status="ok"
-  summary="succeeded"
 fi
 
 jq -nc   --arg key "$key"   --arg label "$label"   --arg schedule "$schedule"   --arg status "$status"   --arg last_run_at "$last_run_at"   --arg next_run_at "$next_run_at"   --arg duration_ms "$duration_ms"   --arg summary "$summary"   --arg detail "$detail"   '{
