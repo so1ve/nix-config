@@ -1,4 +1,4 @@
-# DO-NOT-EDIT. This file was auto-generated using github:vic/flake-file.
+# DO-NOT-EDIT. This file was auto-generated using github:denful/flake-file.
 # Use `nix run .#write-flake` to regenerate it.
 {
   description = "Ray's NixOS Configuration";
@@ -39,18 +39,11 @@
   inputs = {
     agenix = {
       url = "github:ryantm/agenix";
-      inputs = {
-        darwin.follows = "";
-        home-manager.follows = "home-manager";
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     agent-skills = {
       url = "github:Kyure-A/agent-skills-nix";
-      inputs = {
-        home-manager.follows = "home-manager";
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     biternet = {
       url = "github:bitoolkit/biternet";
@@ -137,10 +130,7 @@
       url = "github:noctalia-dev/noctalia-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    quadlet-nix = {
-      url = "github:mirkolenz/quadlet-nix/v1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    quadlet-nix.url = "github:mirkolenz/quadlet-nix/v1";
     relvi = {
       url = "github:so1ve/relvi";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -163,15 +153,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     waydroid-script = {
-      url = "github:casualsnek/waydroid_script/d5289cfd8929e86e7f0dc89ecadcef8b66930eec";
+      url = "github:casualsnek/waydroid_script/4a50dabd97fcb632a608b1421105258862a5b994";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     we-layerd = {
-      url = "github:Aromatic05/we-layerd/v0.2.9";
+      url = "github:Aromatic05/we-layerd/v0.2.10";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     wowtype = {
-      url = "github:Gloridust/WowType/v0.3.10";
+      url = "github:Gloridust/WowType/v0.7.14";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     yanhekit = {

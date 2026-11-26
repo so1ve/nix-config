@@ -17,7 +17,7 @@
                 "const float TRAIL_SIZE = 0.95;"
                 "const float THRESHOLD_MIN_DISTANCE = 0.5;"
               ]
-              (builtins.readFile "${inputs.ghostty-cursor-shaders}/cursor_warp.glsl")
+              (builtins.readFile "${inputs.ghostty-cursor-shaders}/ghostty/cursor_warp.glsl")
           );
         in
         {

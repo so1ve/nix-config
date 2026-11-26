@@ -21,9 +21,7 @@
         };
 
         environment.systemPackages = [
-          # FIXME: Switch back to pkgs.xwayland-satellite after the upstream PR is merged:
-          # https://github.com/Supreeeme/xwayland-satellite/pull/477
-          pkgs.so1ve.xwayland-satellite
+          pkgs.xwayland-satellite
         ];
       };
 
