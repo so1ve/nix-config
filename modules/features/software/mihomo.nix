@@ -33,6 +33,9 @@
           requires = lib.mkForce [ ];
           wants = [ "network.target" ];
           after = lib.mkForce [ "network.target" ];
+          # Skip the startup IPv6 probe so TUN keeps IPv6 enabled even when
+          # Mihomo boots before DHCP/RA assigns a global IPv6 address.
+          environment.SKIP_SYSTEM_IPV6_CHECK = "1";
           restartTriggers = [ config.age.secrets.mihomo-config.file ];
           serviceConfig.BindReadOnlyPaths = [
             "${pkgs.dbip-country-lite.mmdb}:/var/lib/private/mihomo/Country.mmdb"
