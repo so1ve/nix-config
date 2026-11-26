@@ -110,6 +110,10 @@
       "rev": "abc95e13502ff3acbed151de97667174b2e4132d",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
+    "smart-splits-backend-herdr": {
+      "rev": "da1e50ae7bec7a7c2781aaf5a531eff350bdab20",
+      "src": "https://github.com/adriankarlen/smart-splits-backend-herdr"
+    },
     "smart-splits.nvim": {
       "rev": "e96b23e4ce660c95133f0080a6e488b96644ec0c",
       "src": "https://github.com/mrjones2014/smart-splits.nvim"

@@ -1307,7 +1307,7 @@
         "noctalia-greeter": "noctalia-greeter",
         "quadlet-nix": "quadlet-nix",
         "relvi": "relvi",
-        "smart-splits-nvim": "smart-splits-nvim",
+        "smart-splits-backend-herdr": "smart-splits-backend-herdr",
         "so1ve": "so1ve",
         "terranix": "terranix",
         "ugoku": "ugoku",
@@ -1339,19 +1339,19 @@
         "type": "github"
       }
     },
-    "smart-splits-nvim": {
+    "smart-splits-backend-herdr": {
       "flake": false,
       "locked": {
-        "lastModified": 1795191479,
-        "narHash": "sha256-5lQvMoA2RcQYEEsxuS6Fqs8WAFP4wr1kLol0d9zVtns=",
-        "owner": "mrjones2014",
-        "repo": "smart-splits.nvim",
-        "rev": "e96b23e4ce660c95133f0080a6e488b96644ec0c",
+        "lastModified": 1792408883,
+        "narHash": "sha256-dLWDAWvWvLT4pZepKj4f38pQGoQjo9UpQkCiAUeBkdU=",
+        "owner": "adriankarlen",
+        "repo": "smart-splits-backend-herdr",
+        "rev": "da1e50ae7bec7a7c2781aaf5a531eff350bdab20",
         "type": "github"
       },
       "original": {
-        "owner": "mrjones2014",
-        "repo": "smart-splits.nvim",
+        "owner": "adriankarlen",
+        "repo": "smart-splits-backend-herdr",
         "type": "github"
       }
     },
@@ -1362,11 +1362,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1795700747,
-        "narHash": "sha256-mmFYJXZxjqd91b6vnicx6PyXi3oD9jh2qshhomENRA8=",
+        "lastModified": 1795702589,
+        "narHash": "sha256-spY0JvmUGT5VQR6tsskpeE8Tr4tDJ8DSVbpzQs9h15E=",
         "owner": "so1ve",
         "repo": "nur-packages",
-        "rev": "a644a44498720db90f958aa292f65e4656cf47ad",
+        "rev": "231c9e8621daee3d4d5a3c4b5ca15f6162426fb5",
         "type": "github"
       },
       "original": {

@@ -34,23 +34,23 @@ move_tab_next = "ctrl+shift+l"
 [[keys.command]]
 key = "ctrl+h"
 type = "plugin_action"
-command = "smart-splits.nvim.left"
+command = "smart-splits-backend-herdr.left"
 description = "Navigate left"
 
 [[keys.command]]
 key = "ctrl+j"
 type = "plugin_action"
-command = "smart-splits.nvim.down"
+command = "smart-splits-backend-herdr.down"
 description = "Navigate down"
 
 [[keys.command]]
 key = "ctrl+k"
 type = "plugin_action"
-command = "smart-splits.nvim.up"
+command = "smart-splits-backend-herdr.up"
 description = "Navigate up"
 
 [[keys.command]]
 key = "ctrl+l"
 type = "plugin_action"
-command = "smart-splits.nvim.right"
+command = "smart-splits-backend-herdr.right"
 description = "Navigate right"

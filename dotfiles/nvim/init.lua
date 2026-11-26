@@ -197,6 +197,7 @@ vim.pack.add({
   gh("mrjones2014/codesettings.nvim"),
   gh("Julian/lean.nvim"),
   gh("saghen/filler-begone.nvim"),
+  gh("adriankarlen/smart-splits-backend-herdr"),
 }, { confirm = false, load = true })
 
 vim.pack.add({
@@ -237,6 +238,9 @@ vim.pack.add({
 
 local smart_splits = require("smart-splits")
 smart_splits.setup({
+  mux = {
+    backend = "smart-splits-backend-herdr",
+  },
   move = {
     at_edge = "stop",
   },

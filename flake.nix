@@ -134,8 +134,8 @@
       url = "github:so1ve/relvi";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    smart-splits-nvim = {
-      url = "github:mrjones2014/smart-splits.nvim";
+    smart-splits-backend-herdr = {
+      url = "github:adriankarlen/smart-splits-backend-herdr";
       flake = false;
     };
     so1ve.url = "github:so1ve/nur-packages";

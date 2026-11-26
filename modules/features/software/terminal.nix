@@ -148,7 +148,7 @@
               fi
 
               run ${herdr}/bin/herdr plugin link ${inputs.herdr-automatic-rename}
-              run ${herdr}/bin/herdr plugin link ${inputs.smart-splits-nvim}
+              run ${herdr}/bin/herdr plugin link ${inputs.smart-splits-backend-herdr}
 
               ${lib.optionalString (featureEnabled "software/codex") ''
                 run ${herdr}/bin/herdr integration install codex
