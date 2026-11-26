@@ -9,6 +9,7 @@
         "https://codex-desktop-linux.cachix.org"
         "https://nix-community.cachix.org"
         "https://noctalia.cachix.org"
+        "https://wvhulle.cachix.org"
       ];
       extra-trusted-public-keys = [
         "cache.so1ve.dev-1:SijyzF9iE/VZwMXgMpd/HrNX9iItDZ1tdiNdeGakQGY="
@@ -18,6 +19,7 @@
         "codex-desktop-linux.cachix.org-1:nX/xy6AdK9hQE24A8ALGjkCKj2ObFmcnemiL5Cid4nk="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+        "wvhulle.cachix.org-1:heXx8DZMiRsKUx6l1TxNoF+Nmtmz66QEdsonQzc1ir0="
       ];
     };
   };
