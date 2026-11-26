@@ -59,6 +59,38 @@ let
     };
   };
 
+  jobType = types.submodule {
+    options = {
+      key = mkOption {
+        type = types.str;
+        description = "Stable push job key used for declarative reconciliation.";
+      };
+
+      label = mkOption {
+        type = types.str;
+        description = "Display label for the push job.";
+      };
+
+      schedule = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Optional human-readable schedule label.";
+      };
+
+      intervalSecs = mkOption {
+        type = types.nullOr (types.ints.between 30 2592000);
+        default = null;
+        description = "Optional expected interval in seconds for server-side overdue alerts.";
+      };
+
+      graceSecs = mkOption {
+        type = types.ints.between 30 604800;
+        default = 3600;
+        description = "Overdue grace window in seconds.";
+      };
+    };
+  };
+
   monitorType = types.submodule {
     options = {
       id = mkOption {
@@ -217,6 +249,21 @@ let
     }
     // lib.optionalAttrs (cfg.monitors != null) {
       monitors = map renderMonitor cfg.monitors;
+    }
+    // lib.optionalAttrs (cfg.jobs != null) {
+      jobs = map (
+        j:
+        {
+          inherit (j) key label;
+          grace_secs = j.graceSecs;
+        }
+        // lib.optionalAttrs (j.schedule != null) {
+          inherit (j) schedule;
+        }
+        // lib.optionalAttrs (j.intervalSecs != null) {
+          interval_secs = j.intervalSecs;
+        }
+      ) cfg.jobs;
     };
 
   uptarnConfig = (pkgs.formats.json { }).generate "uptarn-config.json" syncSpec;
@@ -326,6 +373,12 @@ in
       type = types.nullOr (types.listOf monitorType);
       default = null;
       description = "Ordered list of hub-managed HTTP monitors.";
+    };
+
+    jobs = mkOption {
+      type = types.nullOr (types.listOf jobType);
+      default = null;
+      description = "Optional list of hub-managed push jobs.";
     };
   };
 

@@ -31,6 +31,37 @@ let
       };
     };
   };
+
+  timerJobType = lib.types.submodule {
+    options = {
+      key = lib.mkOption {
+        type = lib.types.str;
+        description = "Job key reported to Uptarn.";
+      };
+
+      label = lib.mkOption {
+        type = lib.types.str;
+        description = "Display label for the job.";
+      };
+
+      unit = lib.mkOption {
+        type = lib.types.str;
+        description = "Systemd service unit name (e.g. restic-backups-homelab.service).";
+      };
+
+      timer = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Optional triggering systemd timer unit name.";
+      };
+
+      schedule = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Optional human-readable schedule label shown in the Jobs view.";
+      };
+    };
+  };
 in
 {
   ray.features."services/uptarn-agent" = {
@@ -51,7 +82,7 @@ in
       extraPackages = lib.mkOption {
         type = lib.types.listOf lib.types.package;
         default = [ ];
-        description = "Extra packages added to PATH for custom [[checks]] and exec [[monitors]].";
+        description = "Extra packages added to PATH for custom [[collectors]] and exec [[monitors]].";
       };
 
       systemdCheck = lib.mkOption {
@@ -87,7 +118,13 @@ in
       unitChecks = lib.mkOption {
         type = lib.types.listOf unitCheckType;
         default = [ ];
-        description = "Systemd service or timer checks reported as [[checks]].";
+        description = "Systemd service or timer checks reported as [[collectors]].";
+      };
+
+      timerJobs = lib.mkOption {
+        type = lib.types.listOf timerJobType;
+        default = [ ];
+        description = "Systemd timer-driven services reported as Jobs via collector JSON.";
       };
 
       settings = lib.mkOption {
@@ -148,6 +185,11 @@ in
           pkgs.jq
         ];
         unitScript = mkScript "unit" "unit.sh" [ pkgs.systemd ];
+        systemdJobScript = mkScript "systemd-job" "systemd-job.sh" [
+          pkgs.coreutils
+          pkgs.jq
+          pkgs.systemd
+        ];
 
         systemdExec = lib.optional settings.systemdCheck {
           key = "systemd";
@@ -196,20 +238,35 @@ in
           ++ lib.optional (c.timer != null) c.timer;
         }) (config.ray.uptarn.unitChecks ++ settings.unitChecks);
 
+        timerJobExecs = map (j: {
+          key = "job.${j.key}";
+          inherit (j) label;
+          format = "json";
+          command = [
+            systemdJobScript
+            j.key
+            j.label
+            j.unit
+            (if j.timer != null then j.timer else "")
+          ]
+          ++ lib.optional (j.schedule != null) j.schedule;
+        }) (config.ray.uptarn.timerJobs ++ settings.timerJobs);
+
         allMonitors = config.ray.uptarn.monitors ++ (settings.settings.monitors or [ ]);
 
         mergedSettings =
-          settings.settings
+          (builtins.removeAttrs settings.settings [ "checks" ])
           // {
-            checks =
+            collectors =
               systemdExec
               ++ rebootExec
               ++ tailscaleExec
               ++ podmanExec
               ++ unitExecs
-              ++ config.ray.uptarn.checks
+              ++ timerJobExecs
+              ++ config.ray.uptarn.collectors
               ++ hostInfoExec
-              ++ (settings.settings.checks or [ ]);
+              ++ (settings.settings.collectors or [ ]);
           }
           // lib.optionalAttrs (config.ray.uptarn.monitors != [ ] || settings.settings ? monitors) {
             monitors = allMonitors;
@@ -225,10 +282,16 @@ in
             description = "Systemd unit checks registered by other NixOS features.";
           };
 
-          checks = lib.mkOption {
+          collectors = lib.mkOption {
             type = lib.types.listOf lib.types.attrs;
             default = [ ];
-            description = "Custom [[checks]] entries registered by other NixOS features.";
+            description = "Custom [[collectors]] entries registered by other NixOS features.";
+          };
+
+          timerJobs = lib.mkOption {
+            type = lib.types.listOf timerJobType;
+            default = [ ];
+            description = "Systemd timer-driven jobs registered by other NixOS features.";
           };
 
           monitors = lib.mkOption {
