@@ -421,6 +421,10 @@
                         args = [ "mcp" ];
                         toolCallTimeoutMs = 450000;
                         reconnect.enabled = false;
+                        env = {
+                          # REA's adb provider needs an explicit binary path.
+                          REA_ADB_PATH = "${pkgs.android-tools}/bin/adb";
+                        };
                       };
                     }
                   ];
